@@ -73,7 +73,10 @@ Lexer (tokenization) → Parser (AST construction) → Validator (semantic check
 **Syntax Examples**:
 ```
 Basic:          3d6, 1d20, 2d10
-Modifiers:      1d20+5, 2d6-2, 3d8+str
+Simple Math:    1d20+5, 2d6-2, 3d8+%str%
+Arithmetic:     (2d6+3)*2, 1d20*2+5, 3d6/2
+Functions:      floor(1d20/2), ceiling(3d6/2), round(1d20*1.5)
+Grouping:       (1d8+%str%)*(1+%crit_multiplier%)
 Advantage:      1d20 advantage, 4d6 keep 3 highest
 Reroll:         4d6 reroll <=2, 6d6 reroll 1
 Success:        5d6 >=4, 10d10 threshold 7
@@ -81,9 +84,18 @@ Critical:       1d20 crit 20, 1d20 glitch 1
 Fudge:          4dF
 Percentile:     d%, 1d100
 Comparison:     1d20+5 >= 15
+Placeholders:   1d20+%str%+%dex%, 2d6+%damage_bonus%
 ```
 
-**Reserved Keywords**: `d, dF, d%, advantage, disadvantage, keep, highest, lowest, reroll, threshold, crit, glitch`
+**Reserved Keywords**: `d, dF, d%, advantage, disadvantage, keep, highest, lowest, reroll, threshold, crit, glitch, floor, ceiling, round`
+
+**Placeholder Syntax**: `%name%` to avoid collisions with reserved keywords and operators
+
+**Arithmetic Operators**: `+, -, *, /` with standard precedence (* and / before + and -)
+
+**Grouping**: Parentheses `()` for explicit precedence control
+
+**Mathematical Functions**: `floor()`, `ceiling()`, `round()` for rounding operations
 
 ## Error Handling Philosophy
 
@@ -96,16 +108,17 @@ Comparison:     1d20+5 >= 15
 - Statistical calculations require fully valid expressions
 
 **Error Categories**:
-1. **Syntax Errors**: Invalid notation (e.g., "3d", "abc")
-2. **Validation Errors**: Structurally valid but semantically invalid (e.g., keep 5 from 3 dice)
+1. **Syntax Errors**: Invalid notation (e.g., "3d", "abc", unmatched parentheses)
+2. **Validation Errors**: Structurally valid but semantically invalid (e.g., keep 5 from 3 dice, division by zero)
 3. **Binding Errors**: Missing placeholder values at parse time
 4. **Constraint Errors**: Values outside valid ranges (e.g., 0d6, 3d-5)
+5. **Function Errors**: Invalid function calls (e.g., "floor()" with no argument, unknown function)
 
 **Error Message Format** (SC-003: <5 words):
 - ❌ BAD: "An error occurred while parsing the dice expression"
 - ✅ GOOD: "Invalid dice notation: '3d'"
 - ✅ GOOD: "Keep count exceeds rolls"
-- ✅ GOOD: "Missing variable: str"
+- ✅ GOOD: "Missing variable: %str%"
 
 ## PHPUnit Testing Strategy
 
@@ -250,7 +263,7 @@ readonly class DiceExpression {
 | Parser Technology | Custom Recursive Descent | Full control, lightweight, clear errors |
 | Statistics | Analytical Calculation | Deterministic, fast, testable |
 | RNG | random_int() | Better distribution, PHP 8.0+ standard |
-| Syntax | Whitespace-tolerant | Developer-friendly UX |
+| Syntax | Whitespace-tolerant, %var% placeholders, full arithmetic | Developer-friendly, no keyword collisions, powerful expressions |
 | Error Handling | Fail-fast at parse time | Early detection, statistical requirements |
 | Testing | 3-layer pyramid | 90% coverage, TDD-friendly |
 | PHP Features | PHP 8.0+ modern syntax | Type safety, readability |

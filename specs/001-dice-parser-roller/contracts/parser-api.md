@@ -37,8 +37,16 @@ $expr = $parser->parse("3d6");
 $expr = $parser->parse("1d20+5");
 // Returns: DiceExpression(1d20+5, min=6, max=25, expected=15.5)
 
+// With arithmetic expression
+$expr = $parser->parse("(2d6+3)*2");
+// Returns: DiceExpression((2d6+3)*2, min=10, max=30, expected=17.0)
+
+// With mathematical function
+$expr = $parser->parse("floor(1d20/2)");
+// Returns: DiceExpression(floor(1d20/2), min=0, max=10, expected=5.0)
+
 // With variables
-$expr = $parser->parse("1d20+str+dex", ["str" => 3, "dex" => 2]);
+$expr = $parser->parse("1d20+%str%+%dex%", ["str" => 3, "dex" => 2]);
 // Returns: DiceExpression(1d20+5, min=6, max=25, expected=15.5)
 
 // Advantage
@@ -62,8 +70,8 @@ $parser->parse("d6");
 // Throws: ParseException("Invalid dice notation")
 
 // Missing variable
-$parser->parse("1d20+str");
-// Throws: ValidationException("Missing variable: str")
+$parser->parse("1d20+%str%");
+// Throws: ValidationException("Missing variable: %str%")
 
 // Invalid keep count
 $parser->parse("3d6 keep 5 highest");
@@ -92,8 +100,35 @@ XdY          # Roll X dice with Y sides
 ```
 XdY+Z        # Add modifier
 XdY-Z        # Subtract modifier
+XdY*Z        # Multiply result
+XdY/Z        # Divide result
 3d6+5        # 3d6 plus 5
 1d20-2       # 1d20 minus 2
+2d6*3        # 2d6 multiplied by 3
+4d6/2        # 4d6 divided by 2
+```
+
+### Arithmetic Expressions
+```
+(XdY+Z)*N              # Grouping with parentheses
+XdY+Z*N                # Standard precedence (* before +)
+((XdY+A)*B)+C          # Nested parentheses
+
+(2d6+3)*2              # (2d6+3) then multiply by 2
+1d20+5*2               # 1d20 + (5*2) = 1d20+10
+((1d8+%str%)*2)+5      # Damage with strength multiplier
+```
+
+### Mathematical Functions
+```
+floor(expression)      # Round down to integer
+ceiling(expression)    # Round up to integer  
+round(expression)      # Round to nearest integer
+
+floor(1d20/2)          # Half of 1d20, rounded down
+ceiling(3d6/2)         # Half of 3d6, rounded up
+round(1d20*1.5)        # 1d20 times 1.5, rounded
+floor((2d6+%str%)/2)   # Complex expression with function
 ```
 
 ### Advantage / Disadvantage
@@ -140,12 +175,15 @@ d%           # Roll percentile
 
 ### Placeholders
 ```
-XdY+var                    # Variable substitution
-XdY+var1+var2             # Multiple variables
+XdY+%var%                  # Variable substitution using %name% syntax
+XdY+%var1%+%var2%          # Multiple variables
 
-1d20+str                   # Requires: ["str" => value]
-1d20+str+dex               # Requires: ["str" => X, "dex" => Y]
+1d20+%str%                 # Requires: ["str" => value]
+1d20+%str%+%dex%           # Requires: ["str" => X, "dex" => Y]
+1d20+%damage_bonus%        # Variable names can include underscores
 ```
+
+**Note**: The `%name%` syntax prevents collisions with reserved keywords like `advantage`, `disadvantage`, `keep`, etc.
 
 ### Success Rolls (Comparison)
 ```
@@ -190,13 +228,16 @@ reroll, threshold, crit, glitch
 
 ### Operator Precedence
 ```
-1. Dice notation (XdY)
-2. Reroll modifiers
-3. Keep/drop modifiers
-4. Arithmetic modifiers (+, -)
-5. Success counting (>=, >, etc.)
-6. Comparison operators (for success rolls)
-7. Critical thresholds
+1. Parentheses ()
+2. Function calls (floor, ceiling, round)
+3. Dice notation (XdY)
+4. Reroll modifiers
+5. Keep/drop modifiers
+6. Multiplication and division (*, /)
+7. Addition and subtraction (+, -)
+8. Success counting (>=, >, etc.)
+9. Comparison operators (for success rolls)
+10. Critical thresholds
 ```
 
 ---
@@ -221,6 +262,9 @@ reroll, threshold, crit, glitch
 5. **Success thresholds**: Must be valid for die type
 6. **Reroll thresholds**: Must be valid for die type
 7. **Variable values**: Must be integers
+8. **Parentheses**: Must be properly matched and nested
+9. **Division**: Divisor must not be zero (can be detected at parse time for literal values)
+10. **Function arguments**: Mathematical functions must have exactly one argument
 
 ### Error Messages
 

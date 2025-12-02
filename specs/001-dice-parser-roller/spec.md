@@ -9,12 +9,14 @@
 
 ### Session 2025-12-02
 
-- Q: When a placeholder variable is referenced in a roll expression but not provided at roll time (e.g., "1d20+str" rolled without binding "str"), what should happen? → A: Reject with clear error message listing missing variables
+- Q: When a placeholder variable is referenced in a roll expression but not provided at roll time (e.g., "1d20+%str%" rolled without binding "str"), what should happen? → A: Reject with clear error message listing missing variables
 - Q: How should reroll mechanics handle potentially infinite reroll scenarios (e.g., "4d6 reroll <= 6" on a d6 where every result would trigger another reroll)? → A: Reroll once only (single reroll attempt per die)
 - Q: What is the minimum PHP version the library must support? → A: PHP 8.0
 - Q: What should happen when advantage/disadvantage is requested with invalid parameters (e.g., "roll 3d6 keep 5 highest" where you're trying to keep more dice than you rolled)? → A: Reject at parse time with validation error
 - Q: When should critical success/failure thresholds be specified - at parse time (part of the expression syntax) or at roll time (as parameters to the roll function)? → A: Parse time (expression syntax)
 - Q: When should placeholder variables be bound - at parse time or roll time? → A: Parse time (required for statistical calculations to work)
+- Q: What syntax should be used for placeholder variables to avoid collisions with reserved keywords? → A: Use %name% prefix/suffix syntax (e.g., "1d20+%str%+%dex%")
+- Q: Should the parser support full arithmetic expressions beyond simple addition/subtraction? → A: Yes, support parentheses for grouping and mathematical functions: floor(), ceiling(), round()
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -39,16 +41,18 @@ As a game developer, I need to parse and roll basic dice expressions so that my 
 
 As a game developer, I need to support dice expressions with arithmetic modifiers so that players can apply bonuses and penalties to their rolls.
 
-**Why this priority**: Nearly all tabletop RPGs require adding or subtracting modifiers from dice rolls (e.g., ability bonuses, situational modifiers). This is essential for most game systems.
+**Why this priority**: Nearly all tabletop RPGs require adding or subtracting modifiers from dice rolls (e.g., ability bonuses, situational modifiers). This is essential for most game systems. Support for multiplication, division, parentheses, and mathematical functions enables complex calculations.
 
-**Independent Test**: Can be tested by parsing "1d20+5", "2d6-2", "3d8+12" and verifying results include both the dice roll and modifier applied correctly.
+**Independent Test**: Can be tested by parsing "1d20+5", "2d6-2", "3d8+12", "(2d6+3)*2", "floor(1d20/2)" and verifying results include correct arithmetic evaluation.
 
 **Acceptance Scenarios**:
 
 1. **Given** an expression "1d20+5", **When** parsed, **Then** the structure shows one d20 plus a modifier of +5
 2. **Given** a parsed "1d20+5", **When** rolled, **Then** the final result equals the d20 roll plus 5
 3. **Given** an expression "2d6-3", **When** rolled, **Then** the result equals the sum of 2d6 minus 3
-4. **Given** a rolled result with modifiers, **When** inspected, **Then** I can distinguish between the base dice total and the modifier contribution
+4. **Given** an expression "(2d6+3)*2", **When** rolled, **Then** the result equals (sum of 2d6 plus 3) multiplied by 2
+5. **Given** an expression "floor(1d20/2)", **When** rolled, **Then** the result is the floor of (1d20 divided by 2)
+6. **Given** a rolled result with complex arithmetic, **When** inspected, **Then** I can see the dice values and the final calculated result
 
 ---
 
@@ -122,15 +126,15 @@ As a game developer, I need support for fudge dice and percentile dice so that I
 
 ### User Story 7 - Placeholders and Variables (Priority: P7)
 
-As a game developer, I need placeholder support in expressions so that I can create reusable roll templates with character-specific values (e.g., "1d20+str+luck").
+As a game developer, I need placeholder support in expressions so that I can create reusable roll templates with character-specific values (e.g., "1d20+%str%+%luck%").
 
 **Why this priority**: Enables dynamic roll evaluation where modifiers come from character attributes. Critical for character sheet integration.
 
-**Independent Test**: Can be tested by parsing "1d20+str+proficiency", providing variable values, and rolling to get correct results.
+**Independent Test**: Can be tested by parsing "1d20+%str%+%proficiency%", providing variable values, and rolling to get correct results.
 
 **Acceptance Scenarios**:
 
-1. **Given** an expression "1d20+str+luck" with variable values provided (str=3, luck=2), **When** parsed, **Then** the structure resolves "str" and "luck" placeholders to their numeric values
+1. **Given** an expression "1d20+%str%+%luck%" with variable values provided (str=3, luck=2), **When** parsed, **Then** the structure resolves "%str%" and "%luck%" placeholders to their numeric values
 2. **Given** a parsed expression with resolved placeholders, **When** rolled, **Then** the roll evaluates correctly using the bound values
 3. **Given** an expression with unbound placeholders, **When** parsed without providing values, **Then** the parser MUST reject the expression with a clear error message listing the missing variable names
 4. **Given** a parsed expression with resolved placeholders, **When** inspected, **Then** I can see which placeholders were used and their bound values
@@ -195,19 +199,22 @@ As a game developer, I need statistical data for parsed expressions so that I ca
 - How does the system handle expressions with zero dice (e.g., "0d6")?
 - What happens when dice sides are zero or negative (e.g., "3d0", "2d-5")?
 - How are very large numbers handled (e.g., "1000d1000")?
-- When placeholder variables are referenced but not provided at parse time, the parser MUST reject the expression with an error message listing all missing variables (fail-fast approach)
+- When placeholder variables (using %name% syntax) are referenced but not provided at parse time, the parser MUST reject the expression with an error message listing all missing variables (fail-fast approach)
 - Reroll logic MUST reroll each die exactly once to prevent infinite reroll scenarios (e.g., "reroll <= 6" on a d6 will reroll once, then accept the result)
 - When advantage/disadvantage parameters are invalid (e.g., keep 5 when only rolling 3), the parser MUST reject the expression at parse time with a validation error describing the constraint violation
 - How are conflicting modifiers resolved (e.g., both advantage and disadvantage on same roll)?
 - What happens when critical thresholds are outside valid die ranges?
 - How does success counting work with fudge dice or percentile dice?
+- What happens with division by zero in arithmetic expressions (e.g., "1d20/0")?
+- How are parentheses validated for proper matching and nesting?
+- What happens when mathematical functions receive invalid arguments (e.g., "floor()" with no argument)?
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: Parser MUST accept basic dice notation strings (e.g., "3d6", "1d20", "2d10") and return a structured representation
-- **FR-002**: Parser MUST support arithmetic modifiers (addition and subtraction) on dice expressions (e.g., "1d20+5", "2d6-2")
+- **FR-002**: Parser MUST support arithmetic expressions including addition, subtraction, multiplication, division, parentheses for grouping, and mathematical functions floor(), ceiling(), round() (e.g., "1d20+5", "(2d6+3)*2", "floor(1d20/2)")
 - **FR-003**: Parser MUST support advantage mechanics (roll N times, keep M highest) for any dice type
 - **FR-003a**: Parser MUST validate that keep-count does not exceed roll-count for advantage mechanics and reject invalid expressions at parse time
 - **FR-004**: Parser MUST support disadvantage mechanics (roll N times, keep M lowest) for any dice type
@@ -217,7 +224,7 @@ As a game developer, I need statistical data for parsed expressions so that I ca
 - **FR-006**: Parser MUST support success counting mode where dice above a threshold are counted instead of summed
 - **FR-007**: Parser MUST support fudge dice notation (e.g., "4dF") that generate values of -1, 0, or +1
 - **FR-008**: Parser MUST support percentile dice notation (e.g., "1d100" or "d%") that generate values 1-100
-- **FR-009**: Parser MUST support placeholder variables in expressions (e.g., "1d20+str+proficiency") with values provided at parse time
+- **FR-009**: Parser MUST support placeholder variables using %name% syntax (e.g., "1d20+%str%+%proficiency%") with values provided at parse time to avoid collisions with reserved keywords
 - **FR-009a**: Parser MUST reject expressions with unbound placeholder variables by throwing an error that lists all missing variable names
 - **FR-010**: Parser MUST support comparison operators for success/failure evaluation (e.g., "1d20+3 >= 15")
 - **FR-011**: Parser MUST support configurable critical success thresholds as part of expression syntax (e.g., natural 20) captured at parse time

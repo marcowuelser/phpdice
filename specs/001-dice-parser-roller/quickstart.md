@@ -56,6 +56,26 @@ echo "Natural die: {$result->diceValues[0]}\n";
 // Example output:
 // Attack roll: 18
 // Natural die: 13
+
+// Complex arithmetic with parentheses
+$expression = $dice->parse("(2d6+3)*2");
+$result = $dice->roll($expression);
+
+echo "Damage: {$result->total}\n";
+echo "Dice: " . implode(", ", $result->diceValues) . "\n";
+
+// Example output:
+// Damage: 22  // (2d6=8 + 3) * 2
+// Dice: 5, 3
+
+// Mathematical function
+$expression = $dice->parse("floor(1d20/2)");
+$result = $dice->roll($expression);
+
+echo "Result: {$result->total}\n";
+
+// Example output:
+// Result: 7  // floor(15/2) = floor(7.5) = 7
 ```
 
 ### 3. Advantage / Disadvantage (2 minutes)
@@ -79,7 +99,7 @@ echo "Kept die index: " . $result->keptDice[0] . "\n";
 
 ```php
 // Character has Strength 3, Dexterity 2
-$expression = $dice->parse("1d20+str+dex", [
+$expression = $dice->parse("1d20+%str%+%dex%", [
     "str" => 3,
     "dex" => 2
 ]);
@@ -259,10 +279,10 @@ try {
 
 ```php
 try {
-    $expression = $dice->parse("1d20+str"); // Missing variable
+    $expression = $dice->parse("1d20+%str%"); // Missing variable
 } catch (\PHPDice\Exception\ValidationException $e) {
     echo "Validation error: {$e->getMessage()}\n";
-    // Output: Validation error: Missing variable: str
+    // Output: Validation error: Missing variable: %str%
 }
 ```
 
@@ -347,13 +367,14 @@ echo "Critical: " . ($result->isCriticalSuccess ? "Yes" : "No") . "\n";
 3. **Validate early**: Let parser catch errors before rolling
    ```php
    // This validates immediately at parse time
-   $expr = $dice->parse("1d20+str", ["str" => 3]);
+   $expr = $dice->parse("1d20+%str%", ["str" => 3]);
    ```
 
 ## Troubleshooting
 
 **Q: "Missing variable" error**
 - Ensure all placeholders have values in the `variables` array
+- Use `%name%` syntax for all placeholders (e.g., `1d20+%str%` not `1d20+str`)
 - Variable names are case-sensitive
 
 **Q: Expression parses but rolls incorrectly**

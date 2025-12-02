@@ -111,7 +111,8 @@ new DiceSpecification(count: 1, sides: 100, type: DiceType::PERCENTILE)
 
 | Field | Type | Required | Description | Validation |
 |-------|------|----------|-------------|------------|
-| `arithmeticModifier` | int | Yes | Flat bonus/penalty | Can be negative, default 0 |
+| `arithmeticExpression` | ?string | No | Full arithmetic expression tree (AST or string) | Must be valid arithmetic expression if provided |
+| `arithmeticModifier` | int | Yes | Flat bonus/penalty (for simple cases) | Can be negative, default 0 (deprecated in favor of arithmeticExpression) |
 | `advantageCount` | ?int | No | Number of extra dice for advantage | Must be > 0 if set |
 | `keepHighest` | ?int | No | Keep N highest dice | Must be > 0 and <= total dice |
 | `keepLowest` | ?int | No | Keep N lowest dice | Must be > 0 and <= total dice |
