@@ -120,8 +120,8 @@ new DiceSpecification(count: 1, sides: 100, type: DiceType::PERCENTILE)
 | `rerollOperator` | ?string | No | Reroll comparison operator | One of: `<=`, `<`, `>=`, `>`, `==` |
 | `successThreshold` | ?int | No | Count successes >= this value | Must be > 0 |
 | `successOperator` | ?string | No | Success comparison operator | One of: `>=`, `>` |
-| `criticalSuccess` | ?int | No | Flag critical on this value | Must be within die range |
-| `criticalFailure` | ?int | No | Flag glitch on this value | Must be within die range |
+| `criticalSuccess` | ?int | No | Flag critical success on this value | Must be within die range |
+| `criticalFailure` | ?int | No | Flag critical failure on this value | Must be within die range |
 | `resolvedVariables` | array | Yes | Placeholder values (name => value) | All values must be integers, default empty array |
 
 ### Relationships

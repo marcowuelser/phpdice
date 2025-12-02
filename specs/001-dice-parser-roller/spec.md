@@ -3,7 +3,7 @@
 **Feature Branch**: `001-dice-parser-roller`
 **Created**: 2025-12-02
 **Status**: Draft
-**Input**: User description: "The library provides: a dice expression parser and a dice roller. The parser shall support all possible game systems with supported roll expressions: Basic expression (e.g. 4d6), modifiers (e.g. 1d20+12), advantage (roll n times and keep m rolls, for dnd5 roll 1d20 2 times and keep highest), disadvantage (same but keep lowest), rerolls if equal or below a threshold, success counting (all dice above a threshold), fudge dices, percent dices, placeholders (1d20+str+luck), success rolls (1d20 >= 18), critical success thresholds (e.g. natural 20), critical glitch thresholds (e.g. natural 1). A parsed dice expression shall be returned in a well documented data structure that can be passed to the dice roller. The data structure shall also allow to get statistic data for the roll such as minimal value, maximal value, expected value. The dice roller shall evaluate the parsed roll expression and return the result of the roll in a well documented data structure. The result shall contain: all data from the roll request (see above), the result, all rolled dices (without any modifiers), flags for critical success or glitches. On success counting, the result number shall be the number of successes instead of the rolled sum."
+**Input**: User description: "The library provides: a dice expression parser and a dice roller. The parser shall support all possible game systems with supported roll expressions: Basic expression (e.g. 4d6), modifiers (e.g. 1d20+12), advantage (roll n times and keep m rolls, for dnd5 roll 1d20 2 times and keep highest), disadvantage (same but keep lowest), rerolls if equal or below a threshold, success counting (all dice above a threshold), fudge dices, percent dices, placeholders (1d20+str+luck), success rolls (1d20 >= 18), critical success thresholds (e.g. natural 20), critical failure thresholds (e.g. natural 1). A parsed dice expression shall be returned in a well documented data structure that can be passed to the dice roller. The data structure shall also allow to get statistic data for the roll such as minimal value, maximal value, expected value. The dice roller shall evaluate the parsed roll expression and return the result of the roll in a well documented data structure. The result shall contain: all data from the roll request (see above), the result, all rolled dices (without any modifiers), flags for critical success or failures. On success counting, the result number shall be the number of successes instead of the rolled sum."
 
 ## Clarifications
 
@@ -227,7 +227,7 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 
 - **Critical success threshold out of range** (e.g., "1d20 critical success >= 25"): Parser MUST reject when threshold exceeds maximum die value
 - **Critical failure threshold out of range** (e.g., "1d20 critical failure <= 0"): Parser MUST reject when threshold is below minimum die value (typically 1)
-- **Critical glitch threshold out of range** (e.g., "1d6 glitch <= -1"): Parser MUST reject when glitch threshold is outside valid die range [1, sides]
+- **Critical failure threshold out of range** (e.g., "1d6 glitch <= -1"): Parser MUST reject when critical failure threshold is outside valid die range [1, sides]
 
 #### Placeholder Variable Validation
 
@@ -251,7 +251,7 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 ### Functional Requirements
 
 - **FR-001**: Parser MUST accept basic dice notation strings (e.g., "3d6", "1d20", "2d10") and return a structured representation
-- **FR-002**: Parser MUST support arithmetic expressions including addition, subtraction, multiplication, division, parentheses for grouping, and mathematical functions floor(), ceiling(), round() (e.g., "1d20+5", "(2d6+3)*2", "floor(1d20/2)")
+- **FR-002**: Parser MUST support arithmetic expressions including addition, subtraction, multiplication, division, parentheses for grouping, and mathematical functions floor(), ceiling(), round() (e.g., "1d20+5", "(2d6+3)*2", "floor(1d20/2)"). Round always rounds to nearest integer and accepts only one argument.
 - **FR-003**: Parser MUST support advantage mechanics (roll N times, keep M highest) for any dice type
 - **FR-003a**: Parser MUST validate that keep-count does not exceed roll-count for advantage mechanics and reject invalid expressions at parse time
 - **FR-004**: Parser MUST support disadvantage mechanics (roll N times, keep M lowest) for any dice type
@@ -265,7 +265,7 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 - **FR-009a**: Parser MUST reject expressions with unbound placeholder variables by throwing an error that lists all missing variable names
 - **FR-010**: Parser MUST support comparison operators for success/failure evaluation (e.g., "1d20+3 >= 15")
 - **FR-011**: Parser MUST support configurable critical success thresholds as part of expression syntax (e.g., natural 20) captured at parse time
-- **FR-012**: Parser MUST support configurable critical failure/glitch thresholds as part of expression syntax (e.g., natural 1) captured at parse time
+- **FR-012**: Parser MUST support configurable critical failure thresholds as part of expression syntax (e.g., natural 1) captured at parse time
 - **FR-013**: Parsed expression data structure MUST be well-documented and comprehensible to library users
 - **FR-014**: Parsed expression MUST provide statistical data including minimum possible value, maximum possible value, and expected value
 - **FR-015**: Roller MUST accept a parsed expression data structure and execute the roll
@@ -273,7 +273,7 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 - **FR-017**: Roller result MUST include the final numeric result (sum or success count as appropriate)
 - **FR-018**: Roller result MUST include all individual die values before any modifiers or selections were applied
 - **FR-019**: Roller result MUST include flags indicating critical success when applicable
-- **FR-020**: Roller result MUST include flags indicating critical failure/glitch when applicable
+- **FR-020**: Roller result MUST include flags indicating critical failure when applicable
 - **FR-021**: For success counting mode, the result MUST be the count of successes rather than a sum
 - **FR-022**: For advantage/disadvantage rolls, the result MUST show all dice rolled and which were kept/discarded
 - **FR-023**: For reroll mechanics, the result MUST show which dice were rerolled and their original values
@@ -289,7 +289,7 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 - **FR-033**: Parser MUST validate parentheses are properly matched and reject mismatched expressions with position information
 - **FR-034**: Parser MUST reject expressions that specify both advantage AND disadvantage modifiers simultaneously
 - **FR-035**: Parser MUST validate critical success thresholds are within valid die range [1, max_sides] and reject out-of-range values
-- **FR-036**: Parser MUST validate critical failure/glitch thresholds are within valid die range [1, max_sides] and reject out-of-range values
+- **FR-036**: Parser MUST validate critical failure thresholds are within valid die range [1, max_sides] and reject out-of-range values
 - **FR-037**: All parser error messages MUST identify the specific problem, indicate the location when feasible, and specify what was expected or what limit was exceeded
 
 ### Key Entities *(include if feature involves data)*
@@ -297,7 +297,7 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 - **DiceExpression**: Represents a parsed dice roll expression containing: the dice specification (number and sides), modifiers, special mechanics (advantage, reroll, success counting), placeholders, comparison operators, critical thresholds
 - **DiceSpecification**: Describes the base dice being rolled: number of dice, number of sides per die, type (standard, fudge, percentile)
 - **RollModifiers**: Contains arithmetic modifiers, advantage/disadvantage settings, reroll conditions, success counting thresholds, resolved placeholder variable values
-- **RollResult**: Contains the complete outcome of a dice roll: original expression/request, final numeric result, array of individual die values, critical success flag, critical failure/glitch flag, success/failure flag (for comparison rolls), kept vs discarded dice (for advantage/disadvantage), rerolled dice history
+- **RollResult**: Contains the complete outcome of a dice roll: original expression/request, final numeric result, array of individual die values, critical success flag, critical failure flag, success/failure flag (for comparison rolls), kept vs discarded dice (for advantage/disadvantage), rerolled dice history
 - **StatisticalData**: Provides probability information for an expression: minimum possible value, maximum possible value, expected/average value, distribution data (optional)
 
 ## Success Criteria *(mandatory)*
