@@ -55,8 +55,8 @@ class Lexer
                 continue;
             }
 
-            // Comparison operators (>=, >, <=, <)
-            if ($char === '>' || $char === '<') {
+            // Comparison operators (>=, >, <=, <, ==)
+            if ($char === '>' || $char === '<' || $char === '=') {
                 $tokens[] = $this->readComparison();
                 continue;
             }
@@ -153,8 +153,8 @@ class Lexer
             return new Token(Token::TYPE_FUNCTION, $lower, $start);
         }
 
-        // Check for advantage/disadvantage/success keywords
-        $keywords = ['advantage', 'disadvantage', 'keep', 'highest', 'lowest', 'success', 'threshold'];
+        // Check for advantage/disadvantage/success/reroll/explode keywords
+        $keywords = ['advantage', 'disadvantage', 'keep', 'highest', 'lowest', 'success', 'threshold', 'reroll', 'explode'];
         if (in_array($lower, $keywords, true)) {
             return new Token(Token::TYPE_KEYWORD, $lower, $start);
         }
@@ -174,7 +174,7 @@ class Lexer
         $operator = $this->input[$this->position];
         $this->position++;
 
-        // Check for two-character operators (>=, <=)
+        // Check for two-character operators (>=, <=, ==)
         if ($this->position < $this->length && $this->input[$this->position] === '=') {
             $operator .= '=';
             $this->position++;

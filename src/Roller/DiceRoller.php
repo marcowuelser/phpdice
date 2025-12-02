@@ -41,8 +41,74 @@ class DiceRoller
         }
 
         // Roll each die
+        $rerollHistory = null;
+        $explosionHistory = null;
+        
         for ($i = 0; $i < $totalDiceToRoll; $i++) {
-            $diceValues[] = $this->rng->generate(1, $spec->sides);
+            $initialRoll = $this->rng->generate(1, $spec->sides);
+            $diceValues[] = $initialRoll;
+            
+            // Handle rerolls if configured (rerolls happen first, then explosions)
+            if ($modifiers->rerollThreshold !== null && $modifiers->rerollOperator !== null) {
+                $rerollCount = 0;
+                $currentValue = $initialRoll;
+                $history = [$initialRoll];
+                
+                while ($this->shouldReroll($currentValue, $modifiers->rerollThreshold, $modifiers->rerollOperator) 
+                       && $rerollCount < $modifiers->rerollLimit) {
+                    $currentValue = $this->rng->generate(1, $spec->sides);
+                    $history[] = $currentValue;
+                    $rerollCount++;
+                }
+                
+                // Update the die value to the final result
+                $diceValues[$i] = $currentValue;
+                
+                // Track reroll history if any rerolls occurred
+                if ($rerollCount > 0) {
+                    if ($rerollHistory === null) {
+                        $rerollHistory = [];
+                    }
+                    $rerollHistory[$i] = [
+                        'rolls' => $history,
+                        'count' => $rerollCount,
+                        'limitReached' => $rerollCount >= $modifiers->rerollLimit
+                    ];
+                }
+            }
+            
+            // Handle explosions if configured (FR-039: reroll and add when threshold met)
+            if ($modifiers->explosionThreshold !== null && $modifiers->explosionOperator !== null) {
+                $explosionCount = 0;
+                $currentValue = $diceValues[$i];
+                $cumulativeTotal = $currentValue;
+                $explosions = [$currentValue];
+                
+                // Keep exploding while threshold is met and limit not reached
+                while ($this->shouldExplode($currentValue, $modifiers->explosionThreshold, $modifiers->explosionOperator) 
+                       && $explosionCount < $modifiers->explosionLimit) {
+                    $currentValue = $this->rng->generate(1, $spec->sides);
+                    $explosions[] = $currentValue;
+                    $cumulativeTotal += $currentValue;
+                    $explosionCount++;
+                }
+                
+                // Update the die value to cumulative total
+                $diceValues[$i] = $cumulativeTotal;
+                
+                // Track explosion history if any explosions occurred (FR-040)
+                if ($explosionCount > 0) {
+                    if ($explosionHistory === null) {
+                        $explosionHistory = [];
+                    }
+                    $explosionHistory[$i] = [
+                        'rolls' => $explosions,
+                        'count' => $explosionCount,
+                        'cumulativeTotal' => $cumulativeTotal,
+                        'limitReached' => $explosionCount >= $modifiers->explosionLimit
+                    ];
+                }
+            }
         }
 
         // Handle keep highest/lowest
@@ -80,8 +146,47 @@ class DiceRoller
             diceValues: $diceValues,
             keptDice: $keptIndices,
             discardedDice: $discardedIndices,
-            successCount: $successCount
+            successCount: $successCount,
+            rerollHistory: $rerollHistory,
+            explosionHistory: $explosionHistory
         );
+    }
+
+    /**
+     * Check if a die value should be rerolled
+     *
+     * @param int $value Die value
+     * @param int $threshold Reroll threshold
+     * @param string $operator Comparison operator
+     * @return bool True if should reroll
+     */
+    private function shouldReroll(int $value, int $threshold, string $operator): bool
+    {
+        return match ($operator) {
+            '<=' => $value <= $threshold,
+            '<' => $value < $threshold,
+            '>=' => $value >= $threshold,
+            '>' => $value > $threshold,
+            '==' => $value === $threshold,
+            default => false,
+        };
+    }
+
+    /**
+     * Check if a die value should explode
+     *
+     * @param int $value Die value
+     * @param int $threshold Explosion threshold
+     * @param string $operator Comparison operator (>= or <=)
+     * @return bool True if should explode
+     */
+    private function shouldExplode(int $value, int $threshold, string $operator): bool
+    {
+        return match ($operator) {
+            '>=' => $value >= $threshold,
+            '<=' => $value <= $threshold,
+            default => false,
+        };
     }
 
     /**

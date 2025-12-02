@@ -30,6 +30,16 @@ class StatisticalCalculator
             return $this->calculateSuccessCount($spec, $modifiers);
         }
 
+        // Handle explosion mechanics (must check before rerolls)
+        if ($modifiers->explosionThreshold !== null && $modifiers->explosionOperator !== null) {
+            return $this->calculateWithExplosions($spec, $modifiers, $ast);
+        }
+
+        // Handle reroll mechanics
+        if ($modifiers->rerollThreshold !== null && $modifiers->rerollOperator !== null) {
+            return $this->calculateWithRerolls($spec, $modifiers, $ast);
+        }
+
         // Calculate base statistics
         $baseStats = $ast !== null 
             ? $this->calculateFromAst($ast, $spec, $modifiers)
@@ -127,6 +137,161 @@ class StatisticalCalculator
         $expected = $spec->count * $expectedPerDie;
 
         return new StatisticalData($minimum, $maximum, round($expected, 3));
+    }
+
+    /**
+     * Calculate statistics with reroll mechanics
+     *
+     * @param DiceSpecification $spec Dice specification
+     * @param RollModifiers $modifiers Roll modifiers with reroll settings
+     * @param Node|null $ast Optional AST for arithmetic
+     * @return StatisticalData Statistics adjusted for rerolls
+     */
+    private function calculateWithRerolls(DiceSpecification $spec, RollModifiers $modifiers, ?Node $ast): StatisticalData
+    {
+        $sides = $spec->sides;
+        $threshold = $modifiers->rerollThreshold;
+        $operator = $modifiers->rerollOperator;
+        
+        // Determine which values trigger reroll
+        $rerollValues = [];
+        for ($value = 1; $value <= $sides; $value++) {
+            if ($this->shouldReroll($value, $threshold, $operator)) {
+                $rerollValues[] = $value;
+            }
+        }
+        
+        // Calculate minimum die value (smallest non-reroll value)
+        $minDieValue = $sides + 1; // Start with impossible value
+        for ($value = 1; $value <= $sides; $value++) {
+            if (!in_array($value, $rerollValues, true)) {
+                $minDieValue = min($minDieValue, $value);
+            }
+        }
+        
+        // Calculate maximum die value (largest non-reroll value)
+        $maxDieValue = 0;
+        for ($value = 1; $value <= $sides; $value++) {
+            if (!in_array($value, $rerollValues, true)) {
+                $maxDieValue = max($maxDieValue, $value);
+            }
+        }
+        
+        // Expected value per die with rerolls (simplified approximation)
+        // In reality this is complex, but we approximate based on non-reroll values
+        $nonRerollCount = $sides - count($rerollValues);
+        $nonRerollSum = 0;
+        for ($value = 1; $value <= $sides; $value++) {
+            if (!in_array($value, $rerollValues, true)) {
+                $nonRerollSum += $value;
+            }
+        }
+        $expectedPerDie = $nonRerollCount > 0 ? $nonRerollSum / $nonRerollCount : 0;
+        
+        $minimum = $spec->count * $minDieValue;
+        $maximum = $spec->count * $maxDieValue;
+        $expected = $spec->count * $expectedPerDie;
+        
+        // Apply arithmetic if AST exists
+        if ($ast !== null) {
+            $rerollStats = new StatisticalData($minimum, $maximum, round($expected, 3));
+            return $this->applyAstOperations($ast, $rerollStats);
+        }
+        
+        return new StatisticalData($minimum, $maximum, round($expected, 3));
+    }
+
+    /**
+     * Check if a value should trigger reroll
+     *
+     * @param int $value Die value
+     * @param int $threshold Reroll threshold
+     * @param string $operator Comparison operator
+     * @return bool True if should reroll
+     */
+    private function shouldReroll(int $value, int $threshold, string $operator): bool
+    {
+        return match ($operator) {
+            '<=' => $value <= $threshold,
+            '<' => $value < $threshold,
+            '>=' => $value >= $threshold,
+            '>' => $value > $threshold,
+            '==' => $value === $threshold,
+            default => false,
+        };
+    }
+
+    /**
+     * Calculate statistics for dice with explosion mechanics
+     * Explosions add unpredictable values, so we use approximation
+     *
+     * @param DiceSpecification $spec Dice specification
+     * @param RollModifiers $modifiers Roll modifiers with explosion settings
+     * @param Node|null $ast Optional AST for arithmetic
+     * @return StatisticalData Statistics adjusted for explosions
+     */
+    private function calculateWithExplosions(DiceSpecification $spec, RollModifiers $modifiers, ?Node $ast): StatisticalData
+    {
+        $sides = $spec->sides;
+        $threshold = $modifiers->explosionThreshold;
+        $operator = $modifiers->explosionOperator;
+        
+        // Determine which values trigger explosion
+        $explosionValues = [];
+        for ($value = 1; $value <= $sides; $value++) {
+            if ($this->shouldExplode($value, $threshold, $operator)) {
+                $explosionValues[] = $value;
+            }
+        }
+        
+        // Probability of explosion
+        $explosionProb = count($explosionValues) / $sides;
+        
+        // Expected number of explosions per die (geometric series)
+        // E[explosions] = p / (1 - p) where p = probability of explosion
+        // But capped at explosion limit
+        $avgExplosionsPerDie = $explosionProb > 0 && $explosionProb < 1 
+            ? min($modifiers->explosionLimit, $explosionProb / (1 - $explosionProb))
+            : 0;
+        
+        // Expected value per die with explosions
+        // Base expected value + expected explosions * average roll value
+        $baseExpected = ($sides + 1) / 2;
+        $expectedPerDie = $baseExpected * (1 + $avgExplosionsPerDie);
+        
+        // Minimum: no explosions
+        $minimum = $spec->count * 1;
+        
+        // Maximum: all dice explode to limit, all rolls are maximum
+        $maxExplosionsPerDie = $modifiers->explosionLimit;
+        $maximum = $spec->count * $sides * (1 + $maxExplosionsPerDie);
+        
+        $expected = $spec->count * $expectedPerDie;
+        
+        // Apply arithmetic if AST exists
+        if ($ast !== null) {
+            $explosionStats = new StatisticalData($minimum, $maximum, round($expected, 3));
+            return $this->applyAstOperations($ast, $explosionStats);
+        }
+        
+        return new StatisticalData($minimum, $maximum, round($expected, 3));
+    }
+
+    /**
+     * Check if a value should trigger explosion
+     *
+     * @param int $value Die value
+     * @param int $threshold Explosion threshold
+     * @param string $operator Comparison operator
+     * @return bool True if should explode
+     */
+    private function shouldExplode(int $value, int $threshold, string $operator): bool
+    {
+        return match ($operator) {
+            '>=' => $value >= $threshold,
+            '<=' => $value <= $threshold,
+            default => false,
+        };
     }
 
     /**

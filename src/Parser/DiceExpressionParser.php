@@ -285,7 +285,48 @@ class DiceExpressionParser
             }
         }
 
+        // Check for reroll FIRST: "reroll [limit] operator threshold"
+        // Must parse before success counting to handle "reroll <= 2 >= 4" correctly
+        $rerollThreshold = null;
+        $rerollOperator = null;
+        $rerollLimit = 100; // Default limit
+        
+        if ($this->match(Token::TYPE_KEYWORD, ['reroll'])) {
+            // Check for optional limit number
+            if ($this->check(Token::TYPE_NUMBER)) {
+                $nextPos = $this->current + 1;
+                // Peek ahead to see if the next token after the number is a comparison operator
+                if ($nextPos < count($this->tokens) && $this->tokens[$nextPos]->type === Token::TYPE_COMPARISON) {
+                    // This number is the limit
+                    $rerollLimit = $this->consumeNumber();
+                }
+            }
+            
+            // Expect comparison operator
+            if (!$this->check(Token::TYPE_COMPARISON)) {
+                throw new ParseException('Expected comparison operator after "reroll"', $this->getCurrentPosition());
+            }
+            
+            $comparison = $this->advance();
+            $rerollOperator = (string)$comparison->value;
+            
+            // Validate operator (all comparison operators allowed for reroll)
+            if (!in_array($rerollOperator, ['<=', '<', '>=', '>', '=='], true)) {
+                throw new \PHPDice\Exception\ValidationException(
+                    "Invalid reroll operator '{$rerollOperator}'",
+                    'reroll'
+                );
+            }
+            
+            // Get threshold value
+            $rerollThreshold = $this->consumeNumber();
+            
+            // Validate reroll range doesn't cover entire die (FR-005b)
+            $this->validator->validateRerollRange($spec, $rerollThreshold, $rerollOperator);
+        }
+
         // Check for success counting: "success threshold N" or ">=N" or ">N"
+        // Parsed after reroll to allow "reroll <= 2 >= 4" syntax
         if ($this->match(Token::TYPE_KEYWORD, ['success'])) {
             // Expect "threshold N"
             if (!$this->match(Token::TYPE_KEYWORD, ['threshold'])) {
@@ -314,12 +355,74 @@ class DiceExpressionParser
             $successThreshold = $this->consumeNumber();
         }
 
+        // Check for explode: "explode [limit] [operator threshold]"
+        // Parsed after keep but before reroll/success to allow "keep 3 highest explode >=5"
+        $explosionThreshold = null;
+        $explosionOperator = null;
+        $explosionLimit = 100; // Default limit
+        
+        if ($this->match(Token::TYPE_KEYWORD, ['explode'])) {
+            // Check for optional limit number
+            if ($this->check(Token::TYPE_NUMBER)) {
+                $nextPos = $this->current + 1;
+                // Peek ahead to see if the next token after the number is a comparison operator or EOF
+                $hasComparison = ($nextPos < count($this->tokens) && $this->tokens[$nextPos]->type === Token::TYPE_COMPARISON);
+                
+                if ($hasComparison) {
+                    // This number is the limit
+                    $explosionLimit = $this->consumeNumber();
+                } else {
+                    // This number might be the limit, check if we're at end or next is keyword
+                    $nextIsEnd = ($nextPos >= count($this->tokens) || $this->tokens[$nextPos]->type === Token::TYPE_EOF);
+                    $nextIsKeyword = (!$nextIsEnd && $this->tokens[$nextPos]->type === Token::TYPE_KEYWORD);
+                    
+                    if ($nextIsEnd || $nextIsKeyword) {
+                        // This number is the limit with no threshold
+                        $explosionLimit = $this->consumeNumber();
+                    }
+                }
+            }
+            
+            // Check for optional comparison operator and threshold
+            if ($this->check(Token::TYPE_COMPARISON)) {
+                $comparison = $this->advance();
+                $explosionOperator = (string)$comparison->value;
+                
+                // Validate operator (only >= and <= allowed for explosions per spec)
+                if (!in_array($explosionOperator, ['>=', '<='], true)) {
+                    throw new \PHPDice\Exception\ValidationException(
+                        "Invalid explosion operator '{$explosionOperator}'. Only >= and <= are supported for exploding dice.",
+                        'explode'
+                    );
+                }
+                
+                // Get threshold value
+                $explosionThreshold = $this->consumeNumber();
+                
+                // Validate explosion range doesn't cover entire die (FR-038c)
+                $this->validator->validateExplosionRange($spec, $explosionThreshold, $explosionOperator);
+            } else {
+                // No threshold specified - default to maximum die value
+                $explosionThreshold = $spec->sides;
+                $explosionOperator = '>=';
+                
+                // Validate this doesn't create infinite loop (single-sided die)
+                $this->validator->validateExplosionRange($spec, $explosionThreshold, $explosionOperator);
+            }
+        }
+
         return new RollModifiers(
             advantageCount: $advantageCount,
             keepHighest: $keepHighest,
             keepLowest: $keepLowest,
             successThreshold: $successThreshold,
-            successOperator: $successOperator
+            successOperator: $successOperator,
+            explosionThreshold: $explosionThreshold,
+            explosionOperator: $explosionOperator,
+            explosionLimit: $explosionLimit,
+            rerollThreshold: $rerollThreshold,
+            rerollOperator: $rerollOperator,
+            rerollLimit: $rerollLimit
         );
     }
 

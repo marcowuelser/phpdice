@@ -174,14 +174,14 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 5
 
-- [ ] T071 [P] [US5] Extend Lexer to recognize keyword: reroll and limit numbers in src/Parser/Lexer.php
-- [ ] T072 [US5] Add reroll syntax parsing with optional limit and threshold operators (FR-005) in src/Parser/DiceExpressionParser.php
-- [ ] T073 [US5] Add reroll threshold range validation - cannot cover entire die range (FR-005b) in src/Parser/Validator.php
+- [X] T071 [P] [US5] Extend Lexer to recognize keyword: reroll and limit numbers in src/Parser/Lexer.php
+- [X] T072 [US5] Add reroll syntax parsing with optional limit and threshold operators (FR-005) in src/Parser/DiceExpressionParser.php
+- [X] T073 [US5] Add reroll threshold range validation - cannot cover entire die range (FR-005b) in src/Parser/Validator.php
 - [ ] T074 [US5] Add reroll limit validation - must be non-negative, warn if >100 in src/Parser/Validator.php
-- [ ] T075 [US5] Update StatisticalCalculator to adjust statistics for reroll mechanics in src/Model/StatisticalCalculator.php
-- [ ] T076 [US5] Implement reroll logic with configurable limits (FR-005a): default 100, explicit count in src/Roller/DiceRoller.php
-- [ ] T077 [US5] Update RollResult to track complete reroll history with limit tracking per die in src/Roller/DiceRoller.php
-- [ ] T078 [US5] Write integration test in tests/Integration/RerollTest.php covering all US5 acceptance scenarios
+- [X] T075 [US5] Update StatisticalCalculator to adjust statistics for reroll mechanics in src/Model/StatisticalCalculator.php
+- [X] T076 [US5] Implement reroll logic with configurable limits (FR-005a): default 100, explicit count in src/Roller/DiceRoller.php
+- [X] T077 [US5] Update RollResult to track complete reroll history with limit tracking per die in src/Roller/DiceRoller.php
+- [X] T078 [US5] Write integration test in tests/Integration/RerollTest.php covering all US5 acceptance scenarios
 - [ ] T079 [US5] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-005b reroll range validation
 - [ ] T080 [US5] Write unit tests in tests/Unit/Roller/DiceRollerTest.php verifying configurable reroll limits (FR-005a)
 
@@ -197,16 +197,16 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 5a
 
-- [ ] T081 [P] [US5a] Extend Lexer to recognize keyword: explode in src/Parser/Lexer.php
-- [ ] T082 [US5a] Add exploding dice syntax parsing with optional limit and threshold (FR-038, FR-038a, FR-038b) in src/Parser/DiceExpressionParser.php
-- [ ] T083 [US5a] Add explosion threshold range validation - cannot cover entire die range (FR-038c) in src/Parser/Validator.php
+- [X] T081 [P] [US5a] Extend Lexer to recognize keyword: explode in src/Parser/Lexer.php
+- [X] T082 [US5a] Add exploding dice syntax parsing with optional limit and threshold (FR-038, FR-038a, FR-038b) in src/Parser/DiceExpressionParser.php
+- [X] T083 [US5a] Add explosion threshold range validation - cannot cover entire die range (FR-038c) in src/Parser/Validator.php
 - [ ] T084 [US5a] Add explosion limit validation - must be non-negative, warn if >100 in src/Parser/Validator.php
 - [ ] T085 [US5a] Add explosion threshold operator validation - only >= and <= allowed in src/Parser/Validator.php
-- [ ] T086 [US5a] Update StatisticalCalculator to compute expected values with explosion mechanics in src/Model/StatisticalCalculator.php
-- [ ] T087 [US5a] Implement explosion logic: reroll and add when threshold met, up to limit (FR-039) in src/Roller/DiceRoller.php
-- [ ] T088 [US5a] Update RollResult to track explosion history with cumulative totals per die (FR-040) in src/Roller/DiceRoller.php
+- [X] T086 [US5a] Update StatisticalCalculator to compute expected values with explosion mechanics in src/Model/StatisticalCalculator.php
+- [X] T087 [US5a] Implement explosion logic: reroll and add when threshold met, up to limit (FR-039) in src/Roller/DiceRoller.php
+- [X] T088 [US5a] Update RollResult to track explosion history with cumulative totals per die (FR-040) in src/Roller/DiceRoller.php
 - [ ] T089 [US5a] Implement explosion in success counting mode - each explosion counts toward successes (FR-041) in src/Roller/DiceRoller.php
-- [ ] T090 [US5a] Write integration test in tests/Integration/ExplodingDiceTest.php covering all US5a acceptance scenarios
+- [X] T090 [US5a] Write integration test in tests/Integration/ExplodingDiceTest.php covering all US5a acceptance scenarios
 - [ ] T091 [US5a] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-038c explosion range validation
 - [ ] T092 [US5a] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for explosion mechanics and limits
 

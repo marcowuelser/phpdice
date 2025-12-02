@@ -112,4 +112,80 @@ class Validator
             );
         }
     }
+
+    /**
+     * Validate reroll range doesn't cover entire die (FR-005b)
+     *
+     * @param DiceSpecification $spec Dice specification
+     * @param int $threshold Reroll threshold
+     * @param string $operator Reroll operator
+     * @throws ValidationException If reroll would always trigger
+     */
+    public function validateRerollRange(DiceSpecification $spec, int $threshold, string $operator): void
+    {
+        $minValue = 1;
+        $maxValue = $spec->sides;
+
+        // Check if reroll condition covers all possible values
+        $coversAll = false;
+
+        switch ($operator) {
+            case '<=':
+                $coversAll = $threshold >= $maxValue;
+                break;
+            case '<':
+                $coversAll = $threshold > $maxValue;
+                break;
+            case '>=':
+                $coversAll = $threshold <= $minValue;
+                break;
+            case '>':
+                $coversAll = $threshold < $minValue;
+                break;
+            case '==':
+                // Equality never covers all values (at most one value)
+                $coversAll = false;
+                break;
+        }
+
+        if ($coversAll) {
+            throw new ValidationException(
+                "Reroll condition '{$operator} {$threshold}' would trigger on all possible die values (1-{$maxValue}), preventing termination",
+                'reroll'
+            );
+        }
+    }
+
+    /**
+     * Validate explosion range doesn't cover entire die (FR-038c)
+     *
+     * @param DiceSpecification $spec Dice specification
+     * @param int $threshold Explosion threshold
+     * @param string $operator Explosion operator
+     * @throws ValidationException If explosion would always trigger
+     */
+    public function validateExplosionRange(DiceSpecification $spec, int $threshold, string $operator): void
+    {
+        $minValue = 1;
+        $maxValue = $spec->sides;
+
+        // Check if explosion condition covers all possible values
+        $coversAll = false;
+
+        switch ($operator) {
+            case '>=':
+                $coversAll = $threshold <= $minValue;
+                break;
+            case '<=':
+                $coversAll = $threshold >= $maxValue;
+                break;
+        }
+
+        if ($coversAll) {
+            throw new ValidationException(
+                "Explosion condition '{$operator} {$threshold}' would trigger on all possible die values (1-{$maxValue}), preventing termination",
+                'explode'
+            );
+        }
+    }
 }
