@@ -104,19 +104,19 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 2
 
-- [ ] T040 [P] [US2] Extend Lexer in src/Parser/Lexer.php to recognize +, -, *, /, (, ), function names
-- [ ] T041 [US2] Create ArithmeticNode classes in src/Parser/AST/ for expression tree representation
-- [ ] T042 [US2] Implement arithmetic expression parser using recursive descent in src/Parser/DiceExpressionParser.php
-- [ ] T043 [US2] Add operator precedence handling (*, / before +, -) in parser
-- [ ] T044 [US2] Add parenthesis matching validation (FR-033) in src/Parser/Validator.php
-- [ ] T045 [US2] Add division by zero detection (FR-031) in src/Parser/Validator.php
-- [ ] T046 [US2] Implement mathematical functions: floor(), ceiling(), round() in src/Parser/Functions.php
-- [ ] T047 [US2] Add function argument validation (FR-032) - must have exactly 1 argument in src/Parser/Validator.php
-- [ ] T048 [US2] Update StatisticalCalculator to handle arithmetic expressions in src/Model/StatisticalCalculator.php
-- [ ] T049 [US2] Update DiceRoller to evaluate arithmetic expressions in src/Roller/DiceRoller.php
-- [ ] T050 [US2] Write integration test in tests/Integration/ModifiersTest.php covering all US2 acceptance scenarios
-- [ ] T051 [US2] Write unit tests in tests/Unit/Parser/ArithmeticParserTest.php for expression parsing
-- [ ] T052 [US2] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-031, FR-032, FR-033
+- [X] T040 [P] [US2] Extend Lexer in src/Parser/Lexer.php to recognize +, -, *, /, (, ), function names
+- [X] T041 [US2] Create ArithmeticNode classes in src/Parser/AST/ for expression tree representation
+- [X] T042 [US2] Implement arithmetic expression parser using recursive descent in src/Parser/DiceExpressionParser.php
+- [X] T043 [US2] Add operator precedence handling (*, / before +, -) in parser
+- [X] T044 [US2] Add parenthesis matching validation (FR-033) in src/Parser/Validator.php
+- [X] T045 [US2] Add division by zero detection (FR-031) in src/Parser/Validator.php
+- [X] T046 [US2] Implement mathematical functions: floor(), ceiling(), round() in src/Parser/Functions.php
+- [X] T047 [US2] Add function argument validation (FR-032) - must have exactly 1 argument in src/Parser/Validator.php
+- [X] T048 [US2] Update StatisticalCalculator to handle arithmetic expressions in src/Model/StatisticalCalculator.php
+- [X] T049 [US2] Update DiceRoller to evaluate arithmetic expressions in src/Roller/DiceRoller.php
+- [X] T050 [US2] Write integration test in tests/Integration/ModifiersTest.php covering all US2 acceptance scenarios
+- [X] T051 [US2] Write unit tests in tests/Unit/Parser/ArithmeticParserTest.php for expression parsing
+- [X] T052 [US2] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-031, FR-032, FR-033
 
 **Checkpoint**: At this point, basic rolling AND arithmetic modifiers should both work independently
 
