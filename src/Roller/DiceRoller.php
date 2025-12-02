@@ -56,8 +56,17 @@ class DiceRoller
             [$finalValues, $keptIndices, $discardedIndices] = $this->keepLowest($diceValues, $modifiers->keepLowest);
         }
 
+        // Handle success counting mode
+        $successCount = null;
+        if ($modifiers->successThreshold !== null && $modifiers->successOperator !== null) {
+            $successCount = $this->countSuccesses($finalValues, $modifiers->successThreshold, $modifiers->successOperator);
+        }
+
         // Calculate total
-        if ($ast !== null) {
+        if ($modifiers->successThreshold !== null) {
+            // In success counting mode, total = success count
+            $total = $successCount ?? 0;
+        } elseif ($ast !== null) {
             // Evaluate AST with dice results
             $this->setDiceResults($ast, array_sum($finalValues));
             $total = $ast->evaluate();
@@ -70,8 +79,30 @@ class DiceRoller
             total: $total,
             diceValues: $diceValues,
             keptDice: $keptIndices,
-            discardedDice: $discardedIndices
+            discardedDice: $discardedIndices,
+            successCount: $successCount
         );
+    }
+
+    /**
+     * Count successes based on threshold and operator
+     *
+     * @param array<int> $diceValues Dice values to check
+     * @param int $threshold Success threshold
+     * @param string $operator Comparison operator (>= or >)
+     * @return int Number of successful dice
+     */
+    private function countSuccesses(array $diceValues, int $threshold, string $operator): int
+    {
+        $count = 0;
+        foreach ($diceValues as $value) {
+            if ($operator === '>=' && $value >= $threshold) {
+                $count++;
+            } elseif ($operator === '>' && $value > $threshold) {
+                $count++;
+            }
+        }
+        return $count;
     }
 
     /**

@@ -25,6 +25,11 @@ class StatisticalCalculator
      */
     public function calculate(DiceSpecification $spec, RollModifiers $modifiers, ?Node $ast = null): StatisticalData
     {
+        // Handle success counting mode
+        if ($modifiers->successThreshold !== null && $modifiers->successOperator !== null) {
+            return $this->calculateSuccessCount($spec, $modifiers);
+        }
+
         // Calculate base statistics
         $baseStats = $ast !== null 
             ? $this->calculateFromAst($ast, $spec, $modifiers)
@@ -65,6 +70,44 @@ class StatisticalCalculator
         }
 
         return $baseStats;
+    }
+
+    /**
+     * Calculate success count statistics
+     *
+     * @param DiceSpecification $spec Dice specification
+     * @param RollModifiers $modifiers Roll modifiers with success threshold
+     * @return StatisticalData Success count statistics
+     */
+    private function calculateSuccessCount(DiceSpecification $spec, RollModifiers $modifiers): StatisticalData
+    {
+        $threshold = $modifiers->successThreshold;
+        $operator = $modifiers->successOperator;
+        $sides = $spec->sides;
+        $count = $spec->count;
+
+        // Calculate probability of success for a single die
+        $successValues = 0;
+        for ($value = 1; $value <= $sides; $value++) {
+            if ($operator === '>=' && $value >= $threshold) {
+                $successValues++;
+            } elseif ($operator === '>' && $value > $threshold) {
+                $successValues++;
+            }
+        }
+
+        $probabilityPerDie = $successValues / $sides;
+
+        // Minimum successes: 0 (all dice fail)
+        $minimum = 0;
+
+        // Maximum successes: all dice succeed
+        $maximum = $count;
+
+        // Expected successes: count * probability
+        $expected = $count * $probabilityPerDie;
+
+        return new StatisticalData($minimum, $maximum, round($expected, 3));
     }
 
     /**

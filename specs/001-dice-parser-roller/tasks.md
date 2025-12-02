@@ -153,14 +153,14 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 4
 
-- [ ] T063 [P] [US4] Extend Lexer to recognize keywords: success, threshold, comparison operators >=, >, <, <= in src/Parser/Lexer.php
-- [ ] T064 [US4] Add success counting syntax parsing in src/Parser/DiceExpressionParser.php
-- [ ] T065 [US4] Update StatisticalCalculator to compute expected success count in src/Model/StatisticalCalculator.php
-- [ ] T066 [US4] Update DiceRoller to count successes instead of summing when success threshold set in src/Roller/DiceRoller.php
-- [ ] T067 [US4] Update RollResult to set successCount field in success counting mode in src/Roller/DiceRoller.php
-- [ ] T068 [US4] Write integration test in tests/Integration/SuccessCountingTest.php covering all US4 acceptance scenarios
-- [ ] T069 [US4] Write unit tests in tests/Unit/Model/StatisticalCalculatorTest.php for success probability calculations
-- [ ] T070 [US4] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for success counting logic
+- [X] T063 [P] [US4] Extend Lexer to recognize keywords: success, threshold, comparison operators >=, >, <, <= in src/Parser/Lexer.php
+- [X] T064 [US4] Add success counting syntax parsing in src/Parser/DiceExpressionParser.php
+- [X] T065 [US4] Update StatisticalCalculator to compute expected success count in src/Model/StatisticalCalculator.php
+- [X] T066 [US4] Update DiceRoller to count successes instead of summing when success threshold set in src/Roller/DiceRoller.php
+- [X] T067 [US4] Update RollResult to set successCount field in success counting mode in src/Roller/DiceRoller.php
+- [X] T068 [US4] Write integration test in tests/Integration/SuccessCountingTest.php covering all US4 acceptance scenarios
+- [X] T069 [US4] Write unit tests in tests/Unit/Model/StatisticalCalculatorTest.php for success probability calculations
+- [X] T070 [US4] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for success counting logic
 
 **Checkpoint**: At this point, all previous stories PLUS success counting should work independently
 

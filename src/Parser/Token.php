@@ -20,6 +20,7 @@ class Token
     public const TYPE_COMMA = 'COMMA';
     public const TYPE_PERCENT = 'PERCENT';
     public const TYPE_PLACEHOLDER = 'PLACEHOLDER';
+    public const TYPE_COMPARISON = 'COMPARISON';
 
     /**
      * Create a new token

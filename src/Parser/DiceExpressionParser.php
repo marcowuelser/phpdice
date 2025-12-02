@@ -217,6 +217,8 @@ class DiceExpressionParser
         $advantageCount = null;
         $keepHighest = null;
         $keepLowest = null;
+        $successThreshold = null;
+        $successOperator = null;
 
         // Check for advantage keyword
         if ($this->match(Token::TYPE_KEYWORD, ['advantage'])) {
@@ -283,10 +285,41 @@ class DiceExpressionParser
             }
         }
 
+        // Check for success counting: "success threshold N" or ">=N" or ">N"
+        if ($this->match(Token::TYPE_KEYWORD, ['success'])) {
+            // Expect "threshold N"
+            if (!$this->match(Token::TYPE_KEYWORD, ['threshold'])) {
+                throw new ParseException('Expected "threshold" after "success"', $this->getCurrentPosition());
+            }
+            $successThreshold = $this->consumeNumber();
+            $successOperator = '>='; // Default to >= for "success threshold N" syntax
+        } elseif ($this->match(Token::TYPE_KEYWORD, ['threshold'])) {
+            // Just "threshold N" (shorthand for "success threshold N")
+            $successThreshold = $this->consumeNumber();
+            $successOperator = '>=';
+        } elseif ($this->check(Token::TYPE_COMPARISON)) {
+            // Direct comparison: ">=N" or ">N"
+            $comparison = $this->advance();
+            $operator = (string)$comparison->value;
+            
+            // Only allow >= and > for success counting
+            if (!in_array($operator, ['>=', '>'], true)) {
+                throw new \PHPDice\Exception\ValidationException(
+                    "Invalid success operator '{$operator}'. Only >= and > are supported for success counting.",
+                    'success'
+                );
+            }
+            
+            $successOperator = $operator;
+            $successThreshold = $this->consumeNumber();
+        }
+
         return new RollModifiers(
             advantageCount: $advantageCount,
             keepHighest: $keepHighest,
-            keepLowest: $keepLowest
+            keepLowest: $keepLowest,
+            successThreshold: $successThreshold,
+            successOperator: $successOperator
         );
     }
 
