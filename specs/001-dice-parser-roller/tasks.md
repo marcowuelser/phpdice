@@ -27,23 +27,23 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Devcontainer Setup (First Priority)
 
-- [ ] T001 Create .devcontainer/devcontainer.json for PHP 8.0+ development environment
-- [ ] T002 Configure devcontainer with Composer, Git, and development extensions (PHP Intelephense, PHPUnit, etc.)
-- [ ] T003 Add devcontainer features: PHP 8.0+, Composer, Xdebug for debugging and coverage
-- [ ] T004 Reopen workspace in devcontainer to ensure consistent development environment
+- [X] T001 Create .devcontainer/devcontainer.json for PHP 8.0+ development environment
+- [X] T002 Configure devcontainer with Composer, Git, and development extensions (PHP Intelephense, PHPUnit, etc.)
+- [X] T003 Add devcontainer features: PHP 8.0+, Composer, Xdebug for debugging and coverage
+- [X] T004 Reopen workspace in devcontainer to ensure consistent development environment
 
 ### Project Structure Setup
 
-- [ ] T005 Create directory structure: src/, tests/, docs/ per plan.md
-- [ ] T006 Create composer.json with package metadata, PSR-4 autoloading for PHPDice namespace, require PHP 8.0+
-- [ ] T007 [P] Create phpunit.xml with 90% coverage threshold and test suite configuration
-- [ ] T008 [P] Create .php-cs-fixer.php for PSR-12 enforcement with strict_types requirement
-- [ ] T009 [P] Create phpstan.neon for static analysis at strict level
-- [ ] T010 [P] Create README.md with installation instructions and basic usage example
-- [ ] T011 [P] Create LICENSE file (MIT recommended per plan.md)
-- [ ] T012 [P] Create CHANGELOG.md with initial version 0.1.0-dev
-- [ ] T013 [P] Create .gitignore for vendor/, .phpunit.cache/, coverage reports
-- [ ] T014 Run composer install to verify package configuration in devcontainer
+- [X] T005 Create directory structure: src/, tests/, docs/ per plan.md
+- [X] T006 Create composer.json with package metadata, PSR-4 autoloading for PHPDice namespace, require PHP 8.0+
+- [X] T007 [P] Create phpunit.xml with 90% coverage threshold and test suite configuration
+- [X] T008 [P] Create .php-cs-fixer.php for PSR-12 enforcement with strict_types requirement
+- [X] T009 [P] Create phpstan.neon for static analysis at strict level
+- [X] T010 [P] Create README.md with installation instructions and basic usage example
+- [X] T011 [P] Create LICENSE file (MIT recommended per plan.md)
+- [X] T012 [P] Create CHANGELOG.md with initial version 0.1.0-dev
+- [X] T013 [P] Create .gitignore for vendor/, .phpunit.cache/, coverage reports
+- [X] T014 Run composer install to verify package configuration in devcontainer
 
 ---
 
@@ -53,16 +53,16 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T015 [P] Create ParseException class in src/Exception/ParseException.php
-- [ ] T016 [P] Create ValidationException class in src/Exception/ValidationException.php
-- [ ] T017 [P] Create DiceType enum in src/Model/DiceType.php with STANDARD, FUDGE, PERCENTILE cases
-- [ ] T018 [P] Create DiceSpecification entity in src/Model/DiceSpecification.php with count, sides, type fields
-- [ ] T019 [P] Create RollModifiers entity in src/Model/RollModifiers.php with all modifier fields per data-model.md
-- [ ] T020 [P] Create StatisticalData entity in src/Model/StatisticalData.php with min, max, expected fields
-- [ ] T021 Create DiceExpression entity in src/Model/DiceExpression.php with specification, modifiers, statistics
-- [ ] T022 Create RollResult entity in src/Model/RollResult.php with expression, total, diceValues, flags per data-model.md
-- [ ] T023 [P] Create RandomNumberGenerator abstraction in src/Roller/RandomNumberGenerator.php using random_int()
-- [ ] T024 Create base test case classes in tests/Unit/BaseTestCase.php and tests/Integration/BaseTestCase.php
+- [X] T015 [P] Create ParseException class in src/Exception/ParseException.php
+- [X] T016 [P] Create ValidationException class in src/Exception/ValidationException.php
+- [X] T017 [P] Create DiceType enum in src/Model/DiceType.php with STANDARD, FUDGE, PERCENTILE cases
+- [X] T018 [P] Create DiceSpecification entity in src/Model/DiceSpecification.php with count, sides, type fields
+- [X] T019 [P] Create RollModifiers entity in src/Model/RollModifiers.php with all modifier fields per data-model.md
+- [X] T020 [P] Create StatisticalData entity in src/Model/StatisticalData.php with min, max, expected fields
+- [X] T021 Create DiceExpression entity in src/Model/DiceExpression.php with specification, modifiers, statistics
+- [X] T022 Create RollResult entity in src/Model/RollResult.php with expression, total, diceValues, flags per data-model.md
+- [X] T023 [P] Create RandomNumberGenerator abstraction in src/Roller/RandomNumberGenerator.php using random_int()
+- [X] T024 Create base test case classes in tests/Unit/BaseTestCase.php and tests/Integration/BaseTestCase.php
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,21 +76,21 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 1
 
-- [ ] T025 [P] [US1] Create Lexer class in src/Parser/Lexer.php to tokenize basic XdY notation
-- [ ] T026 [P] [US1] Create Token class in src/Parser/Token.php with type and value properties
-- [ ] T027 [US1] Implement basic parser in src/Parser/DiceExpressionParser.php for XdY pattern parsing
-- [ ] T028 [US1] Add validation for dice count >= 1 (FR-027) in src/Parser/Validator.php
-- [ ] T029 [US1] Add validation for sides >= 2 (FR-028 updated) in src/Parser/Validator.php
-- [ ] T030 [US1] Add validation for max 100 dice total (FR-029) in src/Parser/Validator.php
-- [ ] T031 [US1] Add validation for max 100 sides per die (FR-030) in src/Parser/Validator.php
-- [ ] T032 [US1] Add validation to reject invalid syntax like "d6", "3d", "abc", "3d1" single-sided die (FR-026) in src/Parser/Validator.php
-- [ ] T033 [US1] Implement StatisticalCalculator in src/Model/StatisticalCalculator.php for basic dice statistics
-- [ ] T034 [US1] Implement basic DiceRoller in src/Roller/DiceRoller.php to roll standard dice and return RollResult
-- [ ] T035 [US1] Create PHPDice facade in src/PHPDice.php with parse() and roll() methods
-- [ ] T036 [US1] Write integration test in tests/Integration/BasicRollingTest.php covering all US1 acceptance scenarios
-- [ ] T037 [US1] Write unit tests in tests/Unit/Parser/LexerTest.php for tokenization
-- [ ] T038 [US1] Write unit tests in tests/Unit/Parser/ValidatorTest.php for all FR-026 through FR-030 validations
-- [ ] T039 [US1] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for basic rolling logic
+- [X] T025 [P] [US1] Create Lexer class in src/Parser/Lexer.php to tokenize basic XdY notation
+- [X] T026 [P] [US1] Create Token class in src/Parser/Token.php with type and value properties
+- [X] T027 [US1] Implement basic parser in src/Parser/DiceExpressionParser.php for XdY pattern parsing
+- [X] T028 [US1] Add validation for dice count >= 1 (FR-027) in src/Parser/Validator.php
+- [X] T029 [US1] Add validation for sides >= 2 (FR-028 updated) in src/Parser/Validator.php
+- [X] T030 [US1] Add validation for max 100 dice total (FR-029) in src/Parser/Validator.php
+- [X] T031 [US1] Add validation for max 100 sides per die (FR-030) in src/Parser/Validator.php
+- [X] T032 [US1] Add validation to reject invalid syntax like "d6", "3d", "abc", "3d1" single-sided die (FR-026) in src/Parser/Validator.php
+- [X] T033 [US1] Implement StatisticalCalculator in src/Model/StatisticalCalculator.php for basic dice statistics
+- [X] T034 [US1] Implement basic DiceRoller in src/Roller/DiceRoller.php to roll standard dice and return RollResult
+- [X] T035 [US1] Create PHPDice facade in src/PHPDice.php with parse() and roll() methods
+- [X] T036 [US1] Write integration test in tests/Integration/BasicRollingTest.php covering all US1 acceptance scenarios
+- [X] T037 [US1] Write unit tests in tests/Unit/Parser/LexerTest.php for tokenization
+- [X] T038 [US1] Write unit tests in tests/Unit/Parser/ValidatorTest.php for all FR-026 through FR-030 validations
+- [X] T039 [US1] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for basic rolling logic
 
 **Checkpoint**: At this point, basic dice rolling (MVP) should be fully functional and testable independently
 
