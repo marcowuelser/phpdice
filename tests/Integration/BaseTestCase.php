@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PHPDice\Tests\Integration;
 
+use PHPDice\PHPDice;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,5 +12,11 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class BaseTestCase extends TestCase
 {
-    // Base functionality for integration tests can be added here as needed
+    protected PHPDice $phpdice;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->phpdice = new PHPDice();
+    }
 }

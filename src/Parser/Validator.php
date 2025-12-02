@@ -6,6 +6,7 @@ namespace PHPDice\Parser;
 
 use PHPDice\Exception\ValidationException;
 use PHPDice\Model\DiceSpecification;
+use PHPDice\Model\RollModifiers;
 
 /**
  * Validates dice expressions and their components
@@ -92,6 +93,23 @@ class Validator
 
         if ($count > 0) {
             throw new ValidationException('Unmatched opening parenthesis', 'parentheses');
+        }
+    }
+
+    /**
+     * Validate modifiers don't conflict (FR-034)
+     *
+     * @param RollModifiers $modifiers Modifiers to validate
+     * @throws ValidationException If modifiers conflict
+     */
+    public function validateModifiers(RollModifiers $modifiers): void
+    {
+        // FR-034: Cannot have both keepHighest and keepLowest
+        if ($modifiers->keepHighest !== null && $modifiers->keepLowest !== null) {
+            throw new ValidationException(
+                'Cannot have both keep highest and keep lowest',
+                'modifiers'
+            );
         }
     }
 }

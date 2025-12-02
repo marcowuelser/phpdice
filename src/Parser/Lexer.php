@@ -147,7 +147,13 @@ class Lexer
             return new Token(Token::TYPE_FUNCTION, $lower, $start);
         }
 
-        // Otherwise it's a keyword
+        // Check for advantage/disadvantage keywords
+        $keywords = ['advantage', 'disadvantage', 'keep', 'highest', 'lowest'];
+        if (in_array($lower, $keywords, true)) {
+            return new Token(Token::TYPE_KEYWORD, $lower, $start);
+        }
+
+        // Otherwise it's an unknown keyword
         return new Token(Token::TYPE_KEYWORD, $lower, $start);
     }
 }

@@ -46,8 +46,8 @@ class DiceExpressionParser
         $this->tokens = $lexer->tokenize();
         $this->current = 0;
 
-        // Parse expression as AST
-        $this->astRoot = $this->parseExpression();
+        // Parse initial dice notation to get base AST
+        $this->astRoot = $this->parseTerm(); // Start with term to get just the dice
 
         // Extract dice specification from AST
         $diceNode = $this->findDiceNode($this->astRoot);
@@ -67,8 +67,35 @@ class DiceExpressionParser
         // Validate specification
         $this->validator->validateDiceSpecification($spec);
 
-        // Create modifiers
-        $modifiers = new RollModifiers();
+        // Parse modifiers (advantage, disadvantage, keep) - these consume KEYWORD tokens
+        $modifiers = $this->parseModifiers($spec);
+        
+        // Validate modifiers for conflicts
+        $this->validator->validateModifiers($modifiers);
+
+        // Continue parsing the rest of the expression (arithmetic operators)
+        // At this point, current token might be +, -, *, /, or EOF
+        while ($this->match(Token::TYPE_OPERATOR, ['+', '-'])) {
+            $operator = $this->previous()->value;
+            $right = $this->parseTerm();
+            $this->astRoot = new BinaryOpNode($this->astRoot, (string)$operator, $right);
+        }
+
+        // Ensure all tokens are consumed
+        if (!$this->isAtEnd()) {
+            $remaining = $this->peek();
+            // Check if it's a duplicate modifier keyword
+            if ($remaining->type === Token::TYPE_KEYWORD) {
+                throw new \PHPDice\Exception\ValidationException(
+                    "Modifier conflict: cannot specify multiple or conflicting keep modifiers",
+                    'modifiers'
+                );
+            }
+            throw new ParseException(
+                "Unexpected token: {$remaining->type} '{$remaining->value}'",
+                $this->getCurrentPosition()
+            );
+        }
 
         // Calculate statistics from AST
         $statistics = $this->calculator->calculate($spec, $modifiers, $this->astRoot);
@@ -147,7 +174,7 @@ class DiceExpressionParser
             return $expr;
         }
 
-        // Dice notation (XdY)
+        // Dice notation (XdY) - DON'T consume modifiers here, they're parsed separately
         if ($this->check(Token::TYPE_NUMBER) && $this->checkNext(Token::TYPE_DICE)) {
             $count = $this->consumeNumber();
             $this->consume(Token::TYPE_DICE);
@@ -177,6 +204,90 @@ class DiceExpressionParser
         $this->consume(Token::TYPE_RPAREN, 'Expected closing parenthesis after function argument');
 
         return new FunctionNode($functionName, $argument);
+    }
+
+    /**
+     * Parse modifiers like advantage, disadvantage, keep
+     *
+     * @param DiceSpecification $spec Dice specification
+     * @return RollModifiers Roll modifiers
+     */
+    private function parseModifiers(DiceSpecification $spec): RollModifiers
+    {
+        $advantageCount = null;
+        $keepHighest = null;
+        $keepLowest = null;
+
+        // Check for advantage keyword
+        if ($this->match(Token::TYPE_KEYWORD, ['advantage'])) {
+            // Roll spec->count extra dice, keep spec->count highest
+            $advantageCount = $spec->count;
+            $keepHighest = $spec->count;
+        }
+
+        // Check for disadvantage keyword
+        if ($this->match(Token::TYPE_KEYWORD, ['disadvantage'])) {
+            if ($advantageCount !== null) {
+                throw new \PHPDice\Exception\ValidationException(
+                    'Cannot have both advantage and disadvantage',
+                    'modifiers'
+                );
+            }
+            // Roll spec->count extra dice, keep spec->count lowest
+            $advantageCount = $spec->count;
+            $keepLowest = $spec->count;
+        }
+
+        // Check for keep X highest/lowest
+        if ($this->match(Token::TYPE_KEYWORD, ['keep'])) {
+            $count = $this->consumeNumber();
+            
+            if ($this->match(Token::TYPE_KEYWORD, ['highest'])) {
+                if ($keepHighest !== null || $keepLowest !== null) {
+                    throw new \PHPDice\Exception\ValidationException(
+                        'Cannot specify keep multiple times',
+                        'modifiers'
+                    );
+                }
+                $keepHighest = $count;
+            } elseif ($this->match(Token::TYPE_KEYWORD, ['lowest'])) {
+                if ($keepHighest !== null || $keepLowest !== null) {
+                    throw new \PHPDice\Exception\ValidationException(
+                        'Cannot specify keep multiple times',
+                        'modifiers'
+                    );
+                }
+                $keepLowest = $count;
+            } else {
+                throw new ParseException('Expected "highest" or "lowest" after keep count', $this->getCurrentPosition());
+            }
+
+            // Calculate total dice to roll (base + advantage)
+            $totalDiceToRoll = $spec->count;
+            if ($advantageCount !== null) {
+                $totalDiceToRoll += $advantageCount;
+            }
+
+            // Validate keep count doesn't exceed total dice
+            if ($keepHighest !== null && $keepHighest > $totalDiceToRoll) {
+                throw new \PHPDice\Exception\ValidationException(
+                    "Cannot keep {$keepHighest} dice when only rolling {$totalDiceToRoll}",
+                    'keep'
+                );
+            }
+            if ($keepLowest !== null && $keepLowest > $totalDiceToRoll) {
+                throw new \PHPDice\Exception\ValidationException(
+                    "Cannot keep {$keepLowest} dice when only rolling {$totalDiceToRoll}",
+                    'keep'
+                );
+            }
+        }
+
+        return new RollModifiers(
+            advantageCount: $advantageCount,
+            keepHighest: $keepHighest,
+            keepLowest: $keepLowest
+        );
     }
 
     /**

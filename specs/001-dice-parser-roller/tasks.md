@@ -130,16 +130,16 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 3
 
-- [ ] T053 [P] [US3] Extend Lexer to recognize keywords: advantage, disadvantage, keep, highest, lowest in src/Parser/Lexer.php
-- [ ] T054 [US3] Add advantage/disadvantage parsing in src/Parser/DiceExpressionParser.php
-- [ ] T055 [US3] Add keep count validation - must not exceed roll count (FR-003a, FR-004a) in src/Parser/Validator.php
-- [ ] T056 [US3] Add conflicting modifier detection - cannot have both advantage AND disadvantage (FR-034) in src/Parser/Validator.php
-- [ ] T057 [US3] Update StatisticalCalculator to compute advantage/disadvantage probabilities in src/Model/StatisticalCalculator.php
-- [ ] T058 [US3] Update DiceRoller to implement keep-highest and keep-lowest logic in src/Roller/DiceRoller.php
-- [ ] T059 [US3] Update RollResult to track keptDice and discardedDice indices in src/Roller/DiceRoller.php
-- [ ] T060 [US3] Write integration test in tests/Integration/AdvantageTest.php covering all US3 acceptance scenarios
-- [ ] T061 [US3] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-003a, FR-004a, FR-034
-- [ ] T062 [US3] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for advantage/disadvantage logic
+- [X] T053 [P] [US3] Extend Lexer to recognize keywords: advantage, disadvantage, keep, highest, lowest in src/Parser/Lexer.php
+- [X] T054 [US3] Add advantage/disadvantage parsing in src/Parser/DiceExpressionParser.php
+- [X] T055 [US3] Add keep count validation - must not exceed roll count (FR-003a, FR-004a) in src/Parser/Validator.php
+- [X] T056 [US3] Add conflicting modifier detection - cannot have both advantage AND disadvantage (FR-034) in src/Parser/Validator.php
+- [X] T057 [US3] Update StatisticalCalculator to compute advantage/disadvantage probabilities in src/Model/StatisticalCalculator.php
+- [X] T058 [US3] Update DiceRoller to implement keep-highest and keep-lowest logic in src/Roller/DiceRoller.php
+- [X] T059 [US3] Update RollResult to track keptDice and discardedDice indices in src/Roller/DiceRoller.php
+- [X] T060 [US3] Write integration test in tests/Integration/AdvantageTest.php covering all US3 acceptance scenarios
+- [X] T061 [US3] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-003a, FR-004a, FR-034
+- [X] T062 [US3] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for advantage/disadvantage logic
 
 **Checkpoint**: At this point, basic rolling, arithmetic, AND advantage/disadvantage should all work independently
 
