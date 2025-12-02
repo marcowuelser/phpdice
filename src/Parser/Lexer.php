@@ -49,10 +49,9 @@ class Lexer
                 continue;
             }
 
-            // Dice notation (d or D)
-            if ($char === 'd' || $char === 'D') {
-                $tokens[] = new Token(Token::TYPE_DICE, 'd', $this->position);
-                $this->position++;
+            // Keywords and function names (letters)
+            if (ctype_alpha($char)) {
+                $tokens[] = $this->readKeywordOrFunction();
                 continue;
             }
 
@@ -72,6 +71,13 @@ class Lexer
 
             if ($char === ')') {
                 $tokens[] = new Token(Token::TYPE_RPAREN, ')', $this->position);
+                $this->position++;
+                continue;
+            }
+
+            // Comma (for function arguments)
+            if ($char === ',') {
+                $tokens[] = new Token(Token::TYPE_COMMA, ',', $this->position);
                 $this->position++;
                 continue;
             }
@@ -111,5 +117,37 @@ class Lexer
         }
 
         return new Token(Token::TYPE_NUMBER, (int)$number, $start);
+    }
+
+    /**
+     * Read a keyword or function name
+     *
+     * @return Token Keyword or function token
+     */
+    private function readKeywordOrFunction(): Token
+    {
+        $start = $this->position;
+        $text = '';
+
+        while ($this->position < $this->length && ctype_alpha($this->input[$this->position])) {
+            $text .= $this->input[$this->position];
+            $this->position++;
+        }
+
+        $lower = strtolower($text);
+
+        // Check if it's 'd' for dice notation
+        if ($lower === 'd') {
+            return new Token(Token::TYPE_DICE, 'd', $start);
+        }
+
+        // Check if it's a known function
+        $functions = ['floor', 'ceil', 'ceiling', 'round'];
+        if (in_array($lower, $functions, true)) {
+            return new Token(Token::TYPE_FUNCTION, $lower, $start);
+        }
+
+        // Otherwise it's a keyword
+        return new Token(Token::TYPE_KEYWORD, $lower, $start);
     }
 }

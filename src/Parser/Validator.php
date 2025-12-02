@@ -67,13 +67,31 @@ class Validator
         if (empty($trimmed)) {
             throw new ValidationException('Expression cannot be empty', 'expression');
         }
+    }
 
-        // Basic pattern validation for XdY
-        if (!preg_match('/^\d+d\d+$/', $trimmed)) {
-            throw new ValidationException(
-                "Invalid dice expression format. Expected format: XdY (e.g., 3d6)",
-                'expression'
-            );
+    /**
+     * Validate parenthesis matching (FR-033)
+     *
+     * @param string $expression Expression to validate
+     * @throws ValidationException If parentheses don't match
+     */
+    public function validateParentheses(string $expression): void
+    {
+        $count = 0;
+
+        for ($i = 0; $i < strlen($expression); $i++) {
+            if ($expression[$i] === '(') {
+                $count++;
+            } elseif ($expression[$i] === ')') {
+                $count--;
+                if ($count < 0) {
+                    throw new ValidationException('Unmatched closing parenthesis', 'parentheses');
+                }
+            }
+        }
+
+        if ($count > 0) {
+            throw new ValidationException('Unmatched opening parenthesis', 'parentheses');
         }
     }
 }

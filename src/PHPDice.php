@@ -45,6 +45,7 @@ class PHPDice
     public function roll(string $expression, array $variables = []): RollResult
     {
         $parsed = $this->parse($expression, $variables);
-        return $this->roller->roll($parsed);
+        $ast = $this->parser->getAstRoot();
+        return $this->roller->roll($parsed, $ast);
     }
 }

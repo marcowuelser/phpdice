@@ -157,35 +157,33 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-026: Invalid format - missing count
+     * Test FR-033: Parenthesis matching validation
      */
-    public function testInvalidFormatMissingCount(): void
+    public function testParenthesesMatching(): void
     {
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('Invalid dice expression format');
-
-        $this->validator->validateExpression('d6');
+        $this->validator->validateParentheses('(3d6+5)');
+        $this->assertTrue(true);
     }
 
     /**
-     * Test FR-026: Invalid format - missing sides
+     * Test FR-033: Unmatched opening parenthesis
      */
-    public function testInvalidFormatMissingSides(): void
+    public function testUnmatchedOpeningParenthesis(): void
     {
         $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('Invalid dice expression format');
+        $this->expectExceptionMessage('Unmatched opening parenthesis');
 
-        $this->validator->validateExpression('3d');
+        $this->validator->validateParentheses('(3d6');
     }
 
     /**
-     * Test FR-026: Invalid format - alphabetic
+     * Test FR-033: Unmatched closing parenthesis
      */
-    public function testInvalidFormatAlphabetic(): void
+    public function testUnmatchedClosingParenthesis(): void
     {
         $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('Invalid dice expression format');
+        $this->expectExceptionMessage('Unmatched closing parenthesis');
 
-        $this->validator->validateExpression('abc');
+        $this->validator->validateParentheses('3d6)');
     }
 }

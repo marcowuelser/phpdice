@@ -93,7 +93,7 @@ class BasicRollingTest extends BaseTestCase
      */
     public function testInvalidExpressionMissingCount(): void
     {
-        $this->expectException(\PHPDice\Exception\ValidationException::class);
+        $this->expectException(\PHPDice\Exception\ParseException::class);
         $this->dice->parse('d6');
     }
 
@@ -102,7 +102,7 @@ class BasicRollingTest extends BaseTestCase
      */
     public function testInvalidExpressionMissingSides(): void
     {
-        $this->expectException(\PHPDice\Exception\ValidationException::class);
+        $this->expectException(\PHPDice\Exception\ParseException::class);
         $this->dice->parse('3d');
     }
 
@@ -111,7 +111,7 @@ class BasicRollingTest extends BaseTestCase
      */
     public function testInvalidExpressionNonNumeric(): void
     {
-        $this->expectException(\PHPDice\Exception\ValidationException::class);
+        $this->expectException(\PHPDice\Exception\ParseException::class);
         $this->dice->parse('abc');
     }
 
