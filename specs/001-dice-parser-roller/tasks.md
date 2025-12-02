@@ -353,7 +353,7 @@ For user stories with explicit TDD workflow:
 
 ### Parallel Opportunities
 
-**Phase 1 (Setup)**: 
+**Phase 1 (Setup)**:
 - Devcontainer tasks (T001-T004) must run sequentially (T004 depends on T001-T003)
 - After devcontainer ready: T007, T008, T009, T010, T011, T012, T013 can all run in parallel
 
@@ -467,7 +467,7 @@ With 3 developers available:
 
 1. All 130 tasks completed and checked off
 2. Constitution check passed (all 8 principles verified)
-3. Success criteria SC-001 through SC-008 all met
+3. Success criteria SC-001 through SC-007 all met
 4. Quickstart.md validated (10 minute completion)
 5. Game system contract tests passing (D&D, Shadowrun, FATE, etc.)
 6. Performance benchmarks met (parse <100ms, roll <50ms)

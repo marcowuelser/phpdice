@@ -54,8 +54,7 @@
 - SC-004: Mathematical accuracy to 3 decimal places
 - SC-005: Working examples for all 10 user stories
 - SC-006: Integration within 10 minutes
-- SC-007: 80% intuitive interpretation rate
-- SC-008: 100% RPG system coverage
+- SC-007: 100% RPG system coverage
 
 ✅ **Technology-agnostic success criteria**: Success criteria describe outcomes from the developer's perspective without mentioning PHP, PHPUnit, Composer, or any implementation technology.
 
@@ -98,7 +97,7 @@ All edge cases include specific validation requirements (FR-026 through FR-037) 
 - P9: Critical success/failure (iconic mechanic)
 - P10: Statistical analysis (enhanced UX)
 
-✅ **Measurable outcomes align**: Success criteria SC-002 requires support for all 9 core mechanics, which maps directly to the user stories. SC-005 requires examples for all 10 stories. SC-008 requires coverage of major RPG systems, validated by the mechanics in US1-US9.
+✅ **Measurable outcomes align**: Success criteria SC-002 requires support for all 9 core mechanics, which maps directly to the user stories. SC-005 requires examples for all 10 stories. SC-007 requires coverage of major RPG systems, validated by the mechanics in US1-US9.
 
 ✅ **No implementation leakage**: The specification consistently describes behavior and outcomes without prescribing implementation approaches. Terms like "data structure," "parse," "roll," and "validate" describe contracts, not implementations.
 

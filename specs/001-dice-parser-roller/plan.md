@@ -11,14 +11,14 @@ Build a PHP library for parsing and rolling dice expressions that supports all m
 
 ## Technical Context
 
-**Language/Version**: PHP 8.0+  
-**Primary Dependencies**: Composer (package management), PHPUnit 10+ (testing), PHP-CS-Fixer or PHPCS (PSR-12 enforcement), PHPStan or Psalm (static analysis)  
-**Storage**: N/A (stateless library - no persistence)  
-**Testing**: PHPUnit with 90% minimum code coverage enforced via phpunit.xml  
+**Language/Version**: PHP 8.0+
+**Primary Dependencies**: Composer (package management), PHPUnit 10+ (testing), PHP-CS-Fixer or PHPCS (PSR-12 enforcement), PHPStan or Psalm (static analysis)
+**Storage**: N/A (stateless library - no persistence)
+**Testing**: PHPUnit with 90% minimum code coverage enforced via phpunit.xml
 **Target Platform**: Cross-platform PHP (Linux, Windows, macOS) compatible with major frameworks (Laravel, Symfony)
-**Project Type**: Single library project (Composer package)  
-**Performance Goals**: Parse <100ms (expressions up to 50 chars), Roll <50ms (up to 100 dice), Memory <1MB per operation  
-**Constraints**: Stateless operations, PHP built-in RNG only, no external services, PSR-12 strict compliance  
+**Project Type**: Single library project (Composer package)
+**Performance Goals**: Parse <100ms (expressions up to 50 chars), Roll <50ms (up to 100 dice), Memory <1MB per operation
+**Constraints**: Stateless operations, PHP built-in RNG only, no external services, PSR-12 strict compliance
 **Scale/Scope**: 10 user stories (P1-P10), 25+ functional requirements, 5 core entities, support 100% of popular RPG system mechanics
 
 ## Constitution Check
@@ -184,9 +184,27 @@ All technical unknowns resolved. No blocking decisions remain.
 
 ## Phase 2: Task Breakdown
 
-**Status**: ⏳ PENDING - Use `/speckit.tasks` command
+**Status**: ✅ COMPLETE
 
-**Next Command**: `/speckit.tasks` to generate `tasks.md` with implementation tasks organized by user story priority (P1-P10)
+**Deliverable**: [tasks.md](./tasks.md)
+
+### Task Organization
+
+Tasks are organized into 13 phases with 130 total tasks:
+
+1. **Phase 1: Setup** (T001-T014) - Devcontainer and project initialization
+2. **Phase 2: Foundational** (T015-T024) - Core infrastructure (blocks all user stories)
+3. **Phase 3-12: User Stories** (T025-T114) - Implementation of P1-P10 features
+4. **Phase 13: Polish** (T115-T130) - Cross-cutting concerns and release preparation
+
+All tasks include:
+- Specific file paths for implementation
+- [P] markers for parallel execution opportunities
+- [Story] labels mapping to user stories (US1-US10)
+- Complete coverage of all 37 functional requirements
+- All edge case validation tasks
+
+**Next Command**: Begin implementation with Phase 1 Setup tasks (T001-T014)
 
 ---
 
@@ -228,6 +246,11 @@ All technical unknowns resolved. No blocking decisions remain.
 
 ### Files to Create First
 
+**Development Environment** (First Priority):
+1. `.devcontainer/devcontainer.json` - PHP 8.0+ development container
+2. Configure devcontainer with Composer, Git, PHP extensions (Intelephense, PHPUnit, Xdebug)
+3. Reopen workspace in devcontainer for consistent environment
+
 **Configuration Files**:
 1. `composer.json` - Package definition
 2. `phpunit.xml` - Test configuration with coverage
@@ -267,7 +290,7 @@ All technical unknowns resolved. No blocking decisions remain.
 
 ## Success Metrics
 
-From specification success criteria (SC-001 through SC-008):
+From specification success criteria (SC-001 through SC-007):
 
 - ✅ Parse time <100ms for <50 char expressions
 - ✅ 90% code coverage achieved
@@ -275,7 +298,6 @@ From specification success criteria (SC-001 through SC-008):
 - ✅ Statistical accuracy to 3 decimals
 - ✅ Working examples for all 10 user stories
 - ✅ 10-minute integration time via quickstart
-- ✅ Intuitive data structures (80% comprehension)
 - ✅ 100% RPG system mechanics coverage
 
 **Measurement**: Each success criterion maps to specific tests in integration test suite
@@ -291,10 +313,12 @@ From specification success criteria (SC-001 through SC-008):
 5. **Document** as you go (README, examples)
 6. **Publish** to packagist.org when complete
 
-**Estimated Timeline**: 
-- Setup: 1 day
+**Estimated Timeline**:
+- Setup (with devcontainer): 1 day
 - P1-P3: 5 days (foundation + core mechanics)
 - P4-P6: 4 days (advanced mechanics)
 - P7-P10: 4 days (integration features)
 - Documentation polish: 2 days
-- **Total**: ~16 days for experienced PHP developer
+- **Total**: ~16-18 days for experienced PHP developer
+
+**With Devcontainer**: All development occurs in consistent PHP 8.0+ environment with pre-configured tools

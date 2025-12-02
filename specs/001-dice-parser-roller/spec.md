@@ -310,8 +310,7 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 - **SC-004**: Statistical calculations (min, max, expected value) are mathematically accurate to 3 decimal places for all supported expression types
 - **SC-005**: Documentation includes working code examples for all ten user stories that execute without modification
 - **SC-006**: Developers can integrate the library into their project and perform their first dice roll within 10 minutes of reading the quickstart guide
-- **SC-007**: The data structures for DiceExpression and RollResult are intuitive enough that 80% of developers can interpret them without consulting API documentation (measured through usability testing)
-- **SC-008**: Library supports 100% of dice rolling mechanics used in popular RPG systems (D&D 5e, Pathfinder, Shadowrun, World of Darkness, FATE)
+- **SC-007**: Library supports 100% of dice rolling mechanics used in popular RPG systems (D&D 5e, Pathfinder, Shadowrun, World of Darkness, FATE)
 
 ## Assumptions *(optional)*
 
