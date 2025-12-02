@@ -118,6 +118,10 @@ new DiceSpecification(count: 1, sides: 100, type: DiceType::PERCENTILE)
 | `keepLowest` | ?int | No | Keep N lowest dice | Must be > 0 and <= total dice |
 | `rerollThreshold` | ?int | No | Reroll if <= this value | Must be > 0 |
 | `rerollOperator` | ?string | No | Reroll comparison operator | One of: `<=`, `<`, `>=`, `>`, `==` |
+| `rerollLimit` | int | Yes | Max rerolls per die | Must be > 0, default 100 |
+| `explosionThreshold` | ?int | No | Explode if >= this value | Must be > 0, default max die value |
+| `explosionOperator` | ?string | No | Explosion comparison operator | One of: `>=`, `<=` |
+| `explosionLimit` | int | Yes | Max explosions per die | Must be > 0, default 100 |
 | `successThreshold` | ?int | No | Count successes >= this value | Must be > 0 |
 | `successOperator` | ?string | No | Success comparison operator | One of: `>=`, `>` |
 | `criticalSuccess` | ?int | No | Flag critical success on this value | Must be within die range |
@@ -137,6 +141,10 @@ new DiceSpecification(count: 1, sides: 100, type: DiceType::PERCENTILE)
 5. `criticalSuccess` must be achievable on the specified dice
 6. `criticalFailure` must be achievable on the specified dice
 7. All variable names in `resolvedVariables` must be valid identifiers (alphanumeric + underscore)
+8. If `explosionThreshold` set, `explosionOperator` MUST be set
+9. **Explosion range constraint**: `explosionThreshold` with `explosionOperator` cannot cover entire die range (prevents infinite loops)
+10. **Reroll range constraint**: `rerollThreshold` with `rerollOperator` cannot cover entire die range (prevents infinite loops)
+11. `explosionLimit` and `rerollLimit` MUST be positive integers
 
 ### State Transitions
 
@@ -213,6 +221,7 @@ expected ≈ 13.825 (calculated via probability distribution)
 | `keptDice` | ?array<int> | No | Indices of kept dice for advantage/disadvantage | Indices must be valid |
 | `discardedDice` | ?array<int> | No | Indices of discarded dice | Indices must be valid |
 | `rerolledDice` | ?array | No | Map of index => original value for rerolls | Keys must be valid indices |
+| `explosionHistory` | ?array | No | Map of index => [values] for explosion chains | Keys must be valid indices, cumulative totals |
 | `successCount` | ?int | No | Number of successful dice | Required if success counting mode |
 | `isCriticalSuccess` | bool | Yes | True if critical success triggered | Default false |
 | `isCriticalFailure` | bool | Yes | True if critical failure triggered | Default false |
@@ -231,6 +240,7 @@ expected ≈ 13.825 (calculated via probability distribution)
 4. `keptDice` and `discardedDice` indices MUST be disjoint and cover all dice
 5. Cannot have both `isCriticalSuccess` and `isCriticalFailure` true simultaneously
 6. For rerolled dice: original values MUST be preserved in `rerolledDice`
+7. For exploded dice: all values in explosion chain MUST be preserved in `explosionHistory`, cumulative total in `diceValues`
 
 ### State Transitions
 
@@ -246,6 +256,8 @@ No state transitions (immutable snapshot of roll execution)
 2. Advantage/disadvantage keep counts MUST NOT exceed total dice in `DiceSpecification`
 3. Critical thresholds MUST be achievable on the die type
 4. Statistical data MUST be calculable from specification and modifiers
+5. **Minimum die sides**: All dice MUST have at least 2 sides (prevents degenerate 1-sided dice)
+6. **Explosion/reroll range validation**: Threshold with operator cannot cover entire die range
 
 ### Roll-Time Validation (RollResult Creation)
 

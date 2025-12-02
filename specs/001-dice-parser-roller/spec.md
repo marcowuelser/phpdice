@@ -10,13 +10,19 @@
 ### Session 2025-12-02
 
 - Q: When a placeholder variable is referenced in a roll expression but not provided at roll time (e.g., "1d20+%str%" rolled without binding "str"), what should happen? → A: Reject with clear error message listing missing variables
-- Q: How should reroll mechanics handle potentially infinite reroll scenarios (e.g., "4d6 reroll <= 6" on a d6 where every result would trigger another reroll)? → A: Reroll once only (single reroll attempt per die)
+- Q: How should reroll mechanics handle potentially infinite reroll scenarios (e.g., "4d6 reroll <= 6" on a d6 where every result would trigger another reroll)? → A: Validate and define hard limit for maximal rerolls.
 - Q: What is the minimum PHP version the library must support? → A: PHP 8.0
 - Q: What should happen when advantage/disadvantage is requested with invalid parameters (e.g., "roll 3d6 keep 5 highest" where you're trying to keep more dice than you rolled)? → A: Reject at parse time with validation error
 - Q: When should critical success/failure thresholds be specified - at parse time (part of the expression syntax) or at roll time (as parameters to the roll function)? → A: Parse time (expression syntax)
 - Q: When should placeholder variables be bound - at parse time or roll time? → A: Parse time (required for statistical calculations to work)
 - Q: What syntax should be used for placeholder variables to avoid collisions with reserved keywords? → A: Use %name% prefix/suffix syntax (e.g., "1d20+%str%+%dex%")
 - Q: Should the parser support full arithmetic expressions beyond simple addition/subtraction? → A: Yes, support parentheses for grouping and mathematical functions: floor(), ceiling(), round()
+- Q: How should exploding dice work when a die rolls its maximum value? → A: Reroll and add to total/successes; dice can explode multiple times up to a hard limit of 100 explosions per die
+- Q: Should the explosion limit be configurable in the expression? → A: Yes, use syntax like "3d6 explode 3" to limit to 3 explosions per die; omitting the number defaults to 100
+- Q: Can explosion be triggered by a range of values instead of just the maximum? → A: Yes, use threshold syntax like "3d6 explode 3 >=5" to explode on values >= 5, limited to 3 explosions per die
+- Q: What validation is needed for explosion ranges? → A: Explosion threshold range cannot cover the entire die range (must have non-exploding outcomes possible)
+- Q: Should reroll mechanics support configurable limits like explosions? → A: Yes, use syntax like "3d6 reroll 1 <=2" to limit rerolls; default single reroll changes to hard limit of 100 when no count specified
+- Q: What is the minimum number of sides a die must have? → A: At least 2 sides (to prevent degenerate single-outcome dice)
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -92,18 +98,42 @@ As a game developer, I need success counting mechanics so that I can support dic
 
 ### User Story 5 - Reroll Mechanics (Priority: P5)
 
-As a game developer, I need reroll mechanics so that players can reroll dice that meet certain conditions (e.g., reroll all 1s and 2s).
+As a game developer, I need reroll mechanics with configurable limits so that players can reroll dice that meet certain conditions (e.g., reroll all 1s and 2s) with control over how many times rerolls can occur.
 
-**Why this priority**: Common in many game systems for handling critical failures or improving poor rolls. Adds strategic depth and game balance.
+**Why this priority**: Common in many game systems for handling critical failures or improving poor rolls. Adds strategic depth and game balance. Configurable limits prevent infinite loops and allow game-specific tuning.
 
-**Independent Test**: Can be tested by rolling "4d6 reroll <= 2" and verifying that any initial rolls of 1 or 2 are rerolled once.
+**Independent Test**: Can be tested by rolling "4d6 reroll <= 2" (default limit of 100), "4d6 reroll 1 <= 2" (single reroll), and verifying correct reroll behavior and limits.
 
 **Acceptance Scenarios**:
 
-1. **Given** an expression "4d6 reroll <= 2", **When** rolled, **Then** any die showing 1 or 2 is rerolled exactly once (no recursive rerolls)
-2. **Given** a reroll result, **When** inspected, **Then** I can see which dice were rerolled and their original values
-3. **Given** a reroll expression, **When** parsed, **Then** the structure includes the reroll threshold condition
-4. **Given** multiple reroll-eligible dice, **When** rolled, **Then** each is rerolled independently
+1. **Given** an expression "4d6 reroll <= 2" without explicit limit, **When** rolled, **Then** any die showing 1 or 2 can be rerolled up to 100 times per die
+2. **Given** an expression "4d6 reroll 1 <= 2" with explicit limit of 1, **When** rolled, **Then** any die showing 1 or 2 is rerolled exactly once (no further rerolls)
+3. **Given** an expression "3d6 reroll 5 <= 3", **When** rolled, **Then** each die showing 1, 2, or 3 can be rerolled up to 5 times
+4. **Given** a reroll result, **When** inspected, **Then** I can see which dice were rerolled, their original values, and the complete reroll history
+5. **Given** a reroll expression, **When** parsed, **Then** the structure includes the reroll threshold condition and the reroll limit
+6. **Given** multiple reroll-eligible dice, **When** rolled, **Then** each is rerolled independently according to its own reroll history
+7. **Given** an expression where the reroll threshold covers the entire die range (e.g., "1d6 reroll <= 6"), **When** parsed, **Then** the parser MUST reject with a validation error indicating reroll range cannot be the entire die range
+
+---
+
+### User Story 5a - Exploding Dice Mechanics (Priority: P5a)
+
+As a game developer, I need exploding dice mechanics with configurable limits and thresholds so that I can implement systems where exceptional rolls trigger additional dice rolls (e.g., Savage Worlds, some d20 variants).
+
+**Why this priority**: Exploding dice create exciting moments where exceptional rolls can compound into legendary results. Essential for game systems like Savage Worlds, and adds dramatic variance to any system. Positioned after basic rerolls as it builds on similar reroll infrastructure but with additive rather than replacement behavior.
+
+**Independent Test**: Can be tested by rolling "3d6 explode" (default 100 limit on max value), "3d6 explode 2" (limit 2 explosions), "3d6 explode 3 >=5" (explode on 5-6, max 3 times), and verifying explosions add to totals.
+
+**Acceptance Scenarios**:
+
+1. **Given** an expression "3d6 explode" without explicit limit or threshold, **When** a die rolls its maximum value (6), **Then** it explodes (rerolls and adds result) up to 100 times per die
+2. **Given** an expression "3d6 explode 2", **When** a die rolls maximum value, **Then** it can explode at most 2 times (original roll + 2 explosion rolls = 3 total rolls for that die)
+3. **Given** an expression "3d6 explode 3 >=5" with range threshold, **When** a die shows 5 or 6, **Then** it explodes and adds the new roll, up to 3 explosions per die
+4. **Given** an exploding die that triggers multiple explosions, **When** the result is inspected, **Then** I can see the complete explosion chain (all rolled values) and the cumulative total for that die
+5. **Given** an exploding dice expression, **When** parsed, **Then** the structure includes the explosion limit, threshold condition, and threshold operator
+6. **Given** an explosion threshold that covers the entire die range (e.g., "1d6 explode >=1"), **When** parsed, **Then** the parser MUST reject with validation error indicating explosion range cannot guarantee termination
+7. **Given** exploding dice in success counting mode (e.g., "5d6 explode success >=4"), **When** rolled, **Then** each explosion that meets the success threshold increments the success count
+8. **Given** a die that explodes 100 times (reaching the default limit), **When** inspected, **Then** the result shows all 100 explosion rolls and indicates the limit was reached
 
 ---
 
@@ -206,7 +236,8 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 
 - **Zero dice** (e.g., "0d6"): Parser MUST reject - number of dice must be at least 1
 - **Negative dice** (e.g., "-3d6"): Parser MUST reject - number of dice cannot be negative
-- **Zero sides** (e.g., "3d0"): Parser MUST reject - dice must have at least 1 side
+- **Single-sided die** (e.g., "3d1"): Parser MUST reject - dice must have at least 2 sides to provide meaningful randomness
+- **Zero sides** (e.g., "3d0"): Parser MUST reject - dice must have at least 2 sides
 - **Negative sides** (e.g., "2d-5"): Parser MUST reject - dice cannot have negative sides
 - **Excessive dice count in expression** (e.g., "101d6", "50d8+52d10"): Parser MUST reject when total dice across entire expression exceeds 100
 - **Excessive sides on single die** (e.g., "1d101", "2d150"): Parser MUST reject when any single die has more than 100 sides
@@ -223,6 +254,23 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 - **Conflicting advantage and disadvantage** (e.g., "1d20 advantage disadvantage"): Parser MUST reject - cannot apply both modifiers simultaneously
 - **Invalid advantage/disadvantage parameters** (e.g., "roll 3d6 keep 5 highest"): Parser MUST reject when keep-count exceeds roll-count (already covered in FR-003a, FR-004a)
 
+#### Reroll Mechanics Validation
+
+- **Reroll threshold covering entire die range** (e.g., "1d6 reroll <= 6", "1d20 reroll >= 1"): Parser MUST reject - reroll condition cannot guarantee all outcomes trigger reroll (must have at least one non-rerolling outcome)
+- **Reroll with single-sided die** (e.g., "3d1 reroll <= 1"): Parser MUST reject due to minimum 2-sided die requirement
+- **Negative reroll limit** (e.g., "3d6 reroll -1 <= 3"): Parser MUST reject - reroll limit must be non-negative
+- **Reroll limit of zero** (e.g., "3d6 reroll 0 <= 2"): Parser MUST accept - indicates no rerolls allowed (effectively disables reroll mechanic)
+- **Excessive reroll limit** (e.g., "3d6 reroll 101 <= 2"): Parser SHOULD warn or reject - reroll limit exceeds reasonable bounds (implementation may cap at 100)
+
+#### Exploding Dice Validation
+
+- **Explosion threshold covering entire die range** (e.g., "1d6 explode >= 1", "1d20 explode <= 20"): Parser MUST reject - explosion condition must allow non-exploding outcomes to guarantee termination
+- **Explosion with single-sided die** (e.g., "3d1 explode"): Parser MUST reject due to minimum 2-sided die requirement
+- **Negative explosion limit** (e.g., "3d6 explode -1"): Parser MUST reject - explosion limit must be non-negative
+- **Explosion limit of zero** (e.g., "3d6 explode 0"): Parser MUST accept - indicates no explosions allowed (effectively disables explosion mechanic)
+- **Excessive explosion limit** (e.g., "3d6 explode 101"): Parser SHOULD warn or reject - explosion limit exceeds reasonable bounds (implementation may cap at 100)
+- **Explosion with incompatible threshold operator** (e.g., "3d6 explode == 6"): Parser MUST reject or normalize - only >= and <= operators are meaningful for ranges; == should either be rejected or treated as ">= value"
+
 #### Critical Threshold Validation
 
 - **Critical success threshold out of range** (e.g., "1d20 critical success >= 25"): Parser MUST reject when threshold exceeds maximum die value
@@ -235,9 +283,12 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 
 #### Edge Case Interactions
 
-- **Reroll infinite loop prevention** (e.g., "4d6 reroll <= 6" on a d6): Roller MUST reroll each die exactly once then accept result (already covered in FR-005a)
+- **Reroll with configurable limit** (e.g., "4d6 reroll 5 <= 2"): Roller MUST reroll each die showing <= 2 up to 5 times, then accept the final result even if still <= 2
+- **Explosion reaching limit** (e.g., "3d6 explode 10 >= 5"): Roller MUST stop exploding after 10 explosions per die and sum all rolled values including the non-exploding final roll
+- **Combined reroll and explode** (e.g., "3d6 reroll 1 <= 2 explode 3 >= 5"): Parser MUST accept; roller applies rerolls first, then explosion mechanics to final rerolled values
 - **Success counting with fudge dice** (e.g., "4dF success >= 0"): Parser MUST accept and roller evaluates fudge dice (-1, 0, +1) against threshold normally
 - **Success counting with percentile dice** (e.g., "1d100 success >= 75"): Parser MUST accept and roller evaluates d100 result against threshold normally
+- **Exploding dice in success counting mode** (e.g., "5d6 explode success >= 4"): Roller MUST count each die value (including explosion values) that meets threshold as a success
 
 #### Error Message Requirements
 
@@ -256,8 +307,9 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 - **FR-003a**: Parser MUST validate that keep-count does not exceed roll-count for advantage mechanics and reject invalid expressions at parse time
 - **FR-004**: Parser MUST support disadvantage mechanics (roll N times, keep M lowest) for any dice type
 - **FR-004a**: Parser MUST validate that keep-count does not exceed roll-count for disadvantage mechanics and reject invalid expressions at parse time
-- **FR-005**: Parser MUST support reroll conditions based on threshold comparisons (e.g., "reroll if <= X")
-- **FR-005a**: Roller MUST reroll each eligible die exactly once (single reroll attempt) to prevent infinite loops
+- **FR-005**: Parser MUST support reroll conditions based on threshold comparisons with configurable limits (e.g., "reroll if <= X", "reroll 5 <= X")
+- **FR-005a**: Roller MUST support configurable reroll limits: explicit count (e.g., "reroll 1 <= 2") limits rerolls to that number; no count specified defaults to hard limit of 100 rerolls per die
+- **FR-005b**: Parser MUST validate that reroll threshold does not cover the entire die range and reject expressions where all possible outcomes would trigger reroll
 - **FR-006**: Parser MUST support success counting mode where dice above a threshold are counted instead of summed
 - **FR-007**: Parser MUST support fudge dice notation (e.g., "4dF") that generate values of -1, 0, or +1
 - **FR-008**: Parser MUST support percentile dice notation (e.g., "1d100" or "d%") that generate values 1-100
@@ -281,7 +333,7 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 - **FR-025**: System MUST support all requirements while remaining agnostic to specific game system implementations
 - **FR-026**: Parser MUST reject invalid dice expressions with clear error messages identifying the syntax problem and its location
 - **FR-027**: Parser MUST enforce dice count minimum of 1 (reject zero or negative dice count)
-- **FR-028**: Parser MUST enforce dice sides minimum of 1 (reject zero or negative sides)
+- **FR-028**: Parser MUST enforce dice sides minimum of 2 (reject dice with fewer than 2 sides to ensure meaningful randomness)
 - **FR-029**: Parser MUST enforce maximum of 100 total dice across entire expression (sum of all dice in expression)
 - **FR-030**: Parser MUST enforce maximum of 100 sides per individual die
 - **FR-031**: Parser MUST detect and reject division by zero in arithmetic expressions
@@ -291,13 +343,20 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 - **FR-035**: Parser MUST validate critical success thresholds are within valid die range [1, max_sides] and reject out-of-range values
 - **FR-036**: Parser MUST validate critical failure thresholds are within valid die range [1, max_sides] and reject out-of-range values
 - **FR-037**: All parser error messages MUST identify the specific problem, indicate the location when feasible, and specify what was expected or what limit was exceeded
+- **FR-038**: Parser MUST support exploding dice mechanics where dice that meet a threshold condition are rerolled and added to the total
+- **FR-038a**: Parser MUST support configurable explosion limits: explicit count (e.g., "explode 3") limits explosions per die; no count specified defaults to hard limit of 100 explosions per die
+- **FR-038b**: Parser MUST support range-based explosion thresholds using comparison operators (e.g., "explode >= 5", "explode <= 2"); default with no threshold is maximum die value
+- **FR-038c**: Parser MUST validate that explosion threshold does not cover the entire die range and reject expressions where all possible outcomes would trigger explosion (preventing guaranteed non-termination)
+- **FR-039**: Roller MUST execute explosion mechanics by rerolling and adding results when explosion condition is met, up to the configured limit per die
+- **FR-040**: Roller result MUST include explosion history showing all explosion rolls, their values, and cumulative totals per die
+- **FR-041**: For success counting mode with explosions, each explosion roll that meets the success threshold MUST increment the success count
 
 ### Key Entities *(include if feature involves data)*
 
 - **DiceExpression**: Represents a parsed dice roll expression containing: the dice specification (number and sides), modifiers, special mechanics (advantage, reroll, success counting), placeholders, comparison operators, critical thresholds
 - **DiceSpecification**: Describes the base dice being rolled: number of dice, number of sides per die, type (standard, fudge, percentile)
-- **RollModifiers**: Contains arithmetic modifiers, advantage/disadvantage settings, reroll conditions, success counting thresholds, resolved placeholder variable values
-- **RollResult**: Contains the complete outcome of a dice roll: original expression/request, final numeric result, array of individual die values, critical success flag, critical failure flag, success/failure flag (for comparison rolls), kept vs discarded dice (for advantage/disadvantage), rerolled dice history
+- **RollModifiers**: Contains arithmetic modifiers, advantage/disadvantage settings, reroll conditions with limits, explosion conditions with limits and thresholds, success counting thresholds, resolved placeholder variable values
+- **RollResult**: Contains the complete outcome of a dice roll: original expression/request, final numeric result, array of individual die values, critical success flag, critical failure flag, success/failure flag (for comparison rolls), kept vs discarded dice (for advantage/disadvantage), rerolled dice history with limit tracking, exploded dice history with limit tracking and cumulative values per die
 - **StatisticalData**: Provides probability information for an expression: minimum possible value, maximum possible value, expected/average value, distribution data (optional)
 
 ## Success Criteria *(mandatory)*
@@ -305,7 +364,7 @@ The parser MUST fail with clear, actionable error messages for all invalid input
 ### Measurable Outcomes
 
 - **SC-001**: Developers can parse any standard dice notation (XdY format) and receive a valid data structure in under 100ms for expressions under 50 characters
-- **SC-002**: System correctly handles all nine core dice mechanic types (basic, modifiers, advantage, disadvantage, reroll, success counting, fudge, percentile, placeholders) as verified by comprehensive test suite
+- **SC-002**: System correctly handles all ten core dice mechanic types (basic, modifiers, advantage, disadvantage, reroll, explode, success counting, fudge, percentile, placeholders) as verified by comprehensive test suite
 - **SC-003**: Parsing errors provide actionable error messages that identify the specific problem location and nature within 5 words or less
 - **SC-004**: Statistical calculations (min, max, expected value) are mathematically accurate to 3 decimal places for all supported expression types
 - **SC-005**: Documentation includes working code examples for all ten user stories that execute without modification
@@ -390,8 +449,7 @@ The following are explicitly **NOT** part of this feature:
 - **Probability distribution calculator**: Detailed probability tables for complex expressions
 - **Natural language interface**: "Roll three six-sided dice with advantage" → "3d6 advantage"
 - **Custom dice types**: Support for non-standard dice (d3, d7, d30, etc.)
-- **Exploding dice**: Dice that reroll and add when maximum value is rolled
-- **Penetrating dice**: Similar to exploding but with diminishing returns
+- **Penetrating dice**: Exploding dice variant where each explosion subtracts 1 from the result (diminishing returns)
 
 ### Related Documentation
 

@@ -7,7 +7,7 @@
 
 ## Summary
 
-Build a PHP library for parsing and rolling dice expressions that supports all major tabletop RPG systems. The library provides two core components: (1) a parser that converts dice notation strings (e.g., "3d6+5", "1d20 advantage") into structured data with statistical analysis capabilities, and (2) a roller that executes parsed expressions and returns detailed results including individual die values, critical flags, and success counts. The library will be distributed as a Composer package with comprehensive PHPUnit test coverage (90% minimum), strict PSR-12 compliance, and complete API documentation.
+Build a PHP library for parsing and rolling dice expressions that supports all major tabletop RPG systems. The library provides two core components: (1) a parser that converts dice notation strings (e.g., "3d6+5", "1d20 advantage", "3d6 explode 3 >=5") into structured data with statistical analysis capabilities, and (2) a roller that executes parsed expressions and returns detailed results including individual die values, critical flags, success counts, and explosion/reroll histories. The library will be distributed as a Composer package with comprehensive PHPUnit test coverage (90% minimum), strict PSR-12 compliance, and complete API documentation.
 
 ## Technical Context
 
@@ -19,7 +19,7 @@ Build a PHP library for parsing and rolling dice expressions that supports all m
 **Project Type**: Single library project (Composer package)
 **Performance Goals**: Parse <100ms (expressions up to 50 chars), Roll <50ms (up to 100 dice), Memory <1MB per operation
 **Constraints**: Stateless operations, PHP built-in RNG only, no external services, PSR-12 strict compliance
-**Scale/Scope**: 10 user stories (P1-P10), 25+ functional requirements, 5 core entities, support 100% of popular RPG system mechanics
+**Scale/Scope**: 11 user stories (P1-P10 including P5a for exploding dice), 41 functional requirements (FR-001 through FR-041), 5 core entities, support 100% of popular RPG system mechanics including Savage Worlds exploding dice
 
 ## Constitution Check
 
@@ -85,7 +85,8 @@ tests/
 │   ├── ModifiersTest.php              # P2: Arithmetic modifiers
 │   ├── AdvantageTest.php              # P3: Advantage/disadvantage
 │   ├── SuccessCountingTest.php        # P4: Success counting
-│   ├── RerollTest.php                 # P5: Reroll mechanics
+│   ├── RerollTest.php                 # P5: Reroll mechanics (configurable limits)
+│   ├── ExplodingDiceTest.php          # P5a: Exploding dice mechanics
 │   ├── SpecialDiceTest.php            # P6: Fudge/percentile
 │   ├── PlaceholdersTest.php           # P7: Variable binding
 │   ├── ComparisonTest.php             # P8: Success rolls
@@ -190,19 +191,19 @@ All technical unknowns resolved. No blocking decisions remain.
 
 ### Task Organization
 
-Tasks are organized into 13 phases with 130 total tasks:
+Tasks are organized into 14 phases with updated task count:
 
 1. **Phase 1: Setup** (T001-T014) - Devcontainer and project initialization
 2. **Phase 2: Foundational** (T015-T024) - Core infrastructure (blocks all user stories)
-3. **Phase 3-12: User Stories** (T025-T114) - Implementation of P1-P10 features
-4. **Phase 13: Polish** (T115-T130) - Cross-cutting concerns and release preparation
+3. **Phase 3-13: User Stories** (T025-T124) - Implementation of P1-P10 features including P5a exploding dice
+4. **Phase 14: Polish** (T125-T140) - Cross-cutting concerns and release preparation
 
 All tasks include:
 - Specific file paths for implementation
 - [P] markers for parallel execution opportunities
-- [Story] labels mapping to user stories (US1-US10)
-- Complete coverage of all 37 functional requirements
-- All edge case validation tasks
+- [Story] labels mapping to user stories (US1-US10, US5a)
+- Complete coverage of all 41 functional requirements (FR-001 through FR-041)
+- All edge case validation tasks including explosion/reroll range validation
 
 **Next Command**: Begin implementation with Phase 1 Setup tasks (T001-T014)
 
@@ -216,12 +217,13 @@ All tasks include:
 2. **P2 - Modifiers**: Essential for most game systems
 3. **P3 - Advantage/Disadvantage**: Core D&D 5e mechanic
 4. **P4 - Success Counting**: Dice pool systems support
-5. **P5 - Reroll Mechanics**: Common game mechanic
-6. **P6 - Special Dice**: FATE and percentile system support
-7. **P7 - Placeholders**: Character sheet integration
-8. **P8 - Comparisons**: Target number checks
-9. **P9 - Criticals**: Exceptional outcome detection
-10. **P10 - Statistics**: Probability analysis
+5. **P5 - Reroll Mechanics**: Common game mechanic with configurable limits (default 100, explicit count)
+6. **P5a - Exploding Dice**: Savage Worlds and dramatic variance systems (reroll on threshold, add to total, configurable limits)
+7. **P6 - Special Dice**: FATE and percentile system support
+8. **P7 - Placeholders**: Character sheet integration
+9. **P8 - Comparisons**: Target number checks
+10. **P9 - Criticals**: Exceptional outcome detection
+11. **P10 - Statistics**: Probability analysis
 
 ### TDD Workflow (Per Task)
 
@@ -296,9 +298,9 @@ From specification success criteria (SC-001 through SC-007):
 - ✅ 90% code coverage achieved
 - ✅ Error messages <5 words
 - ✅ Statistical accuracy to 3 decimals
-- ✅ Working examples for all 10 user stories
+- ✅ Working examples for all 11 user stories (including P5a exploding dice)
 - ✅ 10-minute integration time via quickstart
-- ✅ 100% RPG system mechanics coverage
+- ✅ 100% RPG system mechanics coverage (D&D 5e, Pathfinder, Shadowrun, World of Darkness, FATE, Savage Worlds)
 
 **Measurement**: Each success criterion maps to specific tests in integration test suite
 
@@ -316,9 +318,9 @@ From specification success criteria (SC-001 through SC-007):
 **Estimated Timeline**:
 - Setup (with devcontainer): 1 day
 - P1-P3: 5 days (foundation + core mechanics)
-- P4-P6: 4 days (advanced mechanics)
-- P7-P10: 4 days (integration features)
+- P4-P5a: 5 days (advanced mechanics including configurable rerolls and explosions)
+- P6-P10: 4 days (special dice and integration features)
 - Documentation polish: 2 days
-- **Total**: ~16-18 days for experienced PHP developer
+- **Total**: ~17-19 days for experienced PHP developer
 
 **With Devcontainer**: All development occurs in consistent PHP 8.0+ environment with pre-configured tools

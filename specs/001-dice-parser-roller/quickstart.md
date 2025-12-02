@@ -225,6 +225,30 @@ if ($result->successCount >= 4) {
 }
 ```
 
+### Savage Worlds (Exploding Dice)
+
+```php
+// Savage Worlds trait test: exploding d6
+$expression = $dice->parse("1d6 explode");
+$result = $dice->roll($expression);
+
+echo "Trait test: {$result->total}\n";
+
+if ($result->explosionHistory) {
+    echo "Exploded! Chain: " . implode(" + ", $result->explosionHistory[0]) . "\n";
+}
+
+// Example output:
+// Trait test: 14
+// Exploded! Chain: 6 + 6 + 2
+
+// Wild die (explode on 6, max 10 explosions)
+$expression = $dice->parse("1d6 explode 10 >=6");
+$result = $dice->roll($expression);
+
+echo "Wild die: {$result->total}\n";
+```
+
 ### FATE / Fudge Dice
 
 ```php
@@ -304,6 +328,7 @@ try {
 
 ```php
 // Reroll 1s and 2s once (Great Weapon Fighting in D&D 5e)
+// Default limit: 100 rerolls per die
 $expression = $dice->parse("2d6 reroll <=2");
 $result = $dice->roll($expression);
 
@@ -316,6 +341,56 @@ if ($result->rerolledDice) {
         echo "  Position $index: $original → {$result->diceValues[$index]}\n";
     }
 }
+
+// Explicit reroll limit: reroll 1s up to 2 times per die
+$expression = $dice->parse("4d6 reroll 2 <=1");
+$result = $dice->roll($expression);
+
+echo "Roll: {$result->total}\n";
+echo "Dice: " . implode(", ", $result->diceValues) . "\n";
+
+// Example output:
+// Roll: 18
+// Dice: 5, 4, 6, 3
+// (Each 1 was rerolled up to 2 times)
+```
+
+### Exploding Dice (Savage Worlds)
+
+```php
+// Basic explosion: explode on max value (6 for d6)
+// Default limit: 100 explosions per die
+$expression = $dice->parse("3d6 explode");
+$result = $dice->roll($expression);
+
+echo "Total: {$result->total}\n";
+echo "Final values: " . implode(", ", $result->diceValues) . "\n";
+
+if ($result->explosionHistory) {
+    echo "Explosion chains:\n";
+    foreach ($result->explosionHistory as $index => $chain) {
+        echo "  Die $index: " . implode(" + ", $chain) . " = {$result->diceValues[$index]}\n";
+    }
+}
+
+// Example output:
+// Total: 28
+// Final values: 16, 5, 7
+// Explosion chains:
+//   Die 0: 6 + 6 + 4 = 16
+//   Die 2: 6 + 1 = 7
+
+// Explode on 5 or 6, max 3 explosions per die
+$expression = $dice->parse("3d6 explode 3 >=5");
+$result = $dice->roll($expression);
+
+echo "Total: {$result->total}\n";
+echo "Dice: " . implode(", ", $result->diceValues) . "\n";
+
+// Example output:
+// Total: 25
+// Dice: 14, 6, 5
+// (Die 0 exploded 3 times: 6+5+3=14, stopped at limit)
 ```
 
 ### Comparison Operators
@@ -388,6 +463,20 @@ echo "Critical: " . ($result->isCriticalSuccess ? "Yes" : "No") . "\n";
 **Q: Need to support custom dice?**
 - Standard dice support any XdY notation
 - For truly custom mechanics, extend the library
+
+**Q: "Invalid explosion range" error**
+- Cannot explode on all possible die values (infinite loop)
+- Invalid: `1d6 explode <=6` (all values explode)
+- Valid: `1d6 explode >=6` (only max explodes), `1d6 explode <=1` (only min explodes)
+
+**Q: "Invalid reroll range" error**
+- Cannot reroll all possible die values (infinite loop)
+- Invalid: `1d6 reroll <=6` (all values reroll)
+- Valid: `1d6 reroll <=2` (only 1-2 reroll), `1d6 reroll >=6` (only max rerolls)
+
+**Q: "Dice must have at least 2 sides" error**
+- Minimum die size is 2 sides (1-sided dice are not valid)
+- Use constants or modifiers instead: `+5` not `1d1*5`
 
 ## Support
 
