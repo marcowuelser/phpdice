@@ -195,19 +195,56 @@ As a game developer, I need statistical data for parsed expressions so that I ca
 
 ### Edge Cases
 
-- What happens when an invalid dice expression is provided (e.g., "abc", "d", "3d")?
-- How does the system handle expressions with zero dice (e.g., "0d6")?
-- What happens when dice sides are zero or negative (e.g., "3d0", "2d-5")?
-- How are very large numbers handled (e.g., "1000d1000")?
-- When placeholder variables (using %name% syntax) are referenced but not provided at parse time, the parser MUST reject the expression with an error message listing all missing variables (fail-fast approach)
-- Reroll logic MUST reroll each die exactly once to prevent infinite reroll scenarios (e.g., "reroll <= 6" on a d6 will reroll once, then accept the result)
-- When advantage/disadvantage parameters are invalid (e.g., keep 5 when only rolling 3), the parser MUST reject the expression at parse time with a validation error describing the constraint violation
-- How are conflicting modifiers resolved (e.g., both advantage and disadvantage on same roll)?
-- What happens when critical thresholds are outside valid die ranges?
-- How does success counting work with fudge dice or percentile dice?
-- What happens with division by zero in arithmetic expressions (e.g., "1d20/0")?
-- How are parentheses validated for proper matching and nesting?
-- What happens when mathematical functions receive invalid arguments (e.g., "floor()" with no argument)?
+The parser MUST fail with clear, actionable error messages for all invalid inputs. The following edge cases define required validation and error handling:
+
+#### Invalid Dice Expressions
+
+- **Invalid syntax** (e.g., "abc", "d", "3d", "xyz+5"): Parser MUST reject with error identifying the invalid syntax at the specific position
+- **Malformed dice notation** (e.g., "d6" without number, "3d" without sides): Parser MUST reject with error indicating missing required component
+
+#### Dice Constraints Validation
+
+- **Zero dice** (e.g., "0d6"): Parser MUST reject - number of dice must be at least 1
+- **Negative dice** (e.g., "-3d6"): Parser MUST reject - number of dice cannot be negative
+- **Zero sides** (e.g., "3d0"): Parser MUST reject - dice must have at least 1 side
+- **Negative sides** (e.g., "2d-5"): Parser MUST reject - dice cannot have negative sides
+- **Excessive dice count in expression** (e.g., "101d6", "50d8+52d10"): Parser MUST reject when total dice across entire expression exceeds 100
+- **Excessive sides on single die** (e.g., "1d101", "2d150"): Parser MUST reject when any single die has more than 100 sides
+
+#### Arithmetic Expression Validation
+
+- **Division by zero** (e.g., "1d20/0", "2d6/(3-3)"): Parser MUST reject with error identifying division by zero
+- **Mathematical function with missing argument** (e.g., "floor()", "ceiling()", "round()"): Parser MUST reject with error indicating required argument missing
+- **Mathematical function with invalid argument count** (e.g., "floor(1d20, 5)" with too many args): Parser MUST reject with error about argument count
+- **Parenthesis mismatch** (e.g., "(1d20+5", "2d6+3)", "((1d20)"): Parser MUST reject with error identifying unmatched parenthesis and its position
+
+#### Modifier Conflicts and Validation
+
+- **Conflicting advantage and disadvantage** (e.g., "1d20 advantage disadvantage"): Parser MUST reject - cannot apply both modifiers simultaneously
+- **Invalid advantage/disadvantage parameters** (e.g., "roll 3d6 keep 5 highest"): Parser MUST reject when keep-count exceeds roll-count (already covered in FR-003a, FR-004a)
+
+#### Critical Threshold Validation
+
+- **Critical success threshold out of range** (e.g., "1d20 critical success >= 25"): Parser MUST reject when threshold exceeds maximum die value
+- **Critical failure threshold out of range** (e.g., "1d20 critical failure <= 0"): Parser MUST reject when threshold is below minimum die value (typically 1)
+- **Critical glitch threshold out of range** (e.g., "1d6 glitch <= -1"): Parser MUST reject when glitch threshold is outside valid die range [1, sides]
+
+#### Placeholder Variable Validation
+
+- **Unbound placeholder variables** (e.g., "1d20+%str%" parsed without providing "str" value): Parser MUST reject with error message listing all missing variable names (already covered in FR-009a)
+
+#### Edge Case Interactions
+
+- **Reroll infinite loop prevention** (e.g., "4d6 reroll <= 6" on a d6): Roller MUST reroll each die exactly once then accept result (already covered in FR-005a)
+- **Success counting with fudge dice** (e.g., "4dF success >= 0"): Parser MUST accept and roller evaluates fudge dice (-1, 0, +1) against threshold normally
+- **Success counting with percentile dice** (e.g., "1d100 success >= 75"): Parser MUST accept and roller evaluates d100 result against threshold normally
+
+#### Error Message Requirements
+
+- All error messages MUST identify the specific problem (e.g., "division by zero", "unmatched opening parenthesis")
+- All error messages SHOULD indicate the position/location in the expression where the error occurred when feasible
+- All error messages for missing/invalid components MUST specify what was expected (e.g., "expected number of sides after 'd'")
+- All error messages for constraint violations MUST specify the limit that was exceeded (e.g., "total dice count 105 exceeds maximum of 100")
 
 ## Requirements *(mandatory)*
 
@@ -242,6 +279,18 @@ As a game developer, I need statistical data for parsed expressions so that I ca
 - **FR-023**: For reroll mechanics, the result MUST show which dice were rerolled and their original values
 - **FR-024**: Parser MUST validate expressions and provide meaningful error messages for invalid input
 - **FR-025**: System MUST support all requirements while remaining agnostic to specific game system implementations
+- **FR-026**: Parser MUST reject invalid dice expressions with clear error messages identifying the syntax problem and its location
+- **FR-027**: Parser MUST enforce dice count minimum of 1 (reject zero or negative dice count)
+- **FR-028**: Parser MUST enforce dice sides minimum of 1 (reject zero or negative sides)
+- **FR-029**: Parser MUST enforce maximum of 100 total dice across entire expression (sum of all dice in expression)
+- **FR-030**: Parser MUST enforce maximum of 100 sides per individual die
+- **FR-031**: Parser MUST detect and reject division by zero in arithmetic expressions
+- **FR-032**: Parser MUST validate mathematical function calls have required arguments and reject invalid argument counts
+- **FR-033**: Parser MUST validate parentheses are properly matched and reject mismatched expressions with position information
+- **FR-034**: Parser MUST reject expressions that specify both advantage AND disadvantage modifiers simultaneously
+- **FR-035**: Parser MUST validate critical success thresholds are within valid die range [1, max_sides] and reject out-of-range values
+- **FR-036**: Parser MUST validate critical failure/glitch thresholds are within valid die range [1, max_sides] and reject out-of-range values
+- **FR-037**: All parser error messages MUST identify the specific problem, indicate the location when feasible, and specify what was expected or what limit was exceeded
 
 ### Key Entities *(include if feature involves data)*
 

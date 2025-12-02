@@ -61,7 +61,17 @@
 
 ✅ **Acceptance scenarios defined**: All 10 user stories include specific Given-When-Then scenarios that define testable behavior.
 
-✅ **Edge cases identified**: 10 edge cases documented covering invalid input, boundary conditions, infinite loops, conflicting modifiers, and missing data.
+✅ **Edge cases identified**: Comprehensive edge case documentation covering:
+- Invalid dice expressions (malformed syntax, missing components)
+- Dice constraints (zero/negative dice, zero/negative sides, excessive counts, excessive sides)
+- Arithmetic validation (division by zero, function arguments, parenthesis matching)
+- Modifier conflicts (advantage + disadvantage simultaneously)
+- Critical threshold validation (out of range values)
+- Placeholder variable validation (unbound variables)
+- Edge case interactions (reroll loops, success counting with special dice)
+- Error message requirements (specificity, location, expectations)
+
+All edge cases include specific validation requirements (FR-026 through FR-037) ensuring parser properly rejects invalid input with clear error messages.
 
 ✅ **Scope clearly bounded**: "Out of Scope" section explicitly excludes character sheets, game rules engines, UI, persistence, network features, visualization, natural language parsing, macros, custom RNG, and history logging.
 
@@ -69,10 +79,11 @@
 
 ### Feature Readiness Assessment
 
-✅ **Functional requirements with acceptance criteria**: Each of the 25 functional requirements can be mapped to one or more acceptance scenarios in the user stories. For example:
+✅ **Functional requirements with acceptance criteria**: Each of the 37 functional requirements can be mapped to one or more acceptance scenarios in the user stories. For example:
 - FR-001 (basic notation) → US1 scenarios
 - FR-002 (modifiers) → US2 scenarios
 - FR-003/FR-004 (advantage/disadvantage) → US3 scenarios
+- FR-026 through FR-037 (validation & error handling) → Edge case scenarios
 - etc.
 
 ✅ **User scenarios cover primary flows**: 10 user stories provide comprehensive coverage prioritized P1-P10:
