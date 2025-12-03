@@ -18,9 +18,11 @@ echo "=== Savage Worlds Dice Rolling Examples ===\n\n";
 
 // 1. Basic Trait Test with Wild Die
 echo "1. Fighting Skill Test (d8 + Wild Die d6):\n";
-$traitResult = $phpdice->roll('1d8 explode');
+$traitExpr = $phpdice->parse('1d8 explode');
+$traitResult = $phpdice->roll($traitExpr);
 
-$wildResult = $phpdice->roll('1d6 explode');
+$wildExpr = $phpdice->parse('1d6 explode');
+$wildResult = $phpdice->roll($wildExpr);
 
 $finalResult = max($traitResult->total, $wildResult->total);
 
@@ -66,9 +68,11 @@ echo "3. Soak Roll (Vigor d6 + Wild Die d6):\n";
 $damage = 12;
 echo "   Taking {$damage} damage\n";
 
-$vigorResult = $phpdice->roll('1d6 explode');
+$vigorExpr = $phpdice->parse('1d6 explode');
+$vigorResult = $phpdice->roll($vigorExpr);
 
-$wildResult = $phpdice->roll('1d6 explode');
+$wildExpr = $phpdice->parse('1d6 explode');
+$wildResult = $phpdice->roll($wildExpr);
 
 $soakRoll = max($vigorResult->total, $wildResult->total);
 echo "   Vigor: {$vigorResult->total}, Wild: {$wildResult->total}\n";
@@ -89,9 +93,11 @@ echo "\n";
 
 // 5. Shooting Attack (d8 Shooting)
 echo "5. Shooting Attack (d8 Shooting + Wild Die, at Medium Range -2):\n";
-$shootingResult = $phpdice->roll('1d8 explode - 2');
+$shootingExpr = $phpdice->parse('1d8 explode - 2');
+$shootingResult = $phpdice->roll($shootingExpr);
 
-$wildResult = $phpdice->roll('1d6 explode - 2');
+$wildExpr = $phpdice->parse('1d6 explode - 2');
+$wildResult = $phpdice->roll($wildExpr);
 
 $attackRoll = max($shootingResult->total, $wildResult->total);
 echo "   Shooting: {$shootingResult->total}, Wild: {$wildResult->total}\n";
@@ -102,10 +108,10 @@ if ($attackRoll >= 4) {
     echo "   HIT! ";
     if ($raises > 0) {
         echo "With {$raises} raise(s)! (+1d6 damage per raise)\n";
-$damageExpr = $phpdice->parse('2d6 explode + ' . $raises . 'd6 explode');
+        $damageExpr = $phpdice->parse('2d6 explode + ' . $raises . 'd6 explode');
     } else {
         echo "\n";
-$damageExpr = $phpdice->parse('2d6 explode');
+        $damageExpr = $phpdice->parse('2d6 explode');
     }
     $damageResult = $phpdice->roll($damageExpr);
     echo "   Damage: {$damageResult->total}\n";
@@ -121,9 +127,11 @@ $round = 1;
 
 while ($round <= 5 && $successes < 5) {
     echo "   Round {$round}: ";
-$skillResult = $phpdice->roll('1d8 explode');
+    $skillExpr = $phpdice->parse('1d8 explode');
+    $skillResult = $phpdice->roll($skillExpr);
 
-$wildResult = $phpdice->roll('1d6 explode');
+    $wildExpr = $phpdice->parse('1d6 explode');
+    $wildResult = $phpdice->roll($wildExpr);
 
     $roll = max($skillResult->total, $wildResult->total);
     echo "Roll {$roll} ";
@@ -150,12 +158,14 @@ echo "\n";
 // 7. Bennies - Reroll
 echo "7. Using a Benny to Reroll:\n";
 echo "   First roll:\n";
-$firstResult = $phpdice->roll('1d6 explode + 1d6 explode');
+$firstExpr = $phpdice->parse('1d6 explode + 1d6 explode');
+$firstResult = $phpdice->roll($firstExpr);
 echo "     Result: {$firstResult->total}\n";
 
 if ($firstResult->total < 4) {
     echo "   That's bad! Spending a Benny to reroll...\n";
-$rerollResult = $phpdice->roll('1d6 explode + 1d6 explode');
+    $rerollExpr = $phpdice->parse('1d6 explode + 1d6 explode');
+    $rerollResult = $phpdice->roll($rerollExpr);
     echo "     Reroll: {$rerollResult->total}\n";
     $final = max($firstResult->total, $rerollResult->total);
     echo "   Taking better result: {$final}\n";
@@ -167,9 +177,11 @@ echo "8. Vehicle Chase (3 rounds):\n";
 for ($round = 1; $round <= 3; $round++) {
     echo "   Round {$round}:\n";
 
-$driver1Result = $phpdice->roll('1d8 explode + 1d6 explode');
+    $driver1Expr = $phpdice->parse('1d8 explode + 1d6 explode');
+    $driver1Result = $phpdice->roll($driver1Expr);
 
-$driver2Result = $phpdice->roll('1d6 explode + 1d6 explode');
+    $driver2Expr = $phpdice->parse('1d6 explode + 1d6 explode');
+    $driver2Result = $phpdice->roll($driver2Expr);
 
     echo "     Driver 1: {$driver1Result->total}\n";
     echo "     Driver 2: {$driver2Result->total}\n";
@@ -186,9 +198,11 @@ echo "\n";
 
 // 9. Spell Casting (Powers)
 echo "9. Casting Bolt (d10 Spellcasting):\n";
-$spellResult = $phpdice->roll('1d10 explode');
+$spellExpr = $phpdice->parse('1d10 explode');
+$spellResult = $phpdice->roll($spellExpr);
 
-$wildResult = $phpdice->roll('1d6 explode');
+$wildExpr = $phpdice->parse('1d6 explode');
+$wildResult = $phpdice->roll($wildExpr);
 
 $castRoll = max($spellResult->total, $wildResult->total);
 echo "   Spellcasting: {$spellResult->total}, Wild: {$wildResult->total}\n";
@@ -200,7 +214,8 @@ if ($castRoll >= 4) {
     if ($raises > 0) {
         echo "   {$raises} raise(s)! +1d6 damage per raise.\n";
     }
-$damageResult = $phpdice->roll('2d6 explode' . ($raises > 0 ? " + {$raises}d6 explode" : ""));
+    $damageExpr = $phpdice->parse('2d6 explode' . ($raises > 0 ? " + {$raises}d6 explode" : ""));
+    $damageResult = $phpdice->roll($damageExpr);
     echo "   Bolt damage: {$damageResult->total}\n";
 } else {
     echo "   FAILURE - Spell fizzles\n";

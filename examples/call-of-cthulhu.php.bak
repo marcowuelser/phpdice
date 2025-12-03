@@ -38,7 +38,8 @@ echo "\n";
 // 2. Opposed Roll
 echo "2. Opposed Roll (Stealth 50% vs Spot Hidden 60%):\n";
 echo "   Attacker (Stealth 50%):\n";
-$attackRoll = $phpdice->roll('1d100');
+$attackExpr = $phpdice->parse('1d100');
+$attackRoll = $phpdice->roll($attackExpr);
 echo "     Roll: {$attackRoll->total}\n";
 
 $attackSuccess = 'fail';
@@ -56,7 +57,8 @@ if ($attackRoll->total <= 10) {
 }
 
 echo "   Defender (Spot Hidden 60%):\n";
-$defendRoll = $phpdice->roll('1d100');
+$defendExpr = $phpdice->parse('1d100');
+$defendRoll = $phpdice->roll($defendExpr);
 echo "     Roll: {$defendRoll->total}\n";
 
 $defendSuccess = 'fail';
@@ -89,20 +91,23 @@ echo "\n";
 // 3. Pushed Roll
 echo "3. Pushed Roll (desperate second attempt):\n";
 echo "   First attempt (Climb 40%):\n";
-$firstResult = $phpdice->roll('1d100');
+$firstExpr = $phpdice->parse('1d100');
+$firstResult = $phpdice->roll($firstExpr);
 echo "     Roll: {$firstResult->total}\n";
 
 if ($firstResult->total > 40) {
     echo "     Failed! Pushing the roll...\n";
     echo "   Second attempt (consequences on failure):\n";
-$secondResult = $phpdice->roll('1d100');
+    $secondExpr = $phpdice->parse('1d100');
+    $secondResult = $phpdice->roll($secondExpr);
     echo "     Roll: {$secondResult->total}\n";
 
     if ($secondResult->total <= 40) {
         echo "     SUCCESS! Made it up safely.\n";
     } else {
         echo "     FAILURE! Fall damage - rolling 1d6...\n";
-$damage = $phpdice->roll('1d6');
+        $damageExpr = $phpdice->parse('1d6');
+        $damage = $phpdice->roll($damageExpr);
         echo "     Take {$damage->total} damage!\n";
     }
 } else {
@@ -124,7 +129,8 @@ if ($result->total <= $currentSanity) {
 } else {
     echo "   FAILURE - Sanity check failed!\n";
     echo "   Rolling 1d10 SAN loss...\n";
-$loss = $phpdice->roll('1d10');
+    $lossExpr = $phpdice->parse('1d10');
+    $loss = $phpdice->roll($lossExpr);
     $newSanity = $currentSanity - $loss->total;
     echo "   Lost {$loss->total} SAN (now at {$newSanity})\n";
 
@@ -142,7 +148,8 @@ echo "   Attack roll: {$result->total}\n";
 if ($result->total <= 45) {
     echo "   HIT!\n";
     echo "   Rolling damage (1d10)...\n";
-$damage = $phpdice->roll('1d10');
+    $damageExpr = $phpdice->parse('1d10');
+    $damage = $phpdice->roll($damageExpr);
     echo "   Damage: {$damage->total}\n";
 
     if ($result->total <= 9) { // Extreme success
@@ -163,11 +170,14 @@ echo "\n";
 // 6. Bonus/Penalty Dice
 echo "6. Bonus Die (aiming carefully, +1 bonus die):\n";
 echo "   Rolling 1d100 with bonus die (pick lowest tens digit):\n";
-$units = $phpdice->roll('1d10-1');
+$unitsExpr = $phpdice->parse('1d10-1'); // 0-9 for units
+$units = $phpdice->roll($unitsExpr);
 
-$tens1 = $phpdice->roll('1d10-1');
+$tens1Expr = $phpdice->parse('1d10-1'); // First tens die
+$tens1 = $phpdice->roll($tens1Expr);
 
-$tens2 = $phpdice->roll('1d10-1');
+$tens2Expr = $phpdice->parse('1d10-1'); // Second tens die (bonus)
+$tens2 = $phpdice->roll($tens2Expr);
 
 $chosenTens = min($tens1->total, $tens2->total);
 $finalRoll = ($chosenTens * 10) + $units->total;
@@ -180,11 +190,14 @@ echo "   Final roll: {$finalRoll}\n\n";
 
 echo "7. Penalty Die (rushed action, -1 penalty die):\n";
 echo "   Rolling 1d100 with penalty die (pick highest tens digit):\n";
-$units = $phpdice->roll('1d10-1');
+$unitsExpr = $phpdice->parse('1d10-1');
+$units = $phpdice->roll($unitsExpr);
 
-$tens1 = $phpdice->roll('1d10-1');
+$tens1Expr = $phpdice->parse('1d10-1');
+$tens1 = $phpdice->roll($tens1Expr);
 
-$tens2 = $phpdice->roll('1d10-1');
+$tens2Expr = $phpdice->parse('1d10-1');
+$tens2 = $phpdice->roll($tens2Expr);
 
 $chosenTens = max($tens1->total, $tens2->total);
 $finalRoll = ($chosenTens * 10) + $units->total;

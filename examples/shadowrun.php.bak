@@ -25,12 +25,14 @@ echo "   Successes (5s and 6s): {$result->successCount}\n\n";
 // 2. Opposed Test
 echo "2. Opposed Test:\n";
 echo "   Attacker (10 dice):\n";
-$attackerResult = $phpdice->roll('10d6 >=5');
+$attackerExpr = $phpdice->parse('10d6 >=5');
+$attackerResult = $phpdice->roll($attackerExpr);
 echo "   Rolled: " . implode(', ', $attackerResult->diceValues) . "\n";
 echo "   Successes: {$attackerResult->successCount}\n\n";
 
 echo "   Defender (8 dice):\n";
-$defenderResult = $phpdice->roll('8d6 >=5');
+$defenderExpr = $phpdice->parse('8d6 >=5');
+$defenderResult = $phpdice->roll($defenderExpr);
 echo "   Rolled: " . implode(', ', $defenderResult->diceValues) . "\n";
 echo "   Successes: {$defenderResult->successCount}\n\n";
 
@@ -99,10 +101,13 @@ echo "\n";
 echo "6. Hacking Test (12 dice vs 10 dice defense):\n";
 for ($i = 1; $i <= 3; $i++) {
     echo "   Attack {$i}:\n";
-    $attackResult = $phpdice->roll('12d6 >=5');
+    $attackExpr = $phpdice->parse('12d6 >=5');
+    $attackResult = $phpdice->roll($attackExpr);
 
-    
-    $defenseResult = $phpdice->roll('10d6 >=5');    $netHits = $attackResult->successCount - $defenseResult->successCount;
+    $defenseExpr = $phpdice->parse('10d6 >=5');
+    $defenseResult = $phpdice->roll($defenseExpr);
+
+    $netHits = $attackResult->successCount - $defenseResult->successCount;
     echo "     Attacker: {$attackResult->successCount} successes\n";
     echo "     Defender: {$defenseResult->successCount} successes\n";
     echo "     Net hits: " . max(0, $netHits) . "\n";
@@ -133,7 +138,7 @@ echo "   Spirit owes " . max(0, $result->successCount) . " services.\n\n";
 
 // 9. Probability Analysis
 echo "9. Probability Analysis (10d6 pool):\n";
-$expression = $phpdice->parse('10d6 >=5');
+$result = $phpdice->roll('10d6 >=5');
 $stats = $expression->getStatistics();
 echo "   Minimum successes: {$stats->minimum}\n";
 echo "   Maximum successes: {$stats->maximum}\n";

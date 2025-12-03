@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace PHPDice\Tests\Integration;
 
+use PHPDice\Exception\ParseException;
 use PHPDice\Exception\ValidationException;
 
 /**
- * Integration tests for advantage/disadvantage mechanics (US3).
- *
+ * Integration tests for User Story 4 & 4a: Advantage/Disadvantage and Keep Mechanics
+ * 
+ * Tests D&D 5e style advantage/disadvantage and general keep highest/lowest mechanics.
+ * 
  * @covers \PHPDice\PHPDice
  * @covers \PHPDice\Parser\DiceExpressionParser
  * @covers \PHPDice\Roller\DiceRoller
+ * @covers \PHPDice\Model\DiceExpression
+ * @covers \PHPDice\Model\RollResult
  */
 class AdvantageTest extends BaseTestCase
 {
@@ -22,18 +27,18 @@ class AdvantageTest extends BaseTestCase
     public function testAdvantageRollsTwoDiceKeepsHighest(): void
     {
         $result = $this->phpdice->roll('1d20 advantage');
-
+        
         // Should roll 2 dice
         $this->assertCount(2, $result->diceValues);
-
+        
         // Should keep 1 die (the highest)
         $this->assertCount(1, $result->keptDice ?? []);
         $this->assertCount(1, $result->discardedDice ?? []);
-
+        
         // Total should be the highest rolled value
         $highest = max($result->diceValues);
         $this->assertEquals($highest, $result->total);
-
+        
         // Verify kept die is the highest
         $keptIndex = $result->keptDice[0];
         $this->assertEquals($highest, $result->diceValues[$keptIndex]);
@@ -46,18 +51,18 @@ class AdvantageTest extends BaseTestCase
     public function testDisadvantageRollsTwoDiceKeepsLowest(): void
     {
         $result = $this->phpdice->roll('1d20 disadvantage');
-
+        
         // Should roll 2 dice
         $this->assertCount(2, $result->diceValues);
-
+        
         // Should keep 1 die (the lowest)
         $this->assertCount(1, $result->keptDice ?? []);
         $this->assertCount(1, $result->discardedDice ?? []);
-
+        
         // Total should be the lowest rolled value
         $lowest = min($result->diceValues);
         $this->assertEquals($lowest, $result->total);
-
+        
         // Verify kept die is the lowest
         $keptIndex = $result->keptDice[0];
         $this->assertEquals($lowest, $result->diceValues[$keptIndex]);
@@ -70,20 +75,20 @@ class AdvantageTest extends BaseTestCase
     public function testKeepHighestForAbilityScores(): void
     {
         $result = $this->phpdice->roll('4d6 keep 3 highest');
-
+        
         // Should roll 4 dice
         $this->assertCount(4, $result->diceValues);
-
+        
         // Should keep 3 dice
         $this->assertCount(3, $result->keptDice ?? []);
         $this->assertCount(1, $result->discardedDice ?? []);
-
+        
         // Total should be sum of 3 highest
         $sorted = $result->diceValues;
         rsort($sorted);
         $expectedTotal = $sorted[0] + $sorted[1] + $sorted[2];
         $this->assertEquals($expectedTotal, $result->total);
-
+        
         // Verify kept dice are the highest 3
         $keptValues = [];
         foreach ($result->keptDice as $index) {
@@ -100,14 +105,14 @@ class AdvantageTest extends BaseTestCase
     public function testKeepLowest(): void
     {
         $result = $this->phpdice->roll('4d6 keep 1 lowest');
-
+        
         // Should roll 4 dice
         $this->assertCount(4, $result->diceValues);
-
+        
         // Should keep 1 die
         $this->assertCount(1, $result->keptDice ?? []);
         $this->assertCount(3, $result->discardedDice ?? []);
-
+        
         // Total should be the lowest value
         $lowest = min($result->diceValues);
         $this->assertEquals($lowest, $result->total);
@@ -121,13 +126,13 @@ class AdvantageTest extends BaseTestCase
     {
         $expression = $this->phpdice->parse('1d20 advantage');
         $stats = $expression->statistics;
-
+        
         // Min: 1 (worst case both dice roll 1)
         $this->assertEquals(1, $stats->minimum);
-
+        
         // Max: 20 (at least one die rolls 20)
         $this->assertEquals(20, $stats->maximum);
-
+        
         // Expected for d20 advantage: ~13.825
         $this->assertGreaterThan(13.0, $stats->expected);
         $this->assertLessThan(14.5, $stats->expected);
@@ -141,13 +146,13 @@ class AdvantageTest extends BaseTestCase
     {
         $expression = $this->phpdice->parse('1d20 disadvantage');
         $stats = $expression->statistics;
-
+        
         // Min: 1
         $this->assertEquals(1, $stats->minimum);
-
+        
         // Max: 20 (best case both dice roll 20)
         $this->assertEquals(20, $stats->maximum);
-
+        
         // Expected for d20 disadvantage: ~7.175
         $this->assertGreaterThan(6.5, $stats->expected);
         $this->assertLessThan(8.0, $stats->expected);
@@ -161,7 +166,7 @@ class AdvantageTest extends BaseTestCase
     {
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage('Cannot keep');
-
+        
         $this->phpdice->parse('2d6 keep 3 highest');
     }
 
@@ -173,7 +178,7 @@ class AdvantageTest extends BaseTestCase
     {
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage('conflict');
-
+        
         $this->phpdice->parse('4d6 keep 2 highest keep 1 lowest');
     }
 
@@ -184,7 +189,7 @@ class AdvantageTest extends BaseTestCase
     public function testAdvantageWithArithmetic(): void
     {
         $result = $this->phpdice->roll('1d20 advantage + 5');
-
+        
         // Should roll 2 dice, keep highest, add 5
         $this->assertCount(2, $result->diceValues);
         $highest = max($result->diceValues);
@@ -198,7 +203,7 @@ class AdvantageTest extends BaseTestCase
     public function testDisadvantageWithArithmetic(): void
     {
         $result = $this->phpdice->roll('1d20 disadvantage - 2');
-
+        
         // Should roll 2 dice, keep lowest, subtract 2
         $this->assertCount(2, $result->diceValues);
         $lowest = min($result->diceValues);
@@ -212,10 +217,10 @@ class AdvantageTest extends BaseTestCase
     public function testMultipleDiceWithAdvantage(): void
     {
         $result = $this->phpdice->roll('2d6 advantage');
-
+        
         // Should roll 4 dice (2 base + 2 advantage)
         $this->assertCount(4, $result->diceValues);
-
+        
         // Should keep 2 highest
         $this->assertCount(2, $result->keptDice ?? []);
         $this->assertCount(2, $result->discardedDice ?? []);
@@ -228,14 +233,14 @@ class AdvantageTest extends BaseTestCase
     public function testKeepAllDice(): void
     {
         $result = $this->phpdice->roll('4d6 keep 4 highest');
-
+        
         // Should roll 4 dice
         $this->assertCount(4, $result->diceValues);
-
+        
         // Should keep all 4
         $this->assertCount(4, $result->keptDice ?? []);
         $this->assertEmpty($result->discardedDice ?? []);
-
+        
         // Total should be sum of all dice
         $this->assertEquals(array_sum($result->diceValues), $result->total);
     }

@@ -52,7 +52,8 @@ echo "   Roll: {$result->total}\n";
 if ($result->isCriticalSuccess) {
     echo "   *** CRITICAL HIT! Natural 20! ***\n";
     echo "   Rolling damage with double dice...\n";
-$damageResult = $phpdice->roll('2d8+2d6+4');
+    $damage = $phpdice->parse('2d8+2d6+4'); // Doubled weapon + sneak attack
+    $damageResult = $phpdice->roll($damage);
     echo "   Critical Damage: {$damageResult->total}\n";
 } elseif ($result->isCriticalFailure) {
     echo "   *** CRITICAL MISS! Natural 1! ***\n";

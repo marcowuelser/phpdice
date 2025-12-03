@@ -5,18 +5,27 @@ declare(strict_types=1);
 namespace PHPDice\Tests\Integration;
 
 use PHPDice\Model\StatisticalData;
+use PHPDice\PHPDice;
+use PHPDice\Tests\Integration\BaseTestCase;
 
 /**
- * Integration tests for User Story 10: Statistical Analysis.
- *
+ * Integration tests for User Story 10: Statistical Analysis
+ * 
  * Tests that statistics (min, max, expected) are correctly calculated
  * for all expression types without rolling dice.
+ * 
+ * @covers \PHPDice\PHPDice
+ * @covers \PHPDice\Parser\DiceExpressionParser
+ * @covers \PHPDice\Model\DiceExpression
+ * @covers \PHPDice\Model\StatisticalCalculator
+ * @covers \PHPDice\Model\StatisticalData
  */
 class StatisticsTest extends BaseTestCase
 {
+
     /**
-     * AC1: Basic dice statistics.
-     *
+     * AC1: Basic dice statistics
+     * 
      * @test
      */
     public function testBasicDiceStatistics(): void
@@ -30,8 +39,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC1: Single die statistics.
-     *
+     * AC1: Single die statistics
+     * 
      * @test
      */
     public function testSingleDieStatistics(): void
@@ -45,8 +54,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC2: Arithmetic modifier statistics.
-     *
+     * AC2: Arithmetic modifier statistics
+     * 
      * @test
      */
     public function testArithmeticModifierStatistics(): void
@@ -60,8 +69,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC2: Complex arithmetic statistics.
-     *
+     * AC2: Complex arithmetic statistics
+     * 
      * @test
      */
     public function testComplexArithmeticStatistics(): void
@@ -75,8 +84,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC3: Advantage statistics (2d20 keep highest).
-     *
+     * AC3: Advantage statistics (2d20 keep highest)
+     * 
      * @test
      */
     public function testAdvantageStatistics(): void
@@ -91,8 +100,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC3: Disadvantage statistics (2d20 keep lowest).
-     *
+     * AC3: Disadvantage statistics (2d20 keep lowest)
+     * 
      * @test
      */
     public function testDisadvantageStatistics(): void
@@ -107,8 +116,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC3: Keep highest statistics (4d6 keep 3 highest).
-     *
+     * AC3: Keep highest statistics (4d6 keep 3 highest)
+     * 
      * @test
      */
     public function testKeepHighestStatistics(): void
@@ -123,8 +132,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC4: Success counting statistics.
-     *
+     * AC4: Success counting statistics
+     * 
      * @test
      */
     public function testSuccessCountingStatistics(): void
@@ -139,8 +148,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC4: Success counting with different operator.
-     *
+     * AC4: Success counting with different operator
+     * 
      * @test
      */
     public function testSuccessCountingWithGreaterThanStatistics(): void
@@ -155,8 +164,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC5: Fudge dice statistics.
-     *
+     * AC5: Fudge dice statistics
+     * 
      * @test
      */
     public function testFudgeDiceStatistics(): void
@@ -170,8 +179,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC5: Percentile dice statistics.
-     *
+     * AC5: Percentile dice statistics
+     * 
      * @test
      */
     public function testPercentileDiceStatistics(): void
@@ -185,8 +194,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC6: Placeholder statistics.
-     *
+     * AC6: Placeholder statistics
+     * 
      * @test
      */
     public function testPlaceholderStatistics(): void
@@ -201,8 +210,8 @@ class StatisticsTest extends BaseTestCase
 
     /**
      * AC7: Comparison expressions don't affect statistics
-     * Success rolls evaluate after rolling, so stats show pre-comparison values.
-     *
+     * Success rolls evaluate after rolling, so stats show pre-comparison values
+     * 
      * @test
      */
     public function testComparisonDoesNotAffectStatistics(): void
@@ -218,8 +227,8 @@ class StatisticsTest extends BaseTestCase
 
     /**
      * AC8: Critical thresholds don't affect statistics
-     * Criticals are flags set after rolling.
-     *
+     * Criticals are flags set after rolling
+     * 
      * @test
      */
     public function testCriticalThresholdsDoNotAffectStatistics(): void
@@ -234,8 +243,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC9: Reroll statistics adjust minimum/expected.
-     *
+     * AC9: Reroll statistics adjust minimum/expected
+     * 
      * @test
      */
     public function testRerollStatistics(): void
@@ -252,8 +261,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC10: Exploding dice statistics show potential ranges.
-     *
+     * AC10: Exploding dice statistics show potential ranges
+     * 
      * @test
      */
     public function testExplodingDiceStatistics(): void
@@ -270,8 +279,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC11: Precision requirement - 3 decimal places.
-     *
+     * AC11: Precision requirement - 3 decimal places
+     * 
      * @test
      */
     public function testStatisticsPrecision(): void
@@ -285,8 +294,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC12: Complex expression with multiple mechanics.
-     *
+     * AC12: Complex expression with multiple mechanics
+     * 
      * @test
      */
     public function testComplexExpressionStatistics(): void
@@ -301,17 +310,17 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC13: Statistics available without rolling.
-     *
+     * AC13: Statistics available without rolling
+     * 
      * @test
      */
     public function testStatisticsAvailableWithoutRolling(): void
     {
         $expression = $this->phpdice->parse('3d6+5');
-
+        
         // Can get statistics without calling roll()
         $stats = $expression->getStatistics();
-
+        
         $this->assertInstanceOf(StatisticalData::class, $stats);
         $this->assertSame(8, $stats->minimum);
         $this->assertSame(23, $stats->maximum);
@@ -319,8 +328,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC14: Fudge dice with success counting.
-     *
+     * AC14: Fudge dice with success counting
+     * 
      * @test
      */
     public function testFudgeDiceSuccessCountingStatistics(): void
@@ -335,8 +344,8 @@ class StatisticsTest extends BaseTestCase
     }
 
     /**
-     * AC15: Mathematical functions in statistics.
-     *
+     * AC15: Mathematical functions in statistics
+     * 
      * @test
      */
     public function testMathematicalFunctionStatistics(): void

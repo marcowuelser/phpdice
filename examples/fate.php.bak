@@ -61,7 +61,8 @@ echo "\n";
 // 2. Opposed Roll
 echo "2. Opposed Roll (Attacker vs Defender):\n";
 echo "   Attacker (Fight +3):\n";
-$attackResult = $phpdice->roll('4dF+3');
+$attackExpr = $phpdice->parse('4dF+3');
+$attackResult = $phpdice->roll($attackExpr);
 $attackSymbols = array_map(fn($v) => match ($v) {
     -1 => '[-]', 0 => '[ ]', 1 => '[+]',
 }, $attackResult->diceValues);
@@ -69,7 +70,8 @@ echo "     Dice: " . implode(' ', $attackSymbols) . "\n";
 echo "     Total: " . ($attackResult->total >= 0 ? '+' : '') . "{$attackResult->total}\n";
 
 echo "   Defender (Defend +2):\n";
-$defendResult = $phpdice->roll('4dF+2');
+$defendExpr = $phpdice->parse('4dF+2');
+$defendResult = $phpdice->roll($defendExpr);
 $defendSymbols = array_map(fn($v) => match ($v) {
     -1 => '[-]', 0 => '[ ]', 1 => '[+]',
 }, $defendResult->diceValues);
@@ -138,7 +140,8 @@ echo "\n";
 // 5. Using Fate Points
 echo "5. Reroll Using Fate Point:\n";
 echo "   Initial roll (Shoot +2):\n";
-$firstResult = $phpdice->roll('4dF+2');
+$firstExpr = $phpdice->parse('4dF+2');
+$firstResult = $phpdice->roll($firstExpr);
 $firstSymbols = array_map(fn($v) => match ($v) {
     -1 => '[-]', 0 => '[ ]', 1 => '[+]',
 }, $firstResult->diceValues);
@@ -223,9 +226,11 @@ $player2Score = 0;
 for ($exchange = 1; $exchange <= 3; $exchange++) {
     echo "   Exchange {$exchange}:\n";
 
-$p1Result = $phpdice->roll('4dF+3');
+    $p1Expr = $phpdice->parse('4dF+3'); // Resources +3
+    $p1Result = $phpdice->roll($p1Expr);
 
-$p2Result = $phpdice->roll('4dF+2');
+    $p2Expr = $phpdice->parse('4dF+2'); // Resources +2
+    $p2Result = $phpdice->roll($p2Expr);
 
     echo "     Player 1: " . ($p1Result->total >= 0 ? '+' : '') . "{$p1Result->total}\n";
     echo "     Player 2: " . ($p2Result->total >= 0 ? '+' : '') . "{$p2Result->total}\n";
