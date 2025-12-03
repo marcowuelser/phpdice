@@ -15,6 +15,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * Unit tests for DiceRoller with mocked RNG
  * Tests edge cases: lowest/highest rolls, rerolls, explosions, keep mechanics
+ * 
+ * @covers \PHPDice\Roller\DiceRoller
  */
 class DiceRollerTest extends TestCase
 {

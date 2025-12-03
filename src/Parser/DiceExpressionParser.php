@@ -61,7 +61,7 @@ class DiceExpressionParser
         $spec = new DiceSpecification(
             count: $diceNode->getCount(),
             sides: $diceNode->getSides(),
-            type: DiceType::STANDARD
+            type: $diceNode->getType()
         );
 
         // Validate specification
@@ -177,9 +177,35 @@ class DiceExpressionParser
         // Dice notation (XdY) - DON'T consume modifiers here, they're parsed separately
         if ($this->check(Token::TYPE_NUMBER) && $this->checkNext(Token::TYPE_DICE)) {
             $count = $this->consumeNumber();
-            $this->consume(Token::TYPE_DICE);
-            $sides = $this->consumeNumber();
-            return new DiceNode($count, $sides);
+            $diceToken = $this->advance();
+            $diceValue = (string)$diceToken->value;
+            
+            // Check for special dice types
+            if ($diceValue === 'dF') {
+                // Fudge dice: count is specified, sides is always 3 (representing -1, 0, +1)
+                return new DiceNode($count, 3, \PHPDice\Model\DiceType::FUDGE);
+            } elseif ($diceValue === 'd%') {
+                // Percentile dice: count is specified, sides is always 100
+                return new DiceNode($count, 100, \PHPDice\Model\DiceType::PERCENTILE);
+            } else {
+                // Standard dice: get the sides
+                $sides = $this->consumeNumber();
+                return new DiceNode($count, $sides);
+            }
+        }
+        
+        // Standalone d% or dF (equivalent to 1d% or 1dF)
+        if ($this->check(Token::TYPE_DICE)) {
+            $diceToken = $this->peek();
+            $diceValue = (string)$diceToken->value;
+            
+            if ($diceValue === 'd%') {
+                $this->advance(); // Consume d%
+                return new DiceNode(1, 100, \PHPDice\Model\DiceType::PERCENTILE);
+            } elseif ($diceValue === 'dF') {
+                $this->advance(); // Consume dF
+                return new DiceNode(1, 3, \PHPDice\Model\DiceType::FUDGE);
+            }
         }
 
         // Plain number

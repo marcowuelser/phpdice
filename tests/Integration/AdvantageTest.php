@@ -9,6 +9,10 @@ use PHPDice\Exception\ValidationException;
 
 /**
  * Integration tests for advantage/disadvantage mechanics (US3)
+ * 
+ * @covers \PHPDice\PHPDice
+ * @covers \PHPDice\Parser\DiceExpressionParser
+ * @covers \PHPDice\Roller\DiceRoller
  */
 class AdvantageTest extends BaseTestCase
 {

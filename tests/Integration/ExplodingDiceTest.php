@@ -11,6 +11,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * Integration tests for exploding dice mechanics (US5a)
  * Tests FR-038, FR-038a, FR-038b, FR-038c, FR-039, FR-040, FR-041
+ * 
+ * @covers \PHPDice\PHPDice
+ * @covers \PHPDice\Parser\DiceExpressionParser
+ * @covers \PHPDice\Roller\DiceRoller
  */
 class ExplodingDiceTest extends TestCase
 {
@@ -125,6 +129,10 @@ class ExplodingDiceTest extends TestCase
         // "1d6 explode 10 >=6" means: roll d6, if 6, explode up to 10 times
         $result = $this->phpdice->roll('1d6 explode 10 >=6');
         
+        // Verify the result is valid
+        $this->assertNotNull($result);
+        $this->assertCount(1, $result->diceValues);
+        
         if ($result->explosionHistory !== null && isset($result->explosionHistory[0])) {
             $history = $result->explosionHistory[0];
             
@@ -145,6 +153,10 @@ class ExplodingDiceTest extends TestCase
     {
         // Use low limit for faster test
         $result = $this->phpdice->roll('1d6 explode 1 >=6');
+        
+        // Verify the result is valid
+        $this->assertNotNull($result);
+        $this->assertCount(1, $result->diceValues);
         
         if ($result->explosionHistory !== null && isset($result->explosionHistory[0])) {
             $history = $result->explosionHistory[0];

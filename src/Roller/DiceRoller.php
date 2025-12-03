@@ -45,7 +45,11 @@ class DiceRoller
         $explosionHistory = null;
         
         for ($i = 0; $i < $totalDiceToRoll; $i++) {
-            $initialRoll = $this->rng->generate(1, $spec->sides);
+            // Generate raw roll based on dice type
+            $rawRoll = $this->rng->generate(1, $spec->sides);
+            
+            // Convert for special dice types
+            $initialRoll = $this->convertDiceValue($rawRoll, $spec->type);
             $diceValues[] = $initialRoll;
             
             // Handle rerolls if configured (rerolls happen first, then explosions)
@@ -56,7 +60,8 @@ class DiceRoller
                 
                 while ($this->shouldReroll($currentValue, $modifiers->rerollThreshold, $modifiers->rerollOperator) 
                        && $rerollCount < $modifiers->rerollLimit) {
-                    $currentValue = $this->rng->generate(1, $spec->sides);
+                    $rawReroll = $this->rng->generate(1, $spec->sides);
+                    $currentValue = $this->convertDiceValue($rawReroll, $spec->type);
                     $history[] = $currentValue;
                     $rerollCount++;
                 }
@@ -87,7 +92,8 @@ class DiceRoller
                 // Keep exploding while threshold is met and limit not reached
                 while ($this->shouldExplode($currentValue, $modifiers->explosionThreshold, $modifiers->explosionOperator) 
                        && $explosionCount < $modifiers->explosionLimit) {
-                    $currentValue = $this->rng->generate(1, $spec->sides);
+                    $rawExplosion = $this->rng->generate(1, $spec->sides);
+                    $currentValue = $this->convertDiceValue($rawExplosion, $spec->type);
                     $explosions[] = $currentValue;
                     $cumulativeTotal += $currentValue;
                     $explosionCount++;
@@ -268,6 +274,21 @@ class DiceRoller
         }
 
         return [$keptValues, array_values($keptIndices), array_values($discardedIndices)];
+    }
+
+    /**
+     * Convert dice value based on dice type
+     *
+     * @param int $rawValue Raw dice value (1 to sides)
+     * @param \PHPDice\Model\DiceType $type Dice type
+     * @return int Converted value
+     */
+    private function convertDiceValue(int $rawValue, \PHPDice\Model\DiceType $type): int
+    {
+        return match ($type) {
+            \PHPDice\Model\DiceType::FUDGE => $rawValue - 2, // Convert 1,2,3 to -1,0,+1
+            \PHPDice\Model\DiceType::STANDARD, \PHPDice\Model\DiceType::PERCENTILE => $rawValue,
+        };
     }
 
     /**

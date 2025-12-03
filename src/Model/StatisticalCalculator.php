@@ -93,12 +93,24 @@ class StatisticalCalculator
     {
         $threshold = $modifiers->successThreshold;
         $operator = $modifiers->successOperator;
-        $sides = $spec->sides;
         $count = $spec->count;
+
+        // Determine value range based on dice type
+        if ($spec->type === DiceType::FUDGE) {
+            // Fudge dice have values: -1, 0, +1
+            $minValue = -1;
+            $maxValue = 1;
+            $totalValues = 3;
+        } else {
+            // Standard and percentile dice: 1 to sides
+            $minValue = 1;
+            $maxValue = $spec->sides;
+            $totalValues = $spec->sides;
+        }
 
         // Calculate probability of success for a single die
         $successValues = 0;
-        for ($value = 1; $value <= $sides; $value++) {
+        for ($value = $minValue; $value <= $maxValue; $value++) {
             if ($operator === '>=' && $value >= $threshold) {
                 $successValues++;
             } elseif ($operator === '>' && $value > $threshold) {
@@ -106,7 +118,7 @@ class StatisticalCalculator
             }
         }
 
-        $probabilityPerDie = $successValues / $sides;
+        $probabilityPerDie = $successValues / $totalValues;
 
         // Minimum successes: 0 (all dice fail)
         $minimum = 0;
@@ -128,6 +140,20 @@ class StatisticalCalculator
      */
     private function calculateBasicDice(DiceSpecification $spec): StatisticalData
     {
+        // Handle fudge dice (dF) - values are -1, 0, +1 (FR-007)
+        if ($spec->type === DiceType::FUDGE) {
+            $minPerDie = -1;
+            $maxPerDie = 1;
+            $expectedPerDie = 0; // Equal probability of -1, 0, +1
+            
+            $minimum = $spec->count * $minPerDie;
+            $maximum = $spec->count * $maxPerDie;
+            $expected = $spec->count * $expectedPerDie;
+            
+            return new StatisticalData($minimum, $maximum, round($expected, 3));
+        }
+        
+        // Standard and percentile dice work the same way for statistics
         $minPerDie = 1;
         $maxPerDie = $spec->sides;
         $expectedPerDie = ($minPerDie + $maxPerDie) / 2;
@@ -438,9 +464,17 @@ class StatisticalCalculator
         }
 
         if ($node instanceof DiceNode) {
-            $minPerDie = 1;
-            $maxPerDie = $node->getSides();
-            $expectedPerDie = ($minPerDie + $maxPerDie) / 2;
+            // Check for special dice types (FR-007: Fudge dice)
+            if ($node->getType() === DiceType::FUDGE) {
+                $minPerDie = -1;
+                $maxPerDie = 1;
+                $expectedPerDie = 0;
+            } else {
+                // Standard and percentile dice
+                $minPerDie = 1;
+                $maxPerDie = $node->getSides();
+                $expectedPerDie = ($minPerDie + $maxPerDie) / 2;
+            }
 
             $min = $node->getCount() * $minPerDie;
             $max = $node->getCount() * $maxPerDie;

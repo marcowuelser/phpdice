@@ -142,8 +142,19 @@ class Lexer
 
         $lower = strtolower($text);
 
-        // Check if it's 'd' for dice notation
+        // Check for dF (fudge dice) - must check before 'd' alone
+        if ($lower === 'df') {
+            return new Token(Token::TYPE_DICE, 'dF', $start);
+        }
+
+        // Check if it's 'd' for dice notation (might be d%)
         if ($lower === 'd') {
+            // Check for d% (percentile dice)
+            if ($this->position < $this->length && $this->input[$this->position] === '%') {
+                $this->position++; // Consume '%'
+                return new Token(Token::TYPE_DICE, 'd%', $start);
+            }
+            // Regular d notation
             return new Token(Token::TYPE_DICE, 'd', $start);
         }
 

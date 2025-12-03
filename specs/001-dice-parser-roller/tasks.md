@@ -183,7 +183,7 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 - [X] T077 [US5] Update RollResult to track complete reroll history with limit tracking per die in src/Roller/DiceRoller.php
 - [X] T078 [US5] Write integration test in tests/Integration/RerollTest.php covering all US5 acceptance scenarios
 - [ ] T079 [US5] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-005b reroll range validation
-- [ ] T080 [US5] Write unit tests in tests/Unit/Roller/DiceRollerTest.php verifying configurable reroll limits (FR-005a)
+- [X] T080 [US5] Write unit tests in tests/Unit/Roller/DiceRollerTest.php verifying configurable reroll limits (FR-005a)
 
 **Checkpoint**: At this point, all previous stories PLUS reroll mechanics with configurable limits should work independently
 
@@ -222,14 +222,14 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 6
 
-- [ ] T093 [P] [US6] Extend Lexer to recognize special dice notation: dF, d% in src/Parser/Lexer.php
-- [ ] T094 [US6] Add fudge dice parsing (XdF format) in src/Parser/DiceExpressionParser.php
-- [ ] T095 [US6] Add percentile dice parsing (d% or Xd100 format) in src/Parser/DiceExpressionParser.php
-- [ ] T096 [US6] Update StatisticalCalculator for fudge dice (-1, 0, +1 values) in src/Model/StatisticalCalculator.php
-- [ ] T097 [US6] Update StatisticalCalculator for percentile dice (1-100 range) in src/Model/StatisticalCalculator.php
-- [ ] T098 [US6] Update DiceRoller to generate fudge dice values (-1, 0, +1) in src/Roller/DiceRoller.php
-- [ ] T099 [US6] Update DiceRoller to generate percentile values (1-100) in src/Roller/DiceRoller.php
-- [ ] T100 [US6] Write integration test in tests/Integration/SpecialDiceTest.php covering all US6 acceptance scenarios
+- [X] T093 [P] [US6] Extend Lexer to recognize special dice notation: dF, d% in src/Parser/Lexer.php
+- [X] T094 [US6] Add fudge dice parsing (XdF format) in src/Parser/DiceExpressionParser.php
+- [X] T095 [US6] Add percentile dice parsing (d% or Xd100 format) in src/Parser/DiceExpressionParser.php
+- [X] T096 [US6] Update StatisticalCalculator for fudge dice (-1, 0, +1 values) in src/Model/StatisticalCalculator.php
+- [X] T097 [US6] Update StatisticalCalculator for percentile dice (1-100 range) in src/Model/StatisticalCalculator.php
+- [X] T098 [US6] Update DiceRoller to generate fudge dice values (-1, 0, +1) in src/Roller/DiceRoller.php
+- [X] T099 [US6] Update DiceRoller to generate percentile values (1-100) in src/Roller/DiceRoller.php
+- [X] T100 [US6] Write integration test in tests/Integration/SpecialDiceTest.php covering all US6 acceptance scenarios
 - [ ] T101 [US6] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for fudge and percentile dice
 
 **Checkpoint**: At this point, all previous stories PLUS special dice types should work independently

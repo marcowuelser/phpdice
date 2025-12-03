@@ -8,6 +8,10 @@ use PHPDice\Exception\ValidationException;
 
 /**
  * Integration tests for reroll mechanics (US5)
+ * 
+ * @covers \PHPDice\PHPDice
+ * @covers \PHPDice\Parser\DiceExpressionParser
+ * @covers \PHPDice\Roller\DiceRoller
  */
 class RerollTest extends BaseTestCase
 {

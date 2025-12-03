@@ -7,7 +7,11 @@ namespace PHPDice\Tests\Integration;
 use PHPDice\Exception\ValidationException;
 
 /**
- * Integration tests for success counting mechanics (US4)
+ * Integration tests for success counting (US4)
+ * 
+ * @covers \PHPDice\PHPDice
+ * @covers \PHPDice\Parser\DiceExpressionParser
+ * @covers \PHPDice\Roller\DiceRoller
  */
 class SuccessCountingTest extends BaseTestCase
 {

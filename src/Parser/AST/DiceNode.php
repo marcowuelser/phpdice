@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PHPDice\Parser\AST;
 
+use PHPDice\Model\DiceType;
+
 /**
  * Represents a dice roll node in the AST
  */
@@ -13,7 +15,8 @@ class DiceNode extends Node
 
     public function __construct(
         private readonly int $count,
-        private readonly int $sides
+        private readonly int $sides,
+        private readonly DiceType $type = DiceType::STANDARD
     ) {
     }
 
@@ -35,5 +38,10 @@ class DiceNode extends Node
     public function getSides(): int
     {
         return $this->sides;
+    }
+
+    public function getType(): DiceType
+    {
+        return $this->type;
     }
 }
