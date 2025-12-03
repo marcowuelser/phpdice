@@ -244,13 +244,13 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 7
 
-- [ ] T102 [P] [US7] Extend Lexer to recognize placeholder pattern %name% in src/Parser/Lexer.php
-- [ ] T103 [US7] Add placeholder parsing and variable substitution in src/Parser/DiceExpressionParser.php
-- [ ] T104 [US7] Add validation to reject unbound placeholders (FR-009a) in src/Parser/Validator.php
-- [ ] T105 [US7] Store resolved variables in RollModifiers.resolvedVariables in src/Parser/DiceExpressionParser.php
-- [ ] T106 [US7] Update parse() method signature to accept variables parameter in src/PHPDice.php
-- [ ] T107 [US7] Write integration test in tests/Integration/PlaceholdersTest.php covering all US7 acceptance scenarios
-- [ ] T108 [US7] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-009a (missing variables error)
+- [X] T102 [P] [US7] Extend Lexer to recognize placeholder pattern %name% in src/Parser/Lexer.php
+- [X] T103 [US7] Add placeholder parsing and variable substitution in src/Parser/DiceExpressionParser.php
+- [X] T104 [US7] Add validation to reject unbound placeholders (FR-009a) in src/Parser/Validator.php
+- [X] T105 [US7] Store resolved variables in RollModifiers.resolvedVariables in src/Parser/DiceExpressionParser.php
+- [X] T106 [US7] Update parse() method signature to accept variables parameter in src/PHPDice.php
+- [X] T107 [US7] Write integration test in tests/Integration/PlaceholdersTest.php covering all US7 acceptance scenarios
+- [X] T108 [US7] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-009a (missing variables error)
 
 **Checkpoint**: At this point, all previous stories PLUS placeholder variables should work independently
 

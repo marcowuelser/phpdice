@@ -24,6 +24,8 @@ class DiceExpressionParser
     private array $tokens = [];
     private int $current = 0;
     private ?Node $astRoot = null;
+    private array $variables = []; // Placeholder values
+    private array $usedVariables = []; // Track which variables were actually used
 
     public function __construct(
         private readonly Validator $validator = new Validator(),
@@ -41,6 +43,10 @@ class DiceExpressionParser
      */
     public function parse(string $expression, array $variables = []): DiceExpression
     {
+        // Store variables for placeholder substitution
+        $this->variables = $variables;
+        $this->usedVariables = [];
+        
         // Tokenize
         $lexer = new Lexer($expression);
         $this->tokens = $lexer->tokenize();
@@ -94,6 +100,24 @@ class DiceExpressionParser
             throw new ParseException(
                 "Unexpected token: {$remaining->type} '{$remaining->value}'",
                 $this->getCurrentPosition()
+            );
+        }
+
+        // Update modifiers with resolved variables (parsed during expression evaluation)
+        if (!empty($this->usedVariables)) {
+            $modifiers = new RollModifiers(
+                advantageCount: $modifiers->advantageCount,
+                keepHighest: $modifiers->keepHighest,
+                keepLowest: $modifiers->keepLowest,
+                successThreshold: $modifiers->successThreshold,
+                successOperator: $modifiers->successOperator,
+                explosionThreshold: $modifiers->explosionThreshold,
+                explosionOperator: $modifiers->explosionOperator,
+                explosionLimit: $modifiers->explosionLimit,
+                rerollThreshold: $modifiers->rerollThreshold,
+                rerollOperator: $modifiers->rerollOperator,
+                rerollLimit: $modifiers->rerollLimit,
+                resolvedVariables: $this->usedVariables
             );
         }
 
@@ -206,6 +230,25 @@ class DiceExpressionParser
                 $this->advance(); // Consume dF
                 return new DiceNode(1, 3, \PHPDice\Model\DiceType::FUDGE);
             }
+        }
+
+        // Placeholder (%name%)
+        if ($this->match(Token::TYPE_PLACEHOLDER)) {
+            $variableName = (string)$this->previous()->value;
+            
+            // Check if variable is provided
+            if (!array_key_exists($variableName, $this->variables)) {
+                throw new ParseException(
+                    "Unbound placeholder variable '%{$variableName}%'. Please provide a value for this variable.",
+                    $this->previous()->position
+                );
+            }
+            
+            // Track that this variable was used
+            $this->usedVariables[$variableName] = $this->variables[$variableName];
+            
+            // Return the numeric value
+            return new NumberNode($this->variables[$variableName]);
         }
 
         // Plain number
@@ -448,7 +491,8 @@ class DiceExpressionParser
             explosionLimit: $explosionLimit,
             rerollThreshold: $rerollThreshold,
             rerollOperator: $rerollOperator,
-            rerollLimit: $rerollLimit
+            rerollLimit: $rerollLimit,
+            resolvedVariables: $this->usedVariables
         );
     }
 

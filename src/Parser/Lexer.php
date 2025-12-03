@@ -49,6 +49,12 @@ class Lexer
                 continue;
             }
 
+            // Placeholders (%name%)
+            if ($char === '%') {
+                $tokens[] = $this->readPlaceholder();
+                continue;
+            }
+
             // Keywords and function names (letters)
             if (ctype_alpha($char)) {
                 $tokens[] = $this->readKeywordOrFunction();
@@ -172,6 +178,49 @@ class Lexer
 
         // Otherwise it's an unknown keyword
         return new Token(Token::TYPE_KEYWORD, $lower, $start);
+    }
+
+    /**
+     * Read a placeholder variable (%name%)
+     *
+     * @return Token Placeholder token
+     * @throws ParseException If placeholder syntax is invalid
+     */
+    private function readPlaceholder(): Token
+    {
+        $start = $this->position;
+        $this->position++; // Skip opening %
+        
+        if ($this->position >= $this->length) {
+            throw new ParseException('Incomplete placeholder: expected variable name after %', $start);
+        }
+        
+        // Read variable name (must be letters/digits/underscore)
+        $name = '';
+        while ($this->position < $this->length) {
+            $char = $this->input[$this->position];
+            
+            if ($char === '%') {
+                // End of placeholder
+                $this->position++; // Skip closing %
+                
+                if ($name === '') {
+                    throw new ParseException('Empty placeholder name: %%', $start);
+                }
+                
+                return new Token(Token::TYPE_PLACEHOLDER, $name, $start);
+            }
+            
+            if (ctype_alnum($char) || $char === '_') {
+                $name .= $char;
+                $this->position++;
+            } else {
+                throw new ParseException("Invalid character '{$char}' in placeholder name", $this->position);
+            }
+        }
+        
+        // Reached end of input without finding closing %
+        throw new ParseException("Unclosed placeholder: missing closing %", $start);
     }
 
     /**
