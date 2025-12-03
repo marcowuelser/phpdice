@@ -188,4 +188,26 @@ class Validator
             );
         }
     }
+
+    /**
+     * Validate critical threshold is within die range (FR-035, FR-036)
+     *
+     * @param DiceSpecification $spec Dice specification
+     * @param int $threshold Critical threshold value
+     * @param string $type Type of critical ('success' or 'failure')
+     * @throws ValidationException If threshold is outside die range
+     */
+    public function validateCriticalThreshold(DiceSpecification $spec, int $threshold, string $type): void
+    {
+        $minValue = 1;
+        $maxValue = $spec->sides;
+
+        if ($threshold < $minValue || $threshold > $maxValue) {
+            $label = $type === 'success' ? 'Critical success' : 'Critical failure';
+            throw new ValidationException(
+                "{$label} threshold {$threshold} is outside die range ({$minValue}-{$maxValue})",
+                'critical'
+            );
+        }
+    }
 }

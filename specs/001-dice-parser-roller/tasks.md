@@ -283,14 +283,14 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 9
 
-- [ ] T115 [P] [US9] Extend Lexer to recognize keywords: crit, critical, glitch, failure in src/Parser/Lexer.php
-- [ ] T116 [US9] Add critical threshold parsing (crit N, glitch N syntax) in src/Parser/DiceExpressionParser.php
-- [ ] T117 [US9] Add validation that critical thresholds are within die range (FR-035, FR-036) in src/Parser/Validator.php
-- [ ] T118 [US9] Store criticalSuccess and criticalFailure thresholds in RollModifiers in src/Parser/DiceExpressionParser.php
-- [ ] T119 [US9] Update DiceRoller to check for critical success/failure and set flags in src/Roller/DiceRoller.php
-- [ ] T120 [US9] Write integration test in tests/Integration/CriticalTest.php covering all US9 acceptance scenarios
-- [ ] T121 [US9] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-035, FR-036
-- [ ] T122 [US9] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for critical detection logic
+- [X] T115 [P] [US9] Extend Lexer to recognize keywords: crit, critical, glitch, failure in src/Parser/Lexer.php
+- [X] T116 [US9] Add critical threshold parsing (crit N, glitch N syntax) in src/Parser/DiceExpressionParser.php
+- [X] T117 [US9] Add validation that critical thresholds are within die range (FR-035, FR-036) in src/Parser/Validator.php
+- [X] T118 [US9] Store criticalSuccess and criticalFailure thresholds in RollModifiers in src/Parser/DiceExpressionParser.php
+- [X] T119 [US9] Update DiceRoller to check for critical success/failure and set flags in src/Roller/DiceRoller.php
+- [X] T120 [US9] Write integration test in tests/Integration/CriticalTest.php covering all US9 acceptance scenarios
+- [X] T121 [US9] Write unit tests in tests/Unit/Parser/ValidatorTest.php for FR-035, FR-036
+- [X] T122 [US9] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for critical detection logic
 
 **Checkpoint**: At this point, all previous stories PLUS critical detection should work independently
 

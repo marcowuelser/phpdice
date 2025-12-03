@@ -515,6 +515,24 @@ class DiceExpressionParser
             }
         }
 
+        // Check for critical success: "crit N" or "critical N"
+        $criticalSuccess = null;
+        if ($this->match(Token::TYPE_KEYWORD, ['crit', 'critical'])) {
+            $criticalSuccess = $this->consumeNumber();
+            
+            // Validate critical threshold is within die range (FR-035)
+            $this->validator->validateCriticalThreshold($spec, $criticalSuccess, 'success');
+        }
+
+        // Check for critical failure: "glitch N" or "failure N"
+        $criticalFailure = null;
+        if ($this->match(Token::TYPE_KEYWORD, ['glitch', 'failure'])) {
+            $criticalFailure = $this->consumeNumber();
+            
+            // Validate critical threshold is within die range (FR-036)
+            $this->validator->validateCriticalThreshold($spec, $criticalFailure, 'failure');
+        }
+
         return new RollModifiers(
             advantageCount: $advantageCount,
             keepHighest: $keepHighest,
@@ -527,6 +545,8 @@ class DiceExpressionParser
             rerollThreshold: $rerollThreshold,
             rerollOperator: $rerollOperator,
             rerollLimit: $rerollLimit,
+            criticalSuccess: $criticalSuccess,
+            criticalFailure: $criticalFailure,
             resolvedVariables: $this->usedVariables
         );
     }

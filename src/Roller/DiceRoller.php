@@ -156,6 +156,31 @@ class DiceRoller
             );
         }
 
+        // Check for critical success/failure (US9)
+        // Criticals are based on raw die values (not rerolled or exploded values)
+        $isCriticalSuccess = false;
+        $isCriticalFailure = false;
+        
+        if ($modifiers->criticalSuccess !== null) {
+            // Check if ANY die rolled the critical success value
+            foreach ($diceValues as $value) {
+                if ($value === $modifiers->criticalSuccess) {
+                    $isCriticalSuccess = true;
+                    break;
+                }
+            }
+        }
+        
+        if ($modifiers->criticalFailure !== null) {
+            // Check if ANY die rolled the critical failure value
+            foreach ($diceValues as $value) {
+                if ($value === $modifiers->criticalFailure) {
+                    $isCriticalFailure = true;
+                    break;
+                }
+            }
+        }
+
         return new RollResult(
             expression: $expression,
             total: $total,
@@ -163,6 +188,8 @@ class DiceRoller
             keptDice: $keptIndices,
             discardedDice: $discardedIndices,
             successCount: $successCount,
+            isCriticalSuccess: $isCriticalSuccess,
+            isCriticalFailure: $isCriticalFailure,
             isSuccess: $isSuccess,
             rerollHistory: $rerollHistory,
             explosionHistory: $explosionHistory
