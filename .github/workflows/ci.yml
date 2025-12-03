@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, 001-dice-parser-roller ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Tests and Quality Checks
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-version: ['8.3']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml, ctype, json
+          coverage: xdebug
+          tools: composer:v2
+      
+      - name: Validate composer.json
+        run: composer validate --strict
+      
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+      
+      - name: Run PHPUnit tests
+        run: vendor/bin/phpunit --testdox
+      
+      - name: Generate code coverage
+        run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+      
+      - name: Check code coverage threshold
+        run: |
+          COVERAGE=$(php -r "
+            \$xml = simplexml_load_file('coverage.xml');
+            \$metrics = \$xml->project->metrics;
+            \$lines = (int)\$metrics['coveredstatements'];
+            \$total = (int)\$metrics['statements'];
+            echo round((\$lines / \$total) * 100, 2);
+          ")
+          echo "Code coverage: ${COVERAGE}%"
+          # Require at least 60% coverage (current is 66.94%)
+          if (( $(echo "$COVERAGE < 60" | bc -l) )); then
+            echo "ERROR: Code coverage ${COVERAGE}% is below minimum 60%"
+            exit 1
+          fi
+      
+      - name: Run PHPStan static analysis
+        run: vendor/bin/phpstan analyse --error-format=github --no-progress
+      
+      - name: Run PHP-CS-Fixer (dry run)
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
+      
+      - name: Verify strict_types declarations
+        run: |
+          echo "Checking for strict_types in all PHP files..."
+          MISSING=0
+          for file in $(find src tests -name "*.php"); do
+            if ! grep -q "declare(strict_types=1);" "$file"; then
+              echo "ERROR: Missing strict_types in $file"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ $MISSING -gt 0 ]; then
+            echo "ERROR: $MISSING file(s) missing strict_types declaration"
+            exit 1
+          fi
+          echo "✓ All PHP files have strict_types declarations"
+      
+      - name: Run example scripts
+        run: |
+          echo "Running D&D 5e examples..."
+          php examples/dnd5e.php > /dev/null || { echo "ERROR: dnd5e.php failed"; exit 1; }
+          
+          echo "Running Shadowrun examples..."
+          php examples/shadowrun.php > /dev/null || { echo "ERROR: shadowrun.php failed"; exit 1; }
+          
+          echo "Running Savage Worlds examples..."
+          php examples/savage-worlds.php > /dev/null || { echo "ERROR: savage-worlds.php failed"; exit 1; }
+          
+          echo "Running FATE examples..."
+          php examples/fate.php > /dev/null || { echo "ERROR: fate.php failed"; exit 1; }
+          
+          echo "Running Call of Cthulhu examples..."
+          php examples/call-of-cthulhu.php > /dev/null || { echo "ERROR: call-of-cthulhu.php failed"; exit 1; }
+          
+          echo "✓ All example scripts executed successfully"
+      
+      - name: Upload coverage to Codecov (optional)
+        if: github.event_name == 'push'
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+      
+      - name: Summary
+        if: success()
+        run: |
+          echo "## ✅ All Checks Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ PHPUnit tests passing" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code coverage meets threshold" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ PHPStan Level 9 clean" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ PSR-12 compliant" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Strict types verified" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ All examples execute successfully" >> $GITHUB_STEP_SUMMARY
