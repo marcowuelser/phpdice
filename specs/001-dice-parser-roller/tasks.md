@@ -304,13 +304,13 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 10
 
-- [ ] T123 [US10] Verify StatisticalCalculator handles all expression types from US1-US9 including explosions in src/Model/StatisticalCalculator.php
+- [X] T123 [US10] Verify StatisticalCalculator handles all expression types from US1-US9 including explosions in src/Model/StatisticalCalculator.php
 - [ ] T124 [US10] Add variance and standard deviation calculations (optional fields) in src/Model/StatisticalCalculator.php
-- [ ] T125 [US10] Ensure 3 decimal precision for all statistical calculations (SC-004) in src/Model/StatisticalCalculator.php
-- [ ] T126 [US10] Add getStatistics() method to DiceExpression for easy access in src/Model/DiceExpression.php
-- [ ] T127 [US10] Write integration test in tests/Integration/StatisticsTest.php covering all US10 acceptance scenarios
-- [ ] T128 [US10] Write unit tests in tests/Unit/Model/StatisticalCalculatorTest.php for all dice types and mechanics
-- [ ] T129 [US10] Verify statistical accuracy against known probability distributions in tests
+- [X] T125 [US10] Ensure 3 decimal precision for all statistical calculations (SC-004) in src/Model/StatisticalCalculator.php
+- [X] T126 [US10] Add getStatistics() method to DiceExpression for easy access in src/Model/DiceExpression.php
+- [X] T127 [US10] Write integration test in tests/Integration/StatisticsTest.php covering all US10 acceptance scenarios
+- [X] T128 [US10] Write unit tests in tests/Unit/Model/StatisticalCalculatorTest.php for all dice types and mechanics
+- [X] T129 [US10] Verify statistical accuracy against known probability distributions in tests
 
 **Checkpoint**: All user stories (P1-P10 including P5a) should now be independently functional with complete statistical analysis
 

@@ -46,9 +46,12 @@ class StatisticalCalculator
             : $this->calculateBasicDice($spec);
 
         // Apply keep modifiers if present
-        if ($modifiers->advantageCount !== null && ($modifiers->keepHighest !== null || $modifiers->keepLowest !== null)) {
+        if ($modifiers->keepHighest !== null || $modifiers->keepLowest !== null) {
             // Determine total dice to roll
-            $totalDice = $spec->count + $modifiers->advantageCount;
+            $totalDice = $spec->count;
+            if ($modifiers->advantageCount !== null) {
+                $totalDice += $modifiers->advantageCount;
+            }
             $sides = $spec->sides;
 
             if ($modifiers->keepHighest !== null) {
