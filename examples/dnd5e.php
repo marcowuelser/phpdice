@@ -52,7 +52,7 @@ echo "   Roll: {$result->total}\n";
 if ($result->isCriticalSuccess) {
     echo "   *** CRITICAL HIT! Natural 20! ***\n";
     echo "   Rolling damage with double dice...\n";
-$damageResult = $phpdice->roll('2d8+2d6+4');
+    $damageResult = $phpdice->roll('2d8+2d6+4'); // Doubled weapon + sneak attack
     echo "   Critical Damage: {$damageResult->total}\n";
 } elseif ($result->isCriticalFailure) {
     echo "   *** CRITICAL MISS! Natural 1! ***\n";
@@ -112,7 +112,7 @@ echo "   1d20 + {$character['str']} (STR) + {$character['proficiency']} (Prof) =
 
 // 12. Probability Analysis
 echo "12. Probability Analysis (Attack Roll +5 vs AC 15):\n";
-$result = $phpdice->roll('1d20+5');
+$expression = $phpdice->parse('1d20+5');
 $stats = $expression->getStatistics();
 echo "   Minimum: {$stats->minimum}\n";
 echo "   Maximum: {$stats->maximum}\n";
@@ -121,7 +121,7 @@ $hitChance = (20 - 10 + 1) / 20 * 100; // Need 10+ on die
 echo "   Hit chance: {$hitChance}% (need 10+ on d20)\n\n";
 
 echo "13. Advantage Probability Analysis:\n";
-$result = $phpdice->roll('1d20 advantage');
+$expression = $phpdice->parse('1d20 advantage');
 $stats = $expression->getStatistics();
 echo "   Without advantage, average d20 roll: 10.5\n";
 echo "   With advantage, average roll: {$stats->expected}\n";
