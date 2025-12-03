@@ -87,6 +87,38 @@ class DiceExpressionParser
             $this->astRoot = new BinaryOpNode($this->astRoot, (string)$operator, $right);
         }
 
+        // Parse comparison operator and threshold for success rolls (US8)
+        $comparisonOperator = null;
+        $comparisonThreshold = null;
+        if ($this->match(Token::TYPE_COMPARISON)) {
+            $comparisonOperator = (string)$this->previous()->value;
+            
+            // Next token must be the threshold number or placeholder
+            if ($this->check(Token::TYPE_NUMBER)) {
+                $comparisonThreshold = (int)$this->advance()->value;
+            } elseif ($this->check(Token::TYPE_PLACEHOLDER)) {
+                // Handle placeholder for comparison threshold
+                $this->advance();
+                $variableName = (string)$this->previous()->value;
+                
+                if (!array_key_exists($variableName, $this->variables)) {
+                    throw new ParseException(
+                        "Unbound placeholder variable '%{$variableName}%'. Please provide a value for this variable.",
+                        $this->previous()->position
+                    );
+                }
+                
+                // Track variable usage
+                $this->usedVariables[$variableName] = $this->variables[$variableName];
+                $comparisonThreshold = $this->variables[$variableName];
+            } else {
+                throw new ParseException(
+                    "Expected number or placeholder after comparison operator '{$comparisonOperator}'",
+                    $this->getCurrentPosition()
+                );
+            }
+        }
+
         // Ensure all tokens are consumed
         if (!$this->isAtEnd()) {
             $remaining = $this->peek();
@@ -129,7 +161,9 @@ class DiceExpressionParser
             specification: $spec,
             modifiers: $modifiers,
             statistics: $statistics,
-            originalExpression: $expression
+            originalExpression: $expression,
+            comparisonOperator: $comparisonOperator,
+            comparisonThreshold: $comparisonThreshold
         );
     }
 
@@ -407,8 +441,9 @@ class DiceExpressionParser
             // Just "threshold N" (shorthand for "success threshold N")
             $successThreshold = $this->consumeNumber();
             $successOperator = '>=';
-        } elseif ($this->check(Token::TYPE_COMPARISON)) {
-            // Direct comparison: ">=N" or ">N"
+        } elseif ($this->check(Token::TYPE_COMPARISON) && $spec->count > 1) {
+            // Direct comparison: ">=N" or ">N" - only for multiple dice (dice pools)
+            // Single die comparisons (e.g., "1d20 >= 15") are treated as expression-level success rolls
             $comparison = $this->advance();
             $operator = (string)$comparison->value;
             

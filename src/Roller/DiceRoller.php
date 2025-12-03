@@ -146,6 +146,16 @@ class DiceRoller
             $total = array_sum($finalValues) + $modifiers->arithmeticModifier;
         }
 
+        // Evaluate expression-level comparison for success rolls (US8)
+        $isSuccess = null;
+        if ($expression->comparisonOperator !== null && $expression->comparisonThreshold !== null) {
+            $isSuccess = $this->evaluateComparison(
+                $total,
+                $expression->comparisonThreshold,
+                $expression->comparisonOperator
+            );
+        }
+
         return new RollResult(
             expression: $expression,
             total: $total,
@@ -153,6 +163,7 @@ class DiceRoller
             keptDice: $keptIndices,
             discardedDice: $discardedIndices,
             successCount: $successCount,
+            isSuccess: $isSuccess,
             rerollHistory: $rerollHistory,
             explosionHistory: $explosionHistory
         );
@@ -214,6 +225,26 @@ class DiceRoller
             }
         }
         return $count;
+    }
+
+    /**
+     * Evaluate comparison for success rolls (US8)
+     *
+     * @param int|float $total Roll total
+     * @param int $threshold Comparison threshold
+     * @param string $operator Comparison operator (>=, >, <=, <, ==)
+     * @return bool True if comparison succeeds
+     */
+    private function evaluateComparison(int|float $total, int $threshold, string $operator): bool
+    {
+        return match ($operator) {
+            '>=' => $total >= $threshold,
+            '>' => $total > $threshold,
+            '<=' => $total <= $threshold,
+            '<' => $total < $threshold,
+            '==' => $total == $threshold,
+            default => false,
+        };
     }
 
     /**

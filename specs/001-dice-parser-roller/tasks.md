@@ -264,12 +264,12 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 ### Implementation for User Story 8
 
-- [ ] T109 [P] [US8] Extend Lexer to recognize comparison operators at expression level (for success rolls) in src/Parser/Lexer.php
-- [ ] T110 [US8] Add comparison expression parsing (expression >= threshold) in src/Parser/DiceExpressionParser.php
-- [ ] T111 [US8] Store comparisonOperator and comparisonThreshold in DiceExpression in src/Parser/DiceExpressionParser.php
-- [ ] T112 [US8] Update DiceRoller to evaluate comparison and set isSuccess flag in src/Roller/DiceRoller.php
-- [ ] T113 [US8] Write integration test in tests/Integration/ComparisonTest.php covering all US8 acceptance scenarios
-- [ ] T114 [US8] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for comparison evaluation logic
+- [X] T109 [P] [US8] Extend Lexer to recognize comparison operators at expression level (for success rolls) in src/Parser/Lexer.php
+- [X] T110 [US8] Add comparison expression parsing (expression >= threshold) in src/Parser/DiceExpressionParser.php
+- [X] T111 [US8] Store comparisonOperator and comparisonThreshold in DiceExpression in src/Parser/DiceExpressionParser.php
+- [X] T112 [US8] Update DiceRoller to evaluate comparison and set isSuccess flag in src/Roller/DiceRoller.php
+- [X] T113 [US8] Write integration test in tests/Integration/ComparisonTest.php covering all US8 acceptance scenarios
+- [X] T114 [US8] Write unit tests in tests/Unit/Roller/DiceRollerTest.php for comparison evaluation logic
 
 **Checkpoint**: At this point, all previous stories PLUS success roll comparisons should work independently
 
