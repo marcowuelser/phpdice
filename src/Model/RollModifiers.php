@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace PHPDice\Model;
 
 /**
- * Contains all modifiers and special mechanics for a dice roll
+ * Contains all modifiers and special mechanics for a dice roll.
  */
 class RollModifiers
 {
     /**
-     * Create a new roll modifiers instance
+     * Create a new roll modifiers instance.
      *
      * @param string|null $arithmeticExpression Full arithmetic expression tree (AST or string)
      * @param int $arithmeticModifier Flat bonus/penalty (deprecated in favor of arithmeticExpression)

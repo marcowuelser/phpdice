@@ -9,7 +9,7 @@ use PHPDice\PHPDice;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Integration tests for placeholder variable support (US7)
+ * Integration tests for placeholder variable support (US7).
  *
  * @covers \PHPDice\PHPDice
  * @covers \PHPDice\Parser\DiceExpressionParser
@@ -26,8 +26,8 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC1: Parse with variables, verify placeholder resolution
-     * 
+     * AC1: Parse with variables, verify placeholder resolution.
+     *
      * Given an expression "1d20+%str%+%luck%" with variable values provided (str=3, luck=2)
      * When parsed
      * Then the structure resolves "%str%" and "%luck%" placeholders to their numeric values
@@ -46,7 +46,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC1: Test placeholder resolution with complex expression
+     * AC1: Test placeholder resolution with complex expression.
      */
     public function testPlaceholdersInComplexExpression(): void
     {
@@ -62,7 +62,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC1: Test single placeholder
+     * AC1: Test single placeholder.
      */
     public function testSinglePlaceholder(): void
     {
@@ -78,8 +78,8 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC2: Roll with resolved placeholders
-     * 
+     * AC2: Roll with resolved placeholders.
+     *
      * Given a parsed expression with resolved placeholders
      * When rolled
      * Then the roll evaluates correctly using the bound values
@@ -103,7 +103,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC2: Multiple rolls with same placeholders produce different dice results
+     * AC2: Multiple rolls with same placeholders produce different dice results.
      */
     public function testMultipleRollsWithPlaceholdersVaryDiceResults(): void
     {
@@ -128,8 +128,8 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC3: Parser rejects unbound placeholders
-     * 
+     * AC3: Parser rejects unbound placeholders.
+     *
      * Given an expression with unbound placeholders
      * When parsed without providing values
      * Then the parser MUST reject the expression with a clear error message listing the missing variable names
@@ -145,7 +145,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC3: Parser rejects when some variables are missing
+     * AC3: Parser rejects when some variables are missing.
      */
     public function testPartiallyBoundPlaceholdersThrowsError(): void
     {
@@ -159,7 +159,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC3: Error message is helpful and identifies the missing variable
+     * AC3: Error message is helpful and identifies the missing variable.
      */
     public function testUnboundPlaceholderErrorIsHelpful(): void
     {
@@ -179,8 +179,8 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC4: Inspect resolved placeholders
-     * 
+     * AC4: Inspect resolved placeholders.
+     *
      * Given a parsed expression with resolved placeholders
      * When inspected
      * Then I can see which placeholders were used and their bound values
@@ -200,7 +200,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC4: Only used placeholders are tracked
+     * AC4: Only used placeholders are tracked.
      */
     public function testOnlyUsedPlaceholdersAreTracked(): void
     {
@@ -217,7 +217,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * AC4: Expressions without placeholders have empty resolvedVariables
+     * AC4: Expressions without placeholders have empty resolvedVariables.
      */
     public function testExpressionsWithoutPlaceholdersHaveEmptyResolvedVariables(): void
     {
@@ -230,7 +230,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * Test placeholder with dice modifiers
+     * Test placeholder with dice modifiers.
      */
     public function testPlaceholderWithModifiers(): void
     {
@@ -250,7 +250,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * Test placeholder with advantage
+     * Test placeholder with advantage.
      */
     public function testPlaceholderWithAdvantage(): void
     {
@@ -266,7 +266,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * Test placeholder values with zero
+     * Test placeholder values with zero.
      */
     public function testPlaceholderWithZeroValue(): void
     {
@@ -284,7 +284,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * Test placeholder values with negative numbers
+     * Test placeholder values with negative numbers.
      */
     public function testPlaceholderWithNegativeValue(): void
     {
@@ -302,7 +302,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * Test placeholder with underscore in name
+     * Test placeholder with underscore in name.
      */
     public function testPlaceholderWithUnderscore(): void
     {
@@ -316,7 +316,7 @@ final class PlaceholdersTest extends TestCase
     }
 
     /**
-     * Test multiple uses of same placeholder
+     * Test multiple uses of same placeholder.
      */
     public function testMultipleUsesOfSamePlaceholder(): void
     {

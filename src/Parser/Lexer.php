@@ -7,7 +7,7 @@ namespace PHPDice\Parser;
 use PHPDice\Exception\ParseException;
 
 /**
- * Tokenizes dice expressions into a stream of tokens
+ * Tokenizes dice expressions into a stream of tokens.
  */
 class Lexer
 {
@@ -15,7 +15,7 @@ class Lexer
     private int $length;
 
     /**
-     * Create a new lexer
+     * Create a new lexer.
      *
      * @param string $input Dice expression to tokenize
      */
@@ -25,7 +25,7 @@ class Lexer
     }
 
     /**
-     * Get all tokens from the input
+     * Get all tokens from the input.
      *
      * @return array<Token> Array of tokens
      * @throws ParseException If invalid syntax is encountered
@@ -104,7 +104,7 @@ class Lexer
     }
 
     /**
-     * Skip whitespace characters
+     * Skip whitespace characters.
      */
     private function skipWhitespace(): void
     {
@@ -114,7 +114,7 @@ class Lexer
     }
 
     /**
-     * Read a number token
+     * Read a number token.
      *
      * @return Token Number token
      */
@@ -132,7 +132,7 @@ class Lexer
     }
 
     /**
-     * Read a keyword or function name
+     * Read a keyword or function name.
      *
      * @return Token Keyword or function token
      */
@@ -181,7 +181,7 @@ class Lexer
     }
 
     /**
-     * Read a placeholder variable (%name%)
+     * Read a placeholder variable (%name%).
      *
      * @return Token Placeholder token
      * @throws ParseException If placeholder syntax is invalid
@@ -190,27 +190,27 @@ class Lexer
     {
         $start = $this->position;
         $this->position++; // Skip opening %
-        
+
         if ($this->position >= $this->length) {
             throw new ParseException('Incomplete placeholder: expected variable name after %', $start);
         }
-        
+
         // Read variable name (must be letters/digits/underscore)
         $name = '';
         while ($this->position < $this->length) {
             $char = $this->input[$this->position];
-            
+
             if ($char === '%') {
                 // End of placeholder
                 $this->position++; // Skip closing %
-                
+
                 if ($name === '') {
                     throw new ParseException('Empty placeholder name: %%', $start);
                 }
-                
+
                 return new Token(Token::TYPE_PLACEHOLDER, $name, $start);
             }
-            
+
             if (ctype_alnum($char) || $char === '_') {
                 $name .= $char;
                 $this->position++;
@@ -218,13 +218,13 @@ class Lexer
                 throw new ParseException("Invalid character '{$char}' in placeholder name", $this->position);
             }
         }
-        
+
         // Reached end of input without finding closing %
-        throw new ParseException("Unclosed placeholder: missing closing %", $start);
+        throw new ParseException('Unclosed placeholder: missing closing %', $start);
     }
 
     /**
-     * Read a comparison operator (>=, >, <=, <)
+     * Read a comparison operator (>=, >, <=, <).
      *
      * @return Token Comparison token
      */

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace PHPDice\Model;
 
 /**
- * Provides pre-calculated probability information for a dice expression
+ * Provides pre-calculated probability information for a dice expression.
  */
 class StatisticalData
 {
     /**
-     * Create a new statistical data instance
+     * Create a new statistical data instance.
      *
      * @param int|float $minimum Minimum possible result
      * @param int|float $maximum Maximum possible result

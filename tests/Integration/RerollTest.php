@@ -7,8 +7,8 @@ namespace PHPDice\Tests\Integration;
 use PHPDice\Exception\ValidationException;
 
 /**
- * Integration tests for reroll mechanics (US5)
- * 
+ * Integration tests for reroll mechanics (US5).
+ *
  * @covers \PHPDice\PHPDice
  * @covers \PHPDice\Parser\DiceExpressionParser
  * @covers \PHPDice\Roller\DiceRoller
@@ -22,27 +22,27 @@ class RerollTest extends BaseTestCase
     public function testRerollWithDefaultLimit(): void
     {
         $expression = $this->phpdice->parse('4d6 reroll <= 2');
-        
+
         // Check parsed modifiers
         $this->assertEquals(2, $expression->modifiers->rerollThreshold);
         $this->assertEquals('<=', $expression->modifiers->rerollOperator);
         $this->assertEquals(100, $expression->modifiers->rerollLimit);
-        
+
         // Roll multiple times to verify rerolls happen
         $foundReroll = false;
         for ($i = 0; $i < 10; $i++) {
             $result = $this->phpdice->roll('4d6 reroll <= 2');
-            
+
             // All final values should be > 2
             foreach ($result->diceValues as $value) {
                 $this->assertGreaterThan(2, $value, 'Final die value should be > 2 after rerolling <= 2');
             }
-            
+
             if ($result->rerollHistory !== null) {
                 $foundReroll = true;
             }
         }
-        
+
         // With 4d6 and threshold <=2, rerolls should happen frequently
         $this->assertTrue($foundReroll, 'Should have found at least one reroll in 10 attempts');
     }
@@ -54,12 +54,12 @@ class RerollTest extends BaseTestCase
     public function testRerollWithExplicitLimit(): void
     {
         $expression = $this->phpdice->parse('4d6 reroll 1 <= 2');
-        
+
         // Check parsed limit
         $this->assertEquals(1, $expression->modifiers->rerollLimit);
-        
+
         $result = $this->phpdice->roll('4d6 reroll 1 <= 2');
-        
+
         // Verify if rerolls occurred, each die rerolled at most once
         if ($result->rerollHistory !== null) {
             foreach ($result->rerollHistory as $dieIndex => $history) {
@@ -76,14 +76,14 @@ class RerollTest extends BaseTestCase
     public function testRerollWithMultipleRerollsAllowed(): void
     {
         $expression = $this->phpdice->parse('3d6 reroll 5 <= 3');
-        
+
         $this->assertEquals(3, $expression->modifiers->rerollThreshold);
         $this->assertEquals('<=', $expression->modifiers->rerollOperator);
         $this->assertEquals(5, $expression->modifiers->rerollLimit);
-        
+
         // Roll and verify final values
         $result = $this->phpdice->roll('3d6 reroll 5 <= 3');
-        
+
         foreach ($result->diceValues as $value) {
             $this->assertGreaterThan(3, $value, 'Final values should all be > 3');
         }
@@ -97,33 +97,33 @@ class RerollTest extends BaseTestCase
     {
         // Force rerolls with a high threshold
         $foundHistory = false;
-        
+
         for ($i = 0; $i < 20; $i++) {
             $result = $this->phpdice->roll('6d6 reroll <= 3');
-            
+
             if ($result->rerollHistory !== null && count($result->rerollHistory) > 0) {
                 $foundHistory = true;
-                
+
                 foreach ($result->rerollHistory as $dieIndex => $history) {
                     // Verify history structure
                     $this->assertArrayHasKey('rolls', $history);
                     $this->assertArrayHasKey('count', $history);
                     $this->assertArrayHasKey('limitReached', $history);
-                    
+
                     // First roll in history should have triggered reroll
                     $this->assertLessThanOrEqual(3, $history['rolls'][0]);
-                    
+
                     // Last roll should be the final value
                     $lastRoll = end($history['rolls']);
                     $this->assertEquals($result->diceValues[$dieIndex], $lastRoll);
-                    
+
                     // Count should match array size - 1
                     $this->assertEquals(count($history['rolls']) - 1, $history['count']);
                 }
                 break;
             }
         }
-        
+
         $this->assertTrue($foundHistory, 'Should have found reroll history in 20 attempts');
     }
 
@@ -138,19 +138,19 @@ class RerollTest extends BaseTestCase
         foreach ($result1->diceValues as $value) {
             $this->assertGreaterThanOrEqual(3, $value);
         }
-        
+
         // Test >=
         $result2 = $this->phpdice->roll('4d6 reroll >= 5');
         foreach ($result2->diceValues as $value) {
             $this->assertLessThan(5, $value);
         }
-        
+
         // Test >
         $result3 = $this->phpdice->roll('4d6 reroll > 4');
         foreach ($result3->diceValues as $value) {
             $this->assertLessThanOrEqual(4, $value);
         }
-        
+
         // Test ==
         $result4 = $this->phpdice->roll('6d6 reroll == 1');
         foreach ($result4->diceValues as $value) {
@@ -165,12 +165,12 @@ class RerollTest extends BaseTestCase
     public function testRerollWithSuccessCounting(): void
     {
         $result = $this->phpdice->roll('5d6 reroll <= 2 >= 4');
-        
+
         // All dice should be > 2 (rerolled)
         foreach ($result->diceValues as $value) {
             $this->assertGreaterThan(2, $value);
         }
-        
+
         // Count successes (>= 4)
         $expectedSuccesses = 0;
         foreach ($result->diceValues as $value) {
@@ -178,7 +178,7 @@ class RerollTest extends BaseTestCase
                 $expectedSuccesses++;
             }
         }
-        
+
         $this->assertEquals($expectedSuccesses, $result->successCount);
     }
 
@@ -190,7 +190,7 @@ class RerollTest extends BaseTestCase
     {
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage('preventing termination');
-        
+
         $this->phpdice->parse('1d6 reroll <= 6');
     }
 
@@ -207,7 +207,7 @@ class RerollTest extends BaseTestCase
         } catch (ValidationException $e) {
             $this->assertStringContainsString('preventing termination', $e->getMessage());
         }
-        
+
         // Test < 7 on d6 (all values < 7)
         try {
             $this->phpdice->parse('1d6 reroll < 7');
@@ -229,7 +229,7 @@ class RerollTest extends BaseTestCase
         $this->phpdice->parse('1d6 reroll < 6');   // Allows 6
         $this->phpdice->parse('1d6 reroll > 1');   // Allows 1
         $this->phpdice->parse('1d6 reroll == 3');  // Allows all except 3
-        
+
         $this->assertTrue(true, 'All valid edge cases parsed successfully');
     }
 
@@ -241,7 +241,7 @@ class RerollTest extends BaseTestCase
     {
         // Set a very low limit to test enforcement
         $result = $this->phpdice->roll('10d6 reroll 0 <= 2');
-        
+
         // With limit 0, no rerolls should occur even if initial roll is <= 2
         $this->assertNull($result->rerollHistory, 'No rerolls should occur with limit 0');
     }
@@ -254,15 +254,15 @@ class RerollTest extends BaseTestCase
     {
         // Parser expects modifiers in order: advantage/disadvantage, keep, reroll, success
         $result = $this->phpdice->roll('6d6 keep 4 highest reroll <= 2');
-        
+
         // Should roll 6 dice
         $this->assertCount(6, $result->diceValues);
-        
+
         // All should be > 2 (rerolled)
         foreach ($result->diceValues as $value) {
             $this->assertGreaterThan(2, $value);
         }
-        
+
         // Should keep 4 highest
         $this->assertCount(4, $result->keptDice ?? []);
     }
@@ -275,13 +275,13 @@ class RerollTest extends BaseTestCase
     {
         $expression = $this->phpdice->parse('4d6 reroll <= 2');
         $stats = $expression->statistics;
-        
+
         // With reroll <= 2, minimum should be 3 (first non-rerolled value)
         $this->assertGreaterThanOrEqual(3, $stats->minimum);
-        
+
         // Maximum should still be 24 (4 * 6)
         $this->assertEquals(24, $stats->maximum);
-        
+
         // Expected should be higher than normal 4d6 due to rerolling low values
         // Normal 4d6 expected: 4 * 3.5 = 14
         // With reroll <= 2, expected should be higher

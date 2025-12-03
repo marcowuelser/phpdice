@@ -10,7 +10,7 @@ use PHPDice\Parser\DiceExpressionParser;
 use PHPDice\Roller\DiceRoller;
 
 /**
- * Main facade for PHPDice library
+ * Main facade for PHPDice library.
  */
 class PHPDice
 {
@@ -24,7 +24,7 @@ class PHPDice
     }
 
     /**
-     * Parse a dice expression
+     * Parse a dice expression.
      *
      * @param string $expression Dice expression (e.g., "3d6", "1d20+5")
      * @param array<string, int> $variables Optional placeholder variables
@@ -36,7 +36,7 @@ class PHPDice
     }
 
     /**
-     * Roll dice based on an expression
+     * Roll dice based on an expression.
      *
      * @param string $expression Dice expression (e.g., "3d6", "1d20+5")
      * @param array<string, int> $variables Optional placeholder variables

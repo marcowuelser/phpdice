@@ -7,12 +7,12 @@ namespace PHPDice\Exception;
 use Exception;
 
 /**
- * Exception thrown when parsing a dice expression fails
+ * Exception thrown when parsing a dice expression fails.
  */
 class ParseException extends Exception
 {
     /**
-     * Create a new ParseException
+     * Create a new ParseException.
      *
      * @param string $message Error message describing what went wrong
      * @param int $position Position in the expression where error occurred (0-indexed)
@@ -23,7 +23,7 @@ class ParseException extends Exception
     }
 
     /**
-     * Get the position in the expression where the error occurred
+     * Get the position in the expression where the error occurred.
      *
      * @return int Position (0-indexed)
      */

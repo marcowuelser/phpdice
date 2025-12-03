@@ -7,7 +7,6 @@ namespace PHPDice\Parser;
 use PHPDice\Exception\ParseException;
 use PHPDice\Model\DiceExpression;
 use PHPDice\Model\DiceSpecification;
-use PHPDice\Model\DiceType;
 use PHPDice\Model\RollModifiers;
 use PHPDice\Model\StatisticalCalculator;
 use PHPDice\Parser\AST\BinaryOpNode;
@@ -17,15 +16,18 @@ use PHPDice\Parser\AST\Node;
 use PHPDice\Parser\AST\NumberNode;
 
 /**
- * Parses dice expressions into structured DiceExpression objects
+ * Parses dice expressions into structured DiceExpression objects.
  */
 class DiceExpressionParser
 {
+    /** @var array<int, Token> */
     private array $tokens = [];
     private int $current = 0;
     private ?Node $astRoot = null;
-    private array $variables = []; // Placeholder values
-    private array $usedVariables = []; // Track which variables were actually used
+    /** @var array<string, int> Placeholder values */
+    private array $variables = [];
+    /** @var array<string, int> Track which variables were actually used */
+    private array $usedVariables = [];
 
     public function __construct(
         private readonly Validator $validator = new Validator(),
@@ -34,7 +36,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Parse a dice expression
+     * Parse a dice expression.
      *
      * @param string $expression Dice expression to parse (e.g., "3d6", "1d20+5")
      * @param array<string, int> $variables Optional placeholder variables
@@ -46,7 +48,7 @@ class DiceExpressionParser
         // Store variables for placeholder substitution
         $this->variables = $variables;
         $this->usedVariables = [];
-        
+
         // Tokenize
         $lexer = new Lexer($expression);
         $this->tokens = $lexer->tokenize();
@@ -75,7 +77,7 @@ class DiceExpressionParser
 
         // Parse modifiers (advantage, disadvantage, keep) - these consume KEYWORD tokens
         $modifiers = $this->parseModifiers($spec);
-        
+
         // Validate modifiers for conflicts
         $this->validator->validateModifiers($modifiers);
 
@@ -92,7 +94,7 @@ class DiceExpressionParser
         $comparisonThreshold = null;
         if ($this->match(Token::TYPE_COMPARISON)) {
             $comparisonOperator = (string)$this->previous()->value;
-            
+
             // Next token must be the threshold number or placeholder
             if ($this->check(Token::TYPE_NUMBER)) {
                 $comparisonThreshold = (int)$this->advance()->value;
@@ -100,14 +102,14 @@ class DiceExpressionParser
                 // Handle placeholder for comparison threshold
                 $this->advance();
                 $variableName = (string)$this->previous()->value;
-                
+
                 if (!array_key_exists($variableName, $this->variables)) {
                     throw new ParseException(
                         "Unbound placeholder variable '%{$variableName}%'. Please provide a value for this variable.",
                         $this->previous()->position
                     );
                 }
-                
+
                 // Track variable usage
                 $this->usedVariables[$variableName] = $this->variables[$variableName];
                 $comparisonThreshold = $this->variables[$variableName];
@@ -125,7 +127,7 @@ class DiceExpressionParser
             // Check if it's a duplicate modifier keyword
             if ($remaining->type === Token::TYPE_KEYWORD) {
                 throw new \PHPDice\Exception\ValidationException(
-                    "Modifier conflict: cannot specify multiple or conflicting keep modifiers",
+                    'Modifier conflict: cannot specify multiple or conflicting keep modifiers',
                     'modifiers'
                 );
             }
@@ -168,7 +170,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Get the AST root for evaluation
+     * Get the AST root for evaluation.
      *
      * @return Node|null AST root node
      */
@@ -178,7 +180,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Parse an expression (handles +, -)
+     * Parse an expression (handles +, -).
      *
      * @return Node Expression node
      */
@@ -196,7 +198,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Parse a term (handles *, /)
+     * Parse a term (handles *, /).
      *
      * @return Node Term node
      */
@@ -214,7 +216,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Parse a factor (handles numbers, dice, parentheses, functions)
+     * Parse a factor (handles numbers, dice, parentheses, functions).
      *
      * @return Node Factor node
      */
@@ -237,7 +239,7 @@ class DiceExpressionParser
             $count = $this->consumeNumber();
             $diceToken = $this->advance();
             $diceValue = (string)$diceToken->value;
-            
+
             // Check for special dice types
             if ($diceValue === 'dF') {
                 // Fudge dice: count is specified, sides is always 3 (representing -1, 0, +1)
@@ -251,12 +253,12 @@ class DiceExpressionParser
                 return new DiceNode($count, $sides);
             }
         }
-        
+
         // Standalone d% or dF (equivalent to 1d% or 1dF)
         if ($this->check(Token::TYPE_DICE)) {
             $diceToken = $this->peek();
             $diceValue = (string)$diceToken->value;
-            
+
             if ($diceValue === 'd%') {
                 $this->advance(); // Consume d%
                 return new DiceNode(1, 100, \PHPDice\Model\DiceType::PERCENTILE);
@@ -269,7 +271,7 @@ class DiceExpressionParser
         // Placeholder (%name%)
         if ($this->match(Token::TYPE_PLACEHOLDER)) {
             $variableName = (string)$this->previous()->value;
-            
+
             // Check if variable is provided
             if (!array_key_exists($variableName, $this->variables)) {
                 throw new ParseException(
@@ -277,10 +279,10 @@ class DiceExpressionParser
                     $this->previous()->position
                 );
             }
-            
+
             // Track that this variable was used
             $this->usedVariables[$variableName] = $this->variables[$variableName];
-            
+
             // Return the numeric value
             return new NumberNode($this->variables[$variableName]);
         }
@@ -294,7 +296,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Parse a function call
+     * Parse a function call.
      *
      * @return FunctionNode Function node
      */
@@ -310,7 +312,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Parse modifiers like advantage, disadvantage, keep
+     * Parse modifiers like advantage, disadvantage, keep.
      *
      * @param DiceSpecification $spec Dice specification
      * @return RollModifiers Roll modifiers
@@ -346,7 +348,7 @@ class DiceExpressionParser
         // Check for keep X highest/lowest
         if ($this->match(Token::TYPE_KEYWORD, ['keep'])) {
             $count = $this->consumeNumber();
-            
+
             if ($this->match(Token::TYPE_KEYWORD, ['highest'])) {
                 if ($keepHighest !== null || $keepLowest !== null) {
                     throw new \PHPDice\Exception\ValidationException(
@@ -393,7 +395,7 @@ class DiceExpressionParser
         $rerollThreshold = null;
         $rerollOperator = null;
         $rerollLimit = 100; // Default limit
-        
+
         if ($this->match(Token::TYPE_KEYWORD, ['reroll'])) {
             // Check for optional limit number
             if ($this->check(Token::TYPE_NUMBER)) {
@@ -404,15 +406,15 @@ class DiceExpressionParser
                     $rerollLimit = $this->consumeNumber();
                 }
             }
-            
+
             // Expect comparison operator
             if (!$this->check(Token::TYPE_COMPARISON)) {
                 throw new ParseException('Expected comparison operator after "reroll"', $this->getCurrentPosition());
             }
-            
+
             $comparison = $this->advance();
             $rerollOperator = (string)$comparison->value;
-            
+
             // Validate operator (all comparison operators allowed for reroll)
             if (!in_array($rerollOperator, ['<=', '<', '>=', '>', '=='], true)) {
                 throw new \PHPDice\Exception\ValidationException(
@@ -420,10 +422,10 @@ class DiceExpressionParser
                     'reroll'
                 );
             }
-            
+
             // Get threshold value
             $rerollThreshold = $this->consumeNumber();
-            
+
             // Validate reroll range doesn't cover entire die (FR-005b)
             $this->validator->validateRerollRange($spec, $rerollThreshold, $rerollOperator);
         }
@@ -446,7 +448,7 @@ class DiceExpressionParser
             // Single die comparisons (e.g., "1d20 >= 15") are treated as expression-level success rolls
             $comparison = $this->advance();
             $operator = (string)$comparison->value;
-            
+
             // Only allow >= and > for success counting
             if (!in_array($operator, ['>=', '>'], true)) {
                 throw new \PHPDice\Exception\ValidationException(
@@ -454,7 +456,7 @@ class DiceExpressionParser
                     'success'
                 );
             }
-            
+
             $successOperator = $operator;
             $successThreshold = $this->consumeNumber();
         }
@@ -464,14 +466,14 @@ class DiceExpressionParser
         $explosionThreshold = null;
         $explosionOperator = null;
         $explosionLimit = 100; // Default limit
-        
+
         if ($this->match(Token::TYPE_KEYWORD, ['explode'])) {
             // Check for optional limit number
             if ($this->check(Token::TYPE_NUMBER)) {
                 $nextPos = $this->current + 1;
                 // Peek ahead to see if the next token after the number is a comparison operator or EOF
                 $hasComparison = ($nextPos < count($this->tokens) && $this->tokens[$nextPos]->type === Token::TYPE_COMPARISON);
-                
+
                 if ($hasComparison) {
                     // This number is the limit
                     $explosionLimit = $this->consumeNumber();
@@ -479,19 +481,19 @@ class DiceExpressionParser
                     // This number might be the limit, check if we're at end or next is keyword
                     $nextIsEnd = ($nextPos >= count($this->tokens) || $this->tokens[$nextPos]->type === Token::TYPE_EOF);
                     $nextIsKeyword = (!$nextIsEnd && $this->tokens[$nextPos]->type === Token::TYPE_KEYWORD);
-                    
+
                     if ($nextIsEnd || $nextIsKeyword) {
                         // This number is the limit with no threshold
                         $explosionLimit = $this->consumeNumber();
                     }
                 }
             }
-            
+
             // Check for optional comparison operator and threshold
             if ($this->check(Token::TYPE_COMPARISON)) {
                 $comparison = $this->advance();
                 $explosionOperator = (string)$comparison->value;
-                
+
                 // Validate operator (only >= and <= allowed for explosions per spec)
                 if (!in_array($explosionOperator, ['>=', '<='], true)) {
                     throw new \PHPDice\Exception\ValidationException(
@@ -499,17 +501,17 @@ class DiceExpressionParser
                         'explode'
                     );
                 }
-                
+
                 // Get threshold value
                 $explosionThreshold = $this->consumeNumber();
-                
+
                 // Validate explosion range doesn't cover entire die (FR-038c)
                 $this->validator->validateExplosionRange($spec, $explosionThreshold, $explosionOperator);
             } else {
                 // No threshold specified - default to maximum die value
                 $explosionThreshold = $spec->sides;
                 $explosionOperator = '>=';
-                
+
                 // Validate this doesn't create infinite loop (single-sided die)
                 $this->validator->validateExplosionRange($spec, $explosionThreshold, $explosionOperator);
             }
@@ -519,7 +521,7 @@ class DiceExpressionParser
         $criticalSuccess = null;
         if ($this->match(Token::TYPE_KEYWORD, ['crit', 'critical'])) {
             $criticalSuccess = $this->consumeNumber();
-            
+
             // Validate critical threshold is within die range (FR-035)
             $this->validator->validateCriticalThreshold($spec, $criticalSuccess, 'success');
         }
@@ -528,7 +530,7 @@ class DiceExpressionParser
         $criticalFailure = null;
         if ($this->match(Token::TYPE_KEYWORD, ['glitch', 'failure'])) {
             $criticalFailure = $this->consumeNumber();
-            
+
             // Validate critical threshold is within die range (FR-036)
             $this->validator->validateCriticalThreshold($spec, $criticalFailure, 'failure');
         }
@@ -552,7 +554,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Find the first dice node in the AST
+     * Find the first dice node in the AST.
      *
      * @param Node $node Node to search
      * @return DiceNode|null Dice node if found
@@ -579,7 +581,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Check if current token matches type and optional values
+     * Check if current token matches type and optional values.
      *
      * @param string $type Token type to match
      * @param array<string>|null $values Optional values to match
@@ -603,7 +605,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Check if current token is of given type
+     * Check if current token is of given type.
      *
      * @param string $type Token type
      * @return bool True if matches
@@ -618,7 +620,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Check if next token is of given type
+     * Check if next token is of given type.
      *
      * @param string $type Token type
      * @return bool True if matches
@@ -633,7 +635,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Advance to next token
+     * Advance to next token.
      *
      * @return Token Previous token
      */
@@ -647,7 +649,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Check if at end of tokens
+     * Check if at end of tokens.
      *
      * @return bool True if at end
      */
@@ -657,7 +659,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Get current token
+     * Get current token.
      *
      * @return Token Current token
      */
@@ -667,7 +669,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Get previous token
+     * Get previous token.
      *
      * @return Token Previous token
      */
@@ -677,7 +679,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Consume a number token
+     * Consume a number token.
      *
      * @return int Number value
      * @throws ParseException If current token is not a number
@@ -692,7 +694,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Consume a specific token type
+     * Consume a specific token type.
      *
      * @param string $type Expected token type
      * @param string|null $message Optional error message
@@ -707,7 +709,7 @@ class DiceExpressionParser
     }
 
     /**
-     * Get current position in the expression
+     * Get current position in the expression.
      *
      * @return int Position
      */

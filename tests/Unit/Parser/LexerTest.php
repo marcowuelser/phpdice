@@ -10,13 +10,13 @@ use PHPDice\Tests\Unit\BaseTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * Unit tests for Lexer
+ * Unit tests for Lexer.
  */
 #[CoversClass(Lexer::class)]
 class LexerTest extends BaseTestCase
 {
     /**
-     * Test tokenizing basic dice notation
+     * Test tokenizing basic dice notation.
      */
     public function testTokenizeBasicDiceNotation(): void
     {
@@ -38,7 +38,7 @@ class LexerTest extends BaseTestCase
     }
 
     /**
-     * Test tokenizing with whitespace
+     * Test tokenizing with whitespace.
      */
     public function testTokenizeWithWhitespace(): void
     {
@@ -57,7 +57,7 @@ class LexerTest extends BaseTestCase
     }
 
     /**
-     * Test tokenizing 1d20
+     * Test tokenizing 1d20.
      */
     public function testTokenize1d20(): void
     {
@@ -72,7 +72,7 @@ class LexerTest extends BaseTestCase
     }
 
     /**
-     * Test tokenizing large numbers
+     * Test tokenizing large numbers.
      */
     public function testTokenizeLargeNumbers(): void
     {
@@ -84,7 +84,7 @@ class LexerTest extends BaseTestCase
     }
 
     /**
-     * Test tokenizing uppercase D
+     * Test tokenizing uppercase D.
      */
     public function testTokenizeUppercaseD(): void
     {
@@ -96,7 +96,7 @@ class LexerTest extends BaseTestCase
     }
 
     /**
-     * Test tokenizing operators (for future use)
+     * Test tokenizing operators (for future use).
      */
     public function testTokenizeOperators(): void
     {
@@ -113,7 +113,7 @@ class LexerTest extends BaseTestCase
     }
 
     /**
-     * Test tokenizing parentheses
+     * Test tokenizing parentheses.
      */
     public function testTokenizeParentheses(): void
     {
@@ -128,7 +128,7 @@ class LexerTest extends BaseTestCase
     }
 
     /**
-     * Test invalid character throws exception
+     * Test invalid character throws exception.
      */
     public function testInvalidCharacter(): void
     {

@@ -12,7 +12,7 @@ use PHPDice\Parser\AST\FunctionNode;
 use PHPDice\Parser\AST\Node;
 
 /**
- * Rolls dice based on parsed expressions
+ * Rolls dice based on parsed expressions.
  */
 class DiceRoller
 {
@@ -22,7 +22,7 @@ class DiceRoller
     }
 
     /**
-     * Roll dice based on an expression
+     * Roll dice based on an expression.
      *
      * @param DiceExpression $expression Parsed dice expression
      * @param Node|null $ast Optional AST for complex expressions
@@ -43,32 +43,32 @@ class DiceRoller
         // Roll each die
         $rerollHistory = null;
         $explosionHistory = null;
-        
+
         for ($i = 0; $i < $totalDiceToRoll; $i++) {
             // Generate raw roll based on dice type
             $rawRoll = $this->rng->generate(1, $spec->sides);
-            
+
             // Convert for special dice types
             $initialRoll = $this->convertDiceValue($rawRoll, $spec->type);
             $diceValues[] = $initialRoll;
-            
+
             // Handle rerolls if configured (rerolls happen first, then explosions)
             if ($modifiers->rerollThreshold !== null && $modifiers->rerollOperator !== null) {
                 $rerollCount = 0;
                 $currentValue = $initialRoll;
                 $history = [$initialRoll];
-                
-                while ($this->shouldReroll($currentValue, $modifiers->rerollThreshold, $modifiers->rerollOperator) 
+
+                while ($this->shouldReroll($currentValue, $modifiers->rerollThreshold, $modifiers->rerollOperator)
                        && $rerollCount < $modifiers->rerollLimit) {
                     $rawReroll = $this->rng->generate(1, $spec->sides);
                     $currentValue = $this->convertDiceValue($rawReroll, $spec->type);
                     $history[] = $currentValue;
                     $rerollCount++;
                 }
-                
+
                 // Update the die value to the final result
                 $diceValues[$i] = $currentValue;
-                
+
                 // Track reroll history if any rerolls occurred
                 if ($rerollCount > 0) {
                     if ($rerollHistory === null) {
@@ -77,20 +77,20 @@ class DiceRoller
                     $rerollHistory[$i] = [
                         'rolls' => $history,
                         'count' => $rerollCount,
-                        'limitReached' => $rerollCount >= $modifiers->rerollLimit
+                        'limitReached' => $rerollCount >= $modifiers->rerollLimit,
                     ];
                 }
             }
-            
+
             // Handle explosions if configured (FR-039: reroll and add when threshold met)
             if ($modifiers->explosionThreshold !== null && $modifiers->explosionOperator !== null) {
                 $explosionCount = 0;
                 $currentValue = $diceValues[$i];
                 $cumulativeTotal = $currentValue;
                 $explosions = [$currentValue];
-                
+
                 // Keep exploding while threshold is met and limit not reached
-                while ($this->shouldExplode($currentValue, $modifiers->explosionThreshold, $modifiers->explosionOperator) 
+                while ($this->shouldExplode($currentValue, $modifiers->explosionThreshold, $modifiers->explosionOperator)
                        && $explosionCount < $modifiers->explosionLimit) {
                     $rawExplosion = $this->rng->generate(1, $spec->sides);
                     $currentValue = $this->convertDiceValue($rawExplosion, $spec->type);
@@ -98,10 +98,10 @@ class DiceRoller
                     $cumulativeTotal += $currentValue;
                     $explosionCount++;
                 }
-                
+
                 // Update the die value to cumulative total
                 $diceValues[$i] = $cumulativeTotal;
-                
+
                 // Track explosion history if any explosions occurred (FR-040)
                 if ($explosionCount > 0) {
                     if ($explosionHistory === null) {
@@ -111,7 +111,7 @@ class DiceRoller
                         'rolls' => $explosions,
                         'count' => $explosionCount,
                         'cumulativeTotal' => $cumulativeTotal,
-                        'limitReached' => $explosionCount >= $modifiers->explosionLimit
+                        'limitReached' => $explosionCount >= $modifiers->explosionLimit,
                     ];
                 }
             }
@@ -160,7 +160,7 @@ class DiceRoller
         // Criticals are based on raw die values (not rerolled or exploded values)
         $isCriticalSuccess = false;
         $isCriticalFailure = false;
-        
+
         if ($modifiers->criticalSuccess !== null) {
             // Check if ANY die rolled the critical success value
             foreach ($diceValues as $value) {
@@ -170,7 +170,7 @@ class DiceRoller
                 }
             }
         }
-        
+
         if ($modifiers->criticalFailure !== null) {
             // Check if ANY die rolled the critical failure value
             foreach ($diceValues as $value) {
@@ -197,7 +197,7 @@ class DiceRoller
     }
 
     /**
-     * Check if a die value should be rerolled
+     * Check if a die value should be rerolled.
      *
      * @param int $value Die value
      * @param int $threshold Reroll threshold
@@ -217,7 +217,7 @@ class DiceRoller
     }
 
     /**
-     * Check if a die value should explode
+     * Check if a die value should explode.
      *
      * @param int $value Die value
      * @param int $threshold Explosion threshold
@@ -234,7 +234,7 @@ class DiceRoller
     }
 
     /**
-     * Count successes based on threshold and operator
+     * Count successes based on threshold and operator.
      *
      * @param array<int> $diceValues Dice values to check
      * @param int $threshold Success threshold
@@ -255,7 +255,7 @@ class DiceRoller
     }
 
     /**
-     * Evaluate comparison for success rolls (US8)
+     * Evaluate comparison for success rolls (US8).
      *
      * @param int|float $total Roll total
      * @param int $threshold Comparison threshold
@@ -275,7 +275,7 @@ class DiceRoller
     }
 
     /**
-     * Keep the highest N dice
+     * Keep the highest N dice.
      *
      * @param array<int> $diceValues All dice values
      * @param int $count Number to keep
@@ -305,7 +305,7 @@ class DiceRoller
     }
 
     /**
-     * Keep the lowest N dice
+     * Keep the lowest N dice.
      *
      * @param array<int> $diceValues All dice values
      * @param int $count Number to keep
@@ -335,7 +335,7 @@ class DiceRoller
     }
 
     /**
-     * Convert dice value based on dice type
+     * Convert dice value based on dice type.
      *
      * @param int $rawValue Raw dice value (1 to sides)
      * @param \PHPDice\Model\DiceType $type Dice type
@@ -350,7 +350,7 @@ class DiceRoller
     }
 
     /**
-     * Set dice roll results in the AST
+     * Set dice roll results in the AST.
      *
      * @param Node $node Node to update
      * @param int|float $result Roll result

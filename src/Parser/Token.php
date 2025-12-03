@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPDice\Parser;
 
 /**
- * Represents a token in the dice expression
+ * Represents a token in the dice expression.
  */
 class Token
 {
@@ -23,7 +23,7 @@ class Token
     public const TYPE_COMPARISON = 'COMPARISON';
 
     /**
-     * Create a new token
+     * Create a new token.
      *
      * @param string $type Token type
      * @param string|int|float|null $value Token value

@@ -7,12 +7,12 @@ namespace PHPDice\Exception;
 use Exception;
 
 /**
- * Exception thrown when validation of a dice expression fails
+ * Exception thrown when validation of a dice expression fails.
  */
 class ValidationException extends Exception
 {
     /**
-     * Create a new ValidationException
+     * Create a new ValidationException.
      *
      * @param string $message Error message describing the validation failure
      * @param string $field Field or component that failed validation
@@ -23,7 +23,7 @@ class ValidationException extends Exception
     }
 
     /**
-     * Get the field that failed validation
+     * Get the field that failed validation.
      *
      * @return string Field name
      */

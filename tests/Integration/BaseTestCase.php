@@ -8,7 +8,7 @@ use PHPDice\PHPDice;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Base test case for integration tests
+ * Base test case for integration tests.
  */
 abstract class BaseTestCase extends TestCase
 {

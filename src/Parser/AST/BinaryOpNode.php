@@ -7,7 +7,7 @@ namespace PHPDice\Parser\AST;
 use PHPDice\Exception\ValidationException;
 
 /**
- * Represents a binary operation (e.g., addition, multiplication)
+ * Represents a binary operation (e.g., addition, multiplication).
  */
 class BinaryOpNode extends Node
 {

@@ -8,7 +8,7 @@ use PHPDice\PHPDice;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * Integration tests for modifiers and arithmetic (User Story 2)
+ * Integration tests for modifiers and arithmetic (User Story 2).
  */
 #[CoversClass(PHPDice::class)]
 class ModifiersTest extends BaseTestCase
@@ -22,7 +22,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test simple addition modifier
+     * Test simple addition modifier.
      */
     public function testSimpleAddition(): void
     {
@@ -34,7 +34,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test simple subtraction modifier
+     * Test simple subtraction modifier.
      */
     public function testSimpleSubtraction(): void
     {
@@ -46,7 +46,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test multiplication
+     * Test multiplication.
      */
     public function testMultiplication(): void
     {
@@ -58,7 +58,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test division
+     * Test division.
      */
     public function testDivision(): void
     {
@@ -70,7 +70,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test parentheses for order of operations
+     * Test parentheses for order of operations.
      */
     public function testParentheses(): void
     {
@@ -84,7 +84,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test floor function
+     * Test floor function.
      */
     public function testFloorFunction(): void
     {
@@ -97,7 +97,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test ceiling function
+     * Test ceiling function.
      */
     public function testCeilingFunction(): void
     {
@@ -110,7 +110,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test round function
+     * Test round function.
      */
     public function testRoundFunction(): void
     {
@@ -122,7 +122,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test complex expression
+     * Test complex expression.
      */
     public function testComplexExpression(): void
     {
@@ -136,7 +136,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test statistics for addition
+     * Test statistics for addition.
      */
     public function testStatisticsAddition(): void
     {
@@ -149,7 +149,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test statistics for multiplication
+     * Test statistics for multiplication.
      */
     public function testStatisticsMultiplication(): void
     {
@@ -162,7 +162,7 @@ class ModifiersTest extends BaseTestCase
     }
 
     /**
-     * Test division by zero validation
+     * Test division by zero validation.
      */
     public function testDivisionByZero(): void
     {

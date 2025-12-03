@@ -11,8 +11,8 @@ use PHPDice\Model\StatisticalCalculator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for StatisticalCalculator
- * 
+ * Unit tests for StatisticalCalculator.
+ *
  * Tests that statistical calculations are correct for all dice types
  * and mechanics without parsing expressions.
  */
@@ -27,8 +27,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test basic dice statistics
-     * 
+     * Test basic dice statistics.
+     *
      * @test
      */
     public function testBasicDiceStatistics(): void
@@ -44,8 +44,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test single die statistics
-     * 
+     * Test single die statistics.
+     *
      * @test
      */
     public function testSingleDieStatistics(): void
@@ -61,8 +61,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test fudge dice statistics
-     * 
+     * Test fudge dice statistics.
+     *
      * @test
      */
     public function testFudgeDiceStatistics(): void
@@ -78,8 +78,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test percentile dice statistics
-     * 
+     * Test percentile dice statistics.
+     *
      * @test
      */
     public function testPercentileDiceStatistics(): void
@@ -95,8 +95,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test arithmetic modifier statistics
-     * 
+     * Test arithmetic modifier statistics.
+     *
      * @test
      */
     public function testArithmeticModifierStatistics(): void
@@ -112,8 +112,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test negative arithmetic modifier
-     * 
+     * Test negative arithmetic modifier.
+     *
      * @test
      */
     public function testNegativeArithmeticModifier(): void
@@ -129,8 +129,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test keep highest statistics
-     * 
+     * Test keep highest statistics.
+     *
      * @test
      */
     public function testKeepHighestStatistics(): void
@@ -146,8 +146,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test keep lowest statistics
-     * 
+     * Test keep lowest statistics.
+     *
      * @test
      */
     public function testKeepLowestStatistics(): void
@@ -163,8 +163,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test advantage (2d20 keep 1 highest)
-     * 
+     * Test advantage (2d20 keep 1 highest).
+     *
      * @test
      */
     public function testAdvantageStatistics(): void
@@ -180,8 +180,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test disadvantage (2d20 keep 1 lowest)
-     * 
+     * Test disadvantage (2d20 keep 1 lowest).
+     *
      * @test
      */
     public function testDisadvantageStatistics(): void
@@ -197,8 +197,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test success counting statistics with >=
-     * 
+     * Test success counting statistics with >=.
+     *
      * @test
      */
     public function testSuccessCountingGreaterOrEqual(): void
@@ -215,8 +215,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test success counting statistics with >
-     * 
+     * Test success counting statistics with >.
+     *
      * @test
      */
     public function testSuccessCountingGreaterThan(): void
@@ -233,8 +233,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test success counting with fudge dice
-     * 
+     * Test success counting with fudge dice.
+     *
      * @test
      */
     public function testSuccessCountingFudgeDice(): void
@@ -251,8 +251,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test reroll statistics
-     * 
+     * Test reroll statistics.
+     *
      * @test
      */
     public function testRerollStatistics(): void
@@ -271,8 +271,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test explosion statistics
-     * 
+     * Test explosion statistics.
+     *
      * @test
      */
     public function testExplosionStatistics(): void
@@ -291,8 +291,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test 3 decimal precision
-     * 
+     * Test 3 decimal precision.
+     *
      * @test
      */
     public function testThreeDecimalPrecision(): void
@@ -304,15 +304,15 @@ class StatisticalCalculatorTest extends TestCase
 
         // Expected should be exactly 10.5 with 3 decimal precision
         $this->assertSame(10.5, $stats->expected);
-        
+
         // Verify string representation has 3 decimals
         $expectedString = number_format($stats->expected, 3, '.', '');
         $this->assertSame('10.500', $expectedString);
     }
 
     /**
-     * Test very large dice count
-     * 
+     * Test very large dice count.
+     *
      * @test
      */
     public function testLargeDiceCount(): void
@@ -328,8 +328,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test very large die sides
-     * 
+     * Test very large die sides.
+     *
      * @test
      */
     public function testLargeDieSides(): void
@@ -345,8 +345,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test combined modifiers (keep + arithmetic)
-     * 
+     * Test combined modifiers (keep + arithmetic).
+     *
      * @test
      */
     public function testCombinedModifiers(): void
@@ -364,8 +364,8 @@ class StatisticalCalculatorTest extends TestCase
     }
 
     /**
-     * Test zero arithmetic modifier
-     * 
+     * Test zero arithmetic modifier.
+     *
      * @test
      */
     public function testZeroArithmeticModifier(): void

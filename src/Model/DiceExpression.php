@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace PHPDice\Model;
 
 /**
- * Represents a fully parsed and validated dice expression ready for rolling
+ * Represents a fully parsed and validated dice expression ready for rolling.
  */
 class DiceExpression
 {
     /**
-     * Create a new dice expression
+     * Create a new dice expression.
      *
      * @param DiceSpecification $specification The base dice being rolled
      * @param RollModifiers $modifiers All modifiers and mechanics
@@ -30,7 +30,7 @@ class DiceExpression
     }
 
     /**
-     * Get the statistics for this expression
+     * Get the statistics for this expression.
      *
      * @return StatisticalData Statistical information
      */

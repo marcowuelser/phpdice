@@ -11,12 +11,12 @@ use PHPDice\Parser\AST\Node;
 use PHPDice\Parser\AST\NumberNode;
 
 /**
- * Calculates statistical properties of dice expressions
+ * Calculates statistical properties of dice expressions.
  */
 class StatisticalCalculator
 {
     /**
-     * Calculate statistics for a dice specification
+     * Calculate statistics for a dice specification.
      *
      * @param DiceSpecification $spec Dice specification
      * @param RollModifiers $modifiers Roll modifiers
@@ -41,7 +41,7 @@ class StatisticalCalculator
         }
 
         // Calculate base statistics
-        $baseStats = $ast !== null 
+        $baseStats = $ast !== null
             ? $this->calculateFromAst($ast, $spec, $modifiers)
             : $this->calculateBasicDice($spec);
 
@@ -59,6 +59,7 @@ class StatisticalCalculator
                 $maximum = $modifiers->keepHighest * $sides;
                 $expected = $this->calculateKeepHighestExpected($sides, $totalDice, $modifiers->keepHighest);
             } else { // keepLowest
+                assert($modifiers->keepLowest !== null, 'keepLowest must not be null when keepHighest is null');
                 $minimum = $modifiers->keepLowest * 1;
                 $maximum = $modifiers->keepLowest * $sides;
                 $expected = $this->calculateKeepLowestExpected($sides, $totalDice, $modifiers->keepLowest);
@@ -86,7 +87,7 @@ class StatisticalCalculator
     }
 
     /**
-     * Calculate success count statistics
+     * Calculate success count statistics.
      *
      * @param DiceSpecification $spec Dice specification
      * @param RollModifiers $modifiers Roll modifiers with success threshold
@@ -136,7 +137,7 @@ class StatisticalCalculator
     }
 
     /**
-     * Calculate statistics for basic dice without modifiers
+     * Calculate statistics for basic dice without modifiers.
      *
      * @param DiceSpecification $spec Dice specification
      * @return StatisticalData Statistical data
@@ -148,14 +149,14 @@ class StatisticalCalculator
             $minPerDie = -1;
             $maxPerDie = 1;
             $expectedPerDie = 0; // Equal probability of -1, 0, +1
-            
+
             $minimum = $spec->count * $minPerDie;
             $maximum = $spec->count * $maxPerDie;
             $expected = $spec->count * $expectedPerDie;
-            
+
             return new StatisticalData($minimum, $maximum, round($expected, 3));
         }
-        
+
         // Standard and percentile dice work the same way for statistics
         $minPerDie = 1;
         $maxPerDie = $spec->sides;
@@ -169,7 +170,7 @@ class StatisticalCalculator
     }
 
     /**
-     * Calculate statistics with reroll mechanics
+     * Calculate statistics with reroll mechanics.
      *
      * @param DiceSpecification $spec Dice specification
      * @param RollModifiers $modifiers Roll modifiers with reroll settings
@@ -181,7 +182,9 @@ class StatisticalCalculator
         $sides = $spec->sides;
         $threshold = $modifiers->rerollThreshold;
         $operator = $modifiers->rerollOperator;
-        
+
+        assert($threshold !== null && $operator !== null, 'Reroll threshold and operator must not be null');
+
         // Determine which values trigger reroll
         $rerollValues = [];
         for ($value = 1; $value <= $sides; $value++) {
@@ -189,7 +192,7 @@ class StatisticalCalculator
                 $rerollValues[] = $value;
             }
         }
-        
+
         // Calculate minimum die value (smallest non-reroll value)
         $minDieValue = $sides + 1; // Start with impossible value
         for ($value = 1; $value <= $sides; $value++) {
@@ -197,7 +200,7 @@ class StatisticalCalculator
                 $minDieValue = min($minDieValue, $value);
             }
         }
-        
+
         // Calculate maximum die value (largest non-reroll value)
         $maxDieValue = 0;
         for ($value = 1; $value <= $sides; $value++) {
@@ -205,7 +208,7 @@ class StatisticalCalculator
                 $maxDieValue = max($maxDieValue, $value);
             }
         }
-        
+
         // Expected value per die with rerolls (simplified approximation)
         // In reality this is complex, but we approximate based on non-reroll values
         $nonRerollCount = $sides - count($rerollValues);
@@ -216,22 +219,22 @@ class StatisticalCalculator
             }
         }
         $expectedPerDie = $nonRerollCount > 0 ? $nonRerollSum / $nonRerollCount : 0;
-        
+
         $minimum = $spec->count * $minDieValue;
         $maximum = $spec->count * $maxDieValue;
         $expected = $spec->count * $expectedPerDie;
-        
+
         // Apply arithmetic if AST exists
         if ($ast !== null) {
             $rerollStats = new StatisticalData($minimum, $maximum, round($expected, 3));
             return $this->applyAstOperations($ast, $rerollStats);
         }
-        
+
         return new StatisticalData($minimum, $maximum, round($expected, 3));
     }
 
     /**
-     * Check if a value should trigger reroll
+     * Check if a value should trigger reroll.
      *
      * @param int $value Die value
      * @param int $threshold Reroll threshold
@@ -252,7 +255,7 @@ class StatisticalCalculator
 
     /**
      * Calculate statistics for dice with explosion mechanics
-     * Explosions add unpredictable values, so we use approximation
+     * Explosions add unpredictable values, so we use approximation.
      *
      * @param DiceSpecification $spec Dice specification
      * @param RollModifiers $modifiers Roll modifiers with explosion settings
@@ -264,7 +267,9 @@ class StatisticalCalculator
         $sides = $spec->sides;
         $threshold = $modifiers->explosionThreshold;
         $operator = $modifiers->explosionOperator;
-        
+
+        assert($threshold !== null && $operator !== null, 'Explosion threshold and operator must not be null');
+
         // Determine which values trigger explosion
         $explosionValues = [];
         for ($value = 1; $value <= $sides; $value++) {
@@ -272,42 +277,42 @@ class StatisticalCalculator
                 $explosionValues[] = $value;
             }
         }
-        
+
         // Probability of explosion
         $explosionProb = count($explosionValues) / $sides;
-        
+
         // Expected number of explosions per die (geometric series)
         // E[explosions] = p / (1 - p) where p = probability of explosion
         // But capped at explosion limit
-        $avgExplosionsPerDie = $explosionProb > 0 && $explosionProb < 1 
+        $avgExplosionsPerDie = $explosionProb > 0 && $explosionProb < 1
             ? min($modifiers->explosionLimit, $explosionProb / (1 - $explosionProb))
             : 0;
-        
+
         // Expected value per die with explosions
         // Base expected value + expected explosions * average roll value
         $baseExpected = ($sides + 1) / 2;
         $expectedPerDie = $baseExpected * (1 + $avgExplosionsPerDie);
-        
+
         // Minimum: no explosions
         $minimum = $spec->count * 1;
-        
+
         // Maximum: all dice explode to limit, all rolls are maximum
         $maxExplosionsPerDie = $modifiers->explosionLimit;
         $maximum = $spec->count * $sides * (1 + $maxExplosionsPerDie);
-        
+
         $expected = $spec->count * $expectedPerDie;
-        
+
         // Apply arithmetic if AST exists
         if ($ast !== null) {
             $explosionStats = new StatisticalData($minimum, $maximum, round($expected, 3));
             return $this->applyAstOperations($ast, $explosionStats);
         }
-        
+
         return new StatisticalData($minimum, $maximum, round($expected, 3));
     }
 
     /**
-     * Check if a value should trigger explosion
+     * Check if a value should trigger explosion.
      *
      * @param int $value Die value
      * @param int $threshold Explosion threshold
@@ -325,7 +330,7 @@ class StatisticalCalculator
 
     /**
      * Apply AST operations to keep statistics
-     * For "1d20 advantage + 5", replaces the dice node value with keep stats
+     * For "1d20 advantage + 5", replaces the dice node value with keep stats.
      *
      * @param Node $node AST node
      * @param StatisticalData $diceStats Statistics for the dice after keep
@@ -408,7 +413,7 @@ class StatisticalCalculator
     }
 
     /**
-     * Calculate expected value for keeping highest N dice from M rolls
+     * Calculate expected value for keeping highest N dice from M rolls.
      *
      * @param int $sides Die sides
      * @param int $totalDice Total dice rolled
@@ -420,18 +425,18 @@ class StatisticalCalculator
         // For d20 advantage (2d20 keep 1 highest): expected ≈ 13.825
         // General formula uses order statistics, but we approximate
         // E[kth highest of n dice] ≈ (sides + 1) * (n - k + 1) / (n + 1)
-        
+
         $expected = 0.0;
         for ($k = 1; $k <= $keepCount; $k++) {
             // E[kth highest] ≈ (sides + 1) * (totalDice - k + 1) / (totalDice + 1)
             $expected += ($sides + 1) * ($totalDice - $k + 1) / ($totalDice + 1);
         }
-        
+
         return $expected;
     }
 
     /**
-     * Calculate expected value for keeping lowest N dice from M rolls
+     * Calculate expected value for keeping lowest N dice from M rolls.
      *
      * @param int $sides Die sides
      * @param int $totalDice Total dice rolled
@@ -442,17 +447,17 @@ class StatisticalCalculator
     {
         // For d20 disadvantage (2d20 keep 1 lowest): expected ≈ 7.175
         // E[kth lowest of n dice] ≈ (sides + 1) * k / (n + 1)
-        
+
         $expected = 0.0;
         for ($k = 1; $k <= $keepCount; $k++) {
             $expected += ($sides + 1) * $k / ($totalDice + 1);
         }
-        
+
         return $expected;
     }
 
     /**
-     * Calculate statistics from AST
+     * Calculate statistics from AST.
      *
      * @param Node $node AST node
      * @param DiceSpecification $spec Dice specification for dice nodes

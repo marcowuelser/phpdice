@@ -8,7 +8,7 @@ use PHPDice\PHPDice;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Integration tests for success rolls and comparisons (US8)
+ * Integration tests for success rolls and comparisons (US8).
  *
  * @covers \PHPDice\PHPDice
  * @covers \PHPDice\Parser\DiceExpressionParser
@@ -25,8 +25,8 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * AC1: Expression includes both die value and success/failure flag
-     * 
+     * AC1: Expression includes both die value and success/failure flag.
+     *
      * Given an expression "1d20 >= 15"
      * When rolled
      * Then the result includes both the die value and a success/failure flag
@@ -49,8 +49,8 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * AC2: Success flag is true when roll meets threshold
-     * 
+     * AC2: Success flag is true when roll meets threshold.
+     *
      * Given a comparison expression
      * When the roll meets the threshold
      * Then the success flag is true
@@ -59,23 +59,23 @@ final class ComparisonTest extends TestCase
     {
         // Use a guaranteed success: 1d20+20 >= 1 (minimum 21, threshold 1)
         $result = $this->phpdice->roll('1d20+20 >= 1');
-        
+
         $this->assertTrue($result->isSuccess, 'Expected success for 1d20+20 >= 1 (always succeeds)');
         $this->assertGreaterThanOrEqual(1, $result->total);
     }
 
     /**
-     * AC2: Test >= operator
+     * AC2: Test >= operator.
      */
     public function testGreaterThanOrEqualOperator(): void
     {
         // Roll many times and verify success flag matches actual comparison
         $successes = 0;
         $failures = 0;
-        
+
         for ($i = 0; $i < 100; $i++) {
             $result = $this->phpdice->roll('1d20 >= 10');
-            
+
             if ($result->total >= 10) {
                 $this->assertTrue($result->isSuccess, "Expected success when total ({$result->total}) >= 10");
                 $successes++;
@@ -84,15 +84,15 @@ final class ComparisonTest extends TestCase
                 $failures++;
             }
         }
-        
+
         // Should have both successes and failures (very unlikely to get all one or the other)
         $this->assertGreaterThan(0, $successes, 'Expected at least one success in 100 rolls');
         $this->assertGreaterThan(0, $failures, 'Expected at least one failure in 100 rolls');
     }
 
     /**
-     * AC3: Success flag is false when roll fails threshold
-     * 
+     * AC3: Success flag is false when roll fails threshold.
+     *
      * Given a comparison expression
      * When the roll fails the threshold
      * Then the success flag is false
@@ -101,14 +101,14 @@ final class ComparisonTest extends TestCase
     {
         // Use a guaranteed failure: 1d20 >= 25 (maximum 20, threshold 25)
         $result = $this->phpdice->roll('1d20 >= 25');
-        
+
         $this->assertFalse($result->isSuccess, 'Expected failure for 1d20 >= 25 (always fails)');
         $this->assertLessThan(25, $result->total);
     }
 
     /**
-     * AC4: Can inspect roll value, threshold, and success status
-     * 
+     * AC4: Can inspect roll value, threshold, and success status.
+     *
      * Given a success roll result
      * When inspected
      * Then I can see the actual roll value, the threshold, and the success status
@@ -130,7 +130,7 @@ final class ComparisonTest extends TestCase
 
         // Can see the success status
         $this->assertIsBool($result->isSuccess);
-        
+
         // Verify success status matches the comparison
         if ($result->total >= 15) {
             $this->assertTrue($result->isSuccess);
@@ -140,7 +140,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test comparison with arithmetic expression
+     * Test comparison with arithmetic expression.
      */
     public function testComparisonWithArithmetic(): void
     {
@@ -157,7 +157,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test > operator (strict greater than)
+     * Test > operator (strict greater than).
      */
     public function testGreaterThanOperator(): void
     {
@@ -171,7 +171,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test <= operator
+     * Test <= operator.
      */
     public function testLessThanOrEqualOperator(): void
     {
@@ -185,7 +185,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test < operator
+     * Test < operator.
      */
     public function testLessThanOperator(): void
     {
@@ -199,17 +199,17 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test == operator
+     * Test == operator.
      */
     public function testEqualityOperator(): void
     {
         // Roll many times to eventually hit the target
         $foundMatch = false;
         $foundNonMatch = false;
-        
+
         for ($i = 0; $i < 100; $i++) {
             $result = $this->phpdice->roll('1d6 == 3');
-            
+
             if ($result->total == 3) {
                 $this->assertTrue($result->isSuccess);
                 $foundMatch = true;
@@ -218,23 +218,23 @@ final class ComparisonTest extends TestCase
                 $foundNonMatch = true;
             }
         }
-        
+
         $this->assertTrue($foundMatch, 'Expected to roll a 3 at least once in 100 rolls');
         $this->assertTrue($foundNonMatch, 'Expected to roll non-3 at least once in 100 rolls');
     }
 
     /**
-     * Test that expressions without comparisons don't have isSuccess
+     * Test that expressions without comparisons don't have isSuccess.
      */
     public function testNoComparisonNoSuccessFlag(): void
     {
         $result = $this->phpdice->roll('1d20+5');
-        
+
         $this->assertNull($result->isSuccess, 'Expected null isSuccess for expression without comparison');
     }
 
     /**
-     * Test comparison with complex expression
+     * Test comparison with complex expression.
      */
     public function testComparisonWithComplexExpression(): void
     {
@@ -251,13 +251,13 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test comparison with placeholders
+     * Test comparison with placeholders.
      */
     public function testComparisonWithPlaceholders(): void
     {
         $expression = '1d20+%bonus% >= %dc%';
         $variables = ['bonus' => 5, 'dc' => 15];
-        
+
         $result = $this->phpdice->roll($expression, $variables);
 
         // Total should be 1d20 + 5
@@ -270,7 +270,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test that single-die comparisons are success rolls, not success counting
+     * Test that single-die comparisons are success rolls, not success counting.
      */
     public function testSingleDieComparisonIsSuccessRoll(): void
     {
@@ -285,7 +285,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test that multi-die comparisons without arithmetic are success counting
+     * Test that multi-die comparisons without arithmetic are success counting.
      */
     public function testMultiDieComparisonIsSuccessCounting(): void
     {
@@ -300,7 +300,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test comparison with modifiers (advantage)
+     * Test comparison with modifiers (advantage).
      */
     public function testComparisonWithAdvantage(): void
     {
@@ -319,7 +319,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test comparison with keep mechanics
+     * Test comparison with keep mechanics.
      */
     public function testComparisonWithKeepHighest(): void
     {
@@ -338,7 +338,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test that comparison doesn't interfere with success counting
+     * Test that comparison doesn't interfere with success counting.
      */
     public function testSuccessCountingStillWorksIndependently(): void
     {
@@ -358,7 +358,7 @@ final class ComparisonTest extends TestCase
     }
 
     /**
-     * Test parsing comparison stores operator and threshold
+     * Test parsing comparison stores operator and threshold.
      */
     public function testParsingStoresComparisonDetails(): void
     {
@@ -372,13 +372,13 @@ final class ComparisonTest extends TestCase
 
         foreach ($testCases as $testCase) {
             $expr = $this->phpdice->parse($testCase['expression']);
-            
+
             $this->assertSame(
                 $testCase['operator'],
                 $expr->comparisonOperator,
                 "Expected operator {$testCase['operator']} for expression {$testCase['expression']}"
             );
-            
+
             $this->assertSame(
                 $testCase['threshold'],
                 $expr->comparisonThreshold,

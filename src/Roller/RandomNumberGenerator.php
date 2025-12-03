@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace PHPDice\Roller;
 
 /**
- * Random number generator abstraction using PHP's random_int()
+ * Random number generator abstraction using PHP's random_int().
  */
 class RandomNumberGenerator
 {
     /**
-     * Generate a random integer between min and max (inclusive)
+     * Generate a random integer between min and max (inclusive).
      *
      * @param int $min Minimum value (inclusive)
      * @param int $max Maximum value (inclusive)

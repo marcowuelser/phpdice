@@ -12,7 +12,7 @@ use PHPDice\Tests\Unit\BaseTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * Unit tests for Validator
+ * Unit tests for Validator.
  */
 #[CoversClass(Validator::class)]
 class ValidatorTest extends BaseTestCase
@@ -26,7 +26,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test valid dice specification passes validation
+     * Test valid dice specification passes validation.
      */
     public function testValidDiceSpecification(): void
     {
@@ -39,7 +39,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-027: Dice count must be >= 1
+     * Test FR-027: Dice count must be >= 1.
      */
     public function testDiceCountMustBePositive(): void
     {
@@ -51,7 +51,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-027: Negative dice count
+     * Test FR-027: Negative dice count.
      */
     public function testNegativeDiceCount(): void
     {
@@ -63,7 +63,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-028: Sides must be >= 2
+     * Test FR-028: Sides must be >= 2.
      */
     public function testSidesMustBeAtLeastTwo(): void
     {
@@ -75,7 +75,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-028: Zero sides
+     * Test FR-028: Zero sides.
      */
     public function testZeroSides(): void
     {
@@ -87,7 +87,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-029: Maximum 100 dice total
+     * Test FR-029: Maximum 100 dice total.
      */
     public function testMaximumDiceCount(): void
     {
@@ -99,7 +99,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-029: More than 100 dice fails
+     * Test FR-029: More than 100 dice fails.
      */
     public function testTooManyDice(): void
     {
@@ -111,7 +111,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-030: Maximum 100 sides per die
+     * Test FR-030: Maximum 100 sides per die.
      */
     public function testMaximumSides(): void
     {
@@ -123,7 +123,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-030: More than 100 sides fails
+     * Test FR-030: More than 100 sides fails.
      */
     public function testTooManySides(): void
     {
@@ -135,7 +135,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-026: Valid expression format
+     * Test FR-026: Valid expression format.
      */
     public function testValidExpression(): void
     {
@@ -146,7 +146,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-026: Empty expression fails
+     * Test FR-026: Empty expression fails.
      */
     public function testEmptyExpression(): void
     {
@@ -157,7 +157,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-033: Parenthesis matching validation
+     * Test FR-033: Parenthesis matching validation.
      */
     public function testParenthesesMatching(): void
     {
@@ -166,7 +166,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-033: Unmatched opening parenthesis
+     * Test FR-033: Unmatched opening parenthesis.
      */
     public function testUnmatchedOpeningParenthesis(): void
     {
@@ -177,7 +177,7 @@ class ValidatorTest extends BaseTestCase
     }
 
     /**
-     * Test FR-033: Unmatched closing parenthesis
+     * Test FR-033: Unmatched closing parenthesis.
      */
     public function testUnmatchedClosingParenthesis(): void
     {

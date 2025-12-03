@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace PHPDice\Model;
 
 /**
- * Represents the complete result of a dice roll
+ * Represents the complete result of a dice roll.
  */
 class RollResult
 {
     /**
-     * Create a new roll result
+     * Create a new roll result.
      *
      * @param DiceExpression $expression The original parsed expression
      * @param int|float $total Final calculated total
@@ -21,8 +21,8 @@ class RollResult
      * @param bool $isCriticalSuccess Whether this roll is a critical success
      * @param bool $isCriticalFailure Whether this roll is a critical failure
      * @param bool|null $isSuccess Whether comparison check succeeded (for success rolls)
-     * @param array<string, mixed>|null $rerollHistory History of rerolls per die
-     * @param array<string, mixed>|null $explosionHistory History of explosions per die
+     * @param array<int, array{rolls: array<int, int>, count: int, limitReached: bool}>|null $rerollHistory History of rerolls per die
+     * @param array<int, array{rolls: array<int, int>, count: int, cumulativeTotal: int, limitReached: bool}>|null $explosionHistory History of explosions per die
      */
     public function __construct(
         public readonly DiceExpression $expression,

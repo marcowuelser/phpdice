@@ -7,7 +7,7 @@ namespace PHPDice\Parser\AST;
 use PHPDice\Model\DiceType;
 
 /**
- * Represents a dice roll node in the AST
+ * Represents a dice roll node in the AST.
  */
 class DiceNode extends Node
 {

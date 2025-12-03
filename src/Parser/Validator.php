@@ -9,12 +9,12 @@ use PHPDice\Model\DiceSpecification;
 use PHPDice\Model\RollModifiers;
 
 /**
- * Validates dice expressions and their components
+ * Validates dice expressions and their components.
  */
 class Validator
 {
     /**
-     * Validate a dice specification
+     * Validate a dice specification.
      *
      * @param DiceSpecification $spec Dice specification to validate
      * @throws ValidationException If validation fails
@@ -55,7 +55,7 @@ class Validator
     }
 
     /**
-     * Validate that an expression is not malformed
+     * Validate that an expression is not malformed.
      *
      * @param string $expression Expression to validate
      * @throws ValidationException If expression is invalid
@@ -71,7 +71,7 @@ class Validator
     }
 
     /**
-     * Validate parenthesis matching (FR-033)
+     * Validate parenthesis matching (FR-033).
      *
      * @param string $expression Expression to validate
      * @throws ValidationException If parentheses don't match
@@ -97,7 +97,7 @@ class Validator
     }
 
     /**
-     * Validate modifiers don't conflict (FR-034)
+     * Validate modifiers don't conflict (FR-034).
      *
      * @param RollModifiers $modifiers Modifiers to validate
      * @throws ValidationException If modifiers conflict
@@ -114,7 +114,7 @@ class Validator
     }
 
     /**
-     * Validate reroll range doesn't cover entire die (FR-005b)
+     * Validate reroll range doesn't cover entire die (FR-005b).
      *
      * @param DiceSpecification $spec Dice specification
      * @param int $threshold Reroll threshold
@@ -157,7 +157,7 @@ class Validator
     }
 
     /**
-     * Validate explosion range doesn't cover entire die (FR-038c)
+     * Validate explosion range doesn't cover entire die (FR-038c).
      *
      * @param DiceSpecification $spec Dice specification
      * @param int $threshold Explosion threshold
@@ -190,7 +190,7 @@ class Validator
     }
 
     /**
-     * Validate critical threshold is within die range (FR-035, FR-036)
+     * Validate critical threshold is within die range (FR-035, FR-036).
      *
      * @param DiceSpecification $spec Dice specification
      * @param int $threshold Critical threshold value

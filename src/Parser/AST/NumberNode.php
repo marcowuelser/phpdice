@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPDice\Parser\AST;
 
 /**
- * Represents a numeric literal in the AST
+ * Represents a numeric literal in the AST.
  */
 class NumberNode extends Node
 {

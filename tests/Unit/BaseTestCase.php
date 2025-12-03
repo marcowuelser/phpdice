@@ -7,7 +7,7 @@ namespace PHPDice\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Base test case for unit tests
+ * Base test case for unit tests.
  */
 abstract class BaseTestCase extends TestCase
 {

@@ -320,13 +320,13 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 **Purpose**: Improvements that affect multiple user stories and final quality checks
 
-- [ ] T130 [P] Write comprehensive API documentation in docs/api.md covering all classes and methods
+- [X] T130 [P] Write comprehensive API documentation in docs/api.md covering all classes and methods
 - [ ] T131 [P] Expand README.md with installation, usage examples, game system compatibility table (D&D 5e, Pathfinder, Shadowrun, World of Darkness, FATE, Savage Worlds)
 - [ ] T132 [P] Create examples/ directory with game system examples including Savage Worlds exploding dice
 - [ ] T133 [P] Update quickstart.md examples to match actual implementation with exploding dice examples
-- [ ] T134 Run PHPStan static analysis and fix all issues to achieve strict level compliance
-- [ ] T135 Run PHP-CS-Fixer to ensure 100% PSR-12 compliance
-- [ ] T136 Verify all files have declare(strict_types=1) as first statement
+- [X] T134 Run PHPStan static analysis and fix all issues to achieve strict level compliance
+- [X] T135 Run PHP-CS-Fixer to ensure 100% PSR-12 compliance
+- [X] T136 Verify all files have declare(strict_types=1) as first statement
 - [ ] T137 Run PHPUnit with coverage report and ensure 90%+ coverage threshold met
 - [ ] T138 Add PHPDoc comments to all public methods and classes
 - [ ] T139 [P] Create contract tests in tests/Contract/GameSystemContractTest.php for D&D 5e, Pathfinder, Shadowrun, World of Darkness, FATE, Savage Worlds

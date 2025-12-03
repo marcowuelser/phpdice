@@ -8,7 +8,7 @@ use PHPDice\PHPDice;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * Integration tests for basic dice rolling (User Story 1)
+ * Integration tests for basic dice rolling (User Story 1).
  */
 #[CoversClass(PHPDice::class)]
 class BasicRollingTest extends BaseTestCase
@@ -22,7 +22,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test parsing basic dice notation
+     * Test parsing basic dice notation.
      */
     public function testParseBasicDiceNotation(): void
     {
@@ -34,7 +34,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test rolling basic dice
+     * Test rolling basic dice.
      */
     public function testRollBasicDice(): void
     {
@@ -52,7 +52,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test rolling 1d20 (common D&D roll)
+     * Test rolling 1d20 (common D&D roll).
      */
     public function testRoll1d20(): void
     {
@@ -64,7 +64,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test rolling 2d10
+     * Test rolling 2d10.
      */
     public function testRoll2d10(): void
     {
@@ -76,7 +76,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test statistical calculations
+     * Test statistical calculations.
      */
     public function testStatistics(): void
     {
@@ -89,7 +89,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test invalid expression - missing dice count
+     * Test invalid expression - missing dice count.
      */
     public function testInvalidExpressionMissingCount(): void
     {
@@ -98,7 +98,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test invalid expression - missing sides
+     * Test invalid expression - missing sides.
      */
     public function testInvalidExpressionMissingSides(): void
     {
@@ -107,7 +107,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test invalid expression - non-numeric
+     * Test invalid expression - non-numeric.
      */
     public function testInvalidExpressionNonNumeric(): void
     {
@@ -116,7 +116,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test zero dice count validation
+     * Test zero dice count validation.
      */
     public function testZeroDiceCount(): void
     {
@@ -126,7 +126,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test single-sided die validation (must be at least 2 sides)
+     * Test single-sided die validation (must be at least 2 sides).
      */
     public function testSingleSidedDie(): void
     {
@@ -136,7 +136,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test maximum dice count validation (100 max)
+     * Test maximum dice count validation (100 max).
      */
     public function testTooManyDice(): void
     {
@@ -146,7 +146,7 @@ class BasicRollingTest extends BaseTestCase
     }
 
     /**
-     * Test maximum sides validation (100 max)
+     * Test maximum sides validation (100 max).
      */
     public function testTooManySides(): void
     {

@@ -7,7 +7,7 @@ namespace PHPDice\Parser\AST;
 use PHPDice\Exception\ValidationException;
 
 /**
- * Represents a function call (e.g., floor, ceiling, round)
+ * Represents a function call (e.g., floor, ceiling, round).
  */
 class FunctionNode extends Node
 {
