@@ -31,9 +31,8 @@ use PHPDice\PHPDice;
 // Create instance
 $dice = new PHPDice();
 
-// Parse and roll
-$expression = $dice->parse("3d6");
-$result = $dice->roll($expression);
+// Roll dice directly
+$result = $dice->roll("3d6");
 
 echo "Rolled: " . $result->total . "\n";
 echo "Dice: " . implode(", ", $result->diceValues) . "\n";
@@ -47,8 +46,7 @@ echo "Dice: " . implode(", ", $result->diceValues) . "\n";
 
 ```php
 // Attack roll with +5 bonus
-$expression = $dice->parse("1d20+5");
-$result = $dice->roll($expression);
+$result = $dice->roll("1d20+5");
 
 echo "Attack roll: {$result->total}\n";
 echo "Natural die: {$result->diceValues[0]}\n";
@@ -58,8 +56,7 @@ echo "Natural die: {$result->diceValues[0]}\n";
 // Natural die: 13
 
 // Complex arithmetic with parentheses
-$expression = $dice->parse("(2d6+3)*2");
-$result = $dice->roll($expression);
+$result = $dice->roll("(2d6+3)*2");
 
 echo "Damage: {$result->total}\n";
 echo "Dice: " . implode(", ", $result->diceValues) . "\n";
@@ -69,8 +66,7 @@ echo "Dice: " . implode(", ", $result->diceValues) . "\n";
 // Dice: 5, 3
 
 // Mathematical function
-$expression = $dice->parse("floor(1d20/2)");
-$result = $dice->roll($expression);
+$result = $dice->roll("floor(1d20/2)");
 
 echo "Result: {$result->total}\n";
 
@@ -82,8 +78,7 @@ echo "Result: {$result->total}\n";
 
 ```php
 // D&D 5e advantage: roll 2d20, keep highest
-$expression = $dice->parse("1d20 advantage");
-$result = $dice->roll($expression);
+$result = $dice->roll("1d20 advantage");
 
 echo "Advantage roll: {$result->total}\n";
 echo "Both dice: " . implode(", ", $result->diceValues) . "\n";
@@ -99,12 +94,10 @@ echo "Kept die index: " . $result->keptDice[0] . "\n";
 
 ```php
 // Character has Strength 3, Dexterity 2
-$expression = $dice->parse("1d20+%str%+%dex%", [
+$result = $dice->roll("1d20+%str%+%dex%", [
     "str" => 3,
     "dex" => 2
 ]);
-
-$result = $dice->roll($expression);
 
 echo "Ability check: {$result->total}\n";
 echo "Die roll: {$result->diceValues[0]}\n";
@@ -120,8 +113,7 @@ echo "Modified by: +5 (str +3, dex +2)\n";
 
 ```php
 // Shadowrun-style: roll 5d6, count 4+ as successes
-$expression = $dice->parse("5d6 >=4");
-$result = $dice->roll($expression);
+$result = $dice->roll("5d6 >=4");
 
 echo "Successes: {$result->successCount}\n";
 echo "Dice rolled: " . implode(", ", $result->diceValues) . "\n";
@@ -142,8 +134,7 @@ echo "\n";
 
 ```php
 // D&D attack with critical on natural 20
-$expression = $dice->parse("1d20+5 crit 20");
-$result = $dice->roll($expression);
+$result = $dice->roll("1d20+5 crit 20");
 
 echo "Attack: {$result->total}\n";
 
@@ -161,12 +152,12 @@ if ($result->isCriticalSuccess) {
 ### 7. Statistical Analysis (7 minutes)
 
 ```php
-// Get probabilities without rolling
+// Get probabilities without rolling - use parse() for statistics
 $expression = $dice->parse("3d6+5");
 
-$stats = $expression->statistics;
+$stats = $expression->getStatistics();
 
-echo "Expression: {$expression->originalExpression}\n";
+echo "Expression: 3d6+5\n";
 echo "Minimum: {$stats->minimum}\n";
 echo "Maximum: {$stats->maximum}\n";
 echo "Expected: {$stats->expected}\n";
@@ -184,8 +175,7 @@ echo "Expected: {$stats->expected}\n";
 
 ```php
 // Attack with weapon (+5 bonus), advantage, critical on 20
-$expression = $dice->parse("1d20+5 advantage crit 20");
-$result = $dice->roll($expression);
+$result = $dice->roll("1d20+5 advantage crit 20");
 
 echo "Attack: {$result->total}\n";
 echo "Dice: " . implode(", ", $result->diceValues) . "\n";
@@ -199,8 +189,7 @@ if ($result->isCriticalSuccess) {
 
 ```php
 // Skill check with +7 modifier against DC 15
-$expression = $dice->parse("1d20+7 >=15");
-$result = $dice->roll($expression);
+$result = $dice->roll("1d20+7 >=15");
 
 echo "Roll: {$result->total}\n";
 echo $result->isSuccess ? "✓ Success!" : "✗ Failure";
@@ -211,8 +200,7 @@ echo "\n";
 
 ```php
 // Roll 8 dice, count 5+ as successes
-$expression = $dice->parse("8d6 >=5");
-$result = $dice->roll($expression);
+$result = $dice->roll("8d6 >=5");
 
 echo "Hits: {$result->successCount}\n";
 
@@ -229,8 +217,7 @@ if ($result->successCount >= 4) {
 
 ```php
 // Savage Worlds trait test: exploding d6
-$expression = $dice->parse("1d6 explode");
-$result = $dice->roll($expression);
+$result = $dice->roll("1d6 explode");
 
 echo "Trait test: {$result->total}\n";
 
@@ -243,8 +230,7 @@ if ($result->explosionHistory) {
 // Exploded! Chain: 6 + 6 + 2
 
 // Wild die (explode on 6, max 10 explosions)
-$expression = $dice->parse("1d6 explode 10 >=6");
-$result = $dice->roll($expression);
+$result = $dice->roll("1d6 explode 10 >=6");
 
 echo "Wild die: {$result->total}\n";
 ```
@@ -253,8 +239,7 @@ echo "Wild die: {$result->total}\n";
 
 ```php
 // 4 FATE dice for skill check
-$expression = $dice->parse("4dF+3"); // +3 skill bonus
-$result = $dice->roll($expression);
+$result = $dice->roll("4dF+3"); // +3 skill bonus
 
 echo "Result: {$result->total}\n";
 echo "Dice: " . implode(", ", $result->diceValues) . "\n";
@@ -273,8 +258,7 @@ echo "Level: " . ($ladder[$result->total] ?? "Legendary") . "\n";
 
 ```php
 // Roll 4d6, drop lowest (standard stat generation)
-$expression = $dice->parse("4d6 keep 3 highest");
-$result = $dice->roll($expression);
+$result = $dice->roll("4d6 keep 3 highest");
 
 echo "Stat: {$result->total}\n";
 echo "Dice: " . implode(", ", $result->diceValues) . "\n";
@@ -329,8 +313,7 @@ try {
 ```php
 // Reroll 1s and 2s once (Great Weapon Fighting in D&D 5e)
 // Default limit: 100 rerolls per die
-$expression = $dice->parse("2d6 reroll <=2");
-$result = $dice->roll($expression);
+$result = $dice->roll("2d6 reroll <=2");
 
 echo "Damage: {$result->total}\n";
 echo "Final dice: " . implode(", ", $result->diceValues) . "\n";
@@ -343,8 +326,7 @@ if ($result->rerolledDice) {
 }
 
 // Explicit reroll limit: reroll 1s up to 2 times per die
-$expression = $dice->parse("4d6 reroll 2 <=1");
-$result = $dice->roll($expression);
+$result = $dice->roll("4d6 reroll 2 <=1");
 
 echo "Roll: {$result->total}\n";
 echo "Dice: " . implode(", ", $result->diceValues) . "\n";
@@ -360,8 +342,7 @@ echo "Dice: " . implode(", ", $result->diceValues) . "\n";
 ```php
 // Basic explosion: explode on max value (6 for d6)
 // Default limit: 100 explosions per die
-$expression = $dice->parse("3d6 explode");
-$result = $dice->roll($expression);
+$result = $dice->roll("3d6 explode");
 
 echo "Total: {$result->total}\n";
 echo "Final values: " . implode(", ", $result->diceValues) . "\n";
@@ -381,8 +362,7 @@ if ($result->explosionHistory) {
 //   Die 2: 6 + 1 = 7
 
 // Explode on 5 or 6, max 3 explosions per die
-$expression = $dice->parse("3d6 explode 3 >=5");
-$result = $dice->roll($expression);
+$result = $dice->roll("3d6 explode 3 >=5");
 
 echo "Total: {$result->total}\n";
 echo "Dice: " . implode(", ", $result->diceValues) . "\n";
@@ -397,8 +377,7 @@ echo "Dice: " . implode(", ", $result->diceValues) . "\n";
 
 ```php
 // Save against DC 15 (must roll 15 or higher)
-$expression = $dice->parse("1d20+3 >=15");
-$result = $dice->roll($expression);
+$result = $dice->roll("1d20+3 >=15");
 
 echo "Saving throw: {$result->total}\n";
 echo ($result->isSuccess ? "✓ Saved!" : "✗ Failed") . "\n";
@@ -408,8 +387,7 @@ echo ($result->isSuccess ? "✓ Saved!" : "✗ Failed") . "\n";
 
 ```php
 // Complex roll: advantage, modifier, critical, comparison
-$expression = $dice->parse("1d20+5 advantage crit 20 >=15");
-$result = $dice->roll($expression);
+$result = $dice->roll("1d20+5 advantage crit 20 >=15");
 
 echo "Roll: {$result->total}\n";
 echo "Success: " . ($result->isSuccess ? "Yes" : "No") . "\n";
@@ -427,22 +405,27 @@ echo "Critical: " . ($result->isCriticalSuccess ? "Yes" : "No") . "\n";
 
 1. **Reuse expressions**: Parse once, roll many times
    ```php
+   // For statistics only, parse once
    $expr = $dice->parse("3d6+5");
+   $stats = $expr->getStatistics();
+   
+   // For repeated rolls with same expression
    for ($i = 0; $i < 100; $i++) {
-       $result = $dice->roll($expr);
+       $result = $dice->roll("3d6+5");  // Optimized internally
    }
    ```
 
 2. **Statistics are free**: Get probabilities without rolling
    ```php
    $expr = $dice->parse("1d20+5");
-   $min = $expr->statistics->minimum;  // No roll needed
+   $stats = $expr->getStatistics();
+   $min = $stats->minimum;  // No roll needed
    ```
 
-3. **Validate early**: Let parser catch errors before rolling
+3. **Validate early**: Parser catches errors immediately
    ```php
-   // This validates immediately at parse time
-   $expr = $dice->parse("1d20+%str%", ["str" => 3]);
+   // This validates immediately at parse/roll time
+   $result = $dice->roll("1d20+%str%", ["str" => 3]);
    ```
 
 ## Troubleshooting

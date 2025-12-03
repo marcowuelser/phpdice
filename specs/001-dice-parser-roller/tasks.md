@@ -322,8 +322,8 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 
 - [X] T130 [P] Write comprehensive API documentation in docs/api.md covering all classes and methods
 - [ ] T131 [P] Expand README.md with installation, usage examples, game system compatibility table (D&D 5e, Pathfinder, Shadowrun, World of Darkness, FATE, Savage Worlds)
-- [ ] T132 [P] Create examples/ directory with game system examples including Savage Worlds exploding dice
-- [ ] T133 [P] Update quickstart.md examples to match actual implementation with exploding dice examples
+- [X] T132 [P] Create examples/ directory with game system examples including Savage Worlds exploding dice
+- [X] T133 [P] Update quickstart.md examples to match actual implementation with exploding dice examples
 - [X] T134 Run PHPStan static analysis and fix all issues to achieve strict level compliance
 - [X] T135 Run PHP-CS-Fixer to ensure 100% PSR-12 compliance
 - [X] T136 Verify all files have declare(strict_types=1) as first statement
@@ -333,9 +333,9 @@ Single library project structure: `src/`, `tests/` at repository root per plan.m
 - [ ] T140 Performance profiling - verify parse <100ms, roll <50ms for all test cases including explosions
 - [ ] T141 Memory profiling - verify <1MB per operation for all test cases
 - [ ] T142 [P] Validate quickstart.md tutorial can be completed in 10 minutes (SC-006)
-- [ ] T143 Update CHANGELOG.md with all features and prepare for v1.0.0 release
-- [ ] T144 [P] Create CONTRIBUTING.md with development workflow and constitution compliance
-- [ ] T145 Final constitution check against all 8 principles in plan.md
+- [X] T143 Update CHANGELOG.md with all features and prepare for v1.0.0 release
+- [X] T144 [P] Create CONTRIBUTING.md with development workflow and constitution compliance
+- [X] T145 Final constitution check against all 8 principles in plan.md
 
 ---
 
