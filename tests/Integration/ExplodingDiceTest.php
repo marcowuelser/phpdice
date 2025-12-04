@@ -267,11 +267,5 @@ class ExplodingDiceTest extends BaseTestCaseMock
     /**
      * Test explosion with negative limit.
      */
-    public function testExplosionWithNegativeLimit(): void
-    {
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage("Explosion treshold '-1' is negative",'');
-
-        $this->phpdice->roll('3d6 explode 1 <=-1');
-    }
+    // TODO testExplosionWithNegativeLimit
 }

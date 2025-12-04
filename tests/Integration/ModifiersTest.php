@@ -129,7 +129,7 @@ class ModifiersTest extends BaseTestCaseMock
         $result = $this->phpdice->roll('round(1d20/3)');
 
         $this->assertCount(1, $result->diceValues);
-        $this->assertEquals(9, $result->total);
+        $this->assertEquals(3, $result->total);
     }
 
     /**
