@@ -194,7 +194,7 @@ echo "     Consequences: " . implode(', ', $consequences) . "\n\n";
 
 // 8. Probability Analysis
 echo "8. Probability Analysis (4dF):\n";
-$result = $phpdice->roll('4dF');
+$expression = $phpdice->parse('4dF');
 $stats = $expression->getStatistics();
 echo "   Minimum: {$stats->minimum} (all minuses)\n";
 echo "   Maximum: {$stats->maximum} (all pluses)\n";
