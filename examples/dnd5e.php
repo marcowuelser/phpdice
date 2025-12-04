@@ -47,7 +47,7 @@ echo "   Result: " . ($result->isSuccess ? 'SUCCESS!' : 'FAILURE') . "\n\n";
 
 // 5. Critical Hit Detection
 echo "5. Attack Roll with Critical Detection:\n";
-$result = $phpdice->roll('1d20+7 >= 15 crit 20 glitch 1');
+$result = $phpdice->roll('1d20 crit 20 glitch 1 +7 >= 15');
 echo "   Roll: {$result->total}\n";
 if ($result->isCriticalSuccess) {
     echo "   *** CRITICAL HIT! Natural 20! ***\n";

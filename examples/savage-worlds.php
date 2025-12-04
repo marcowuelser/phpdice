@@ -50,15 +50,25 @@ echo "\n";
 
 // 2. Damage Roll (Longsword + d6)
 echo "2. Damage Roll (Longsword d8 + d6 Strength):\n";
-$result = $phpdice->roll('1d8 explode + 1d6 explode');
-echo "   Total damage: {$result->total}\n";
+$weaponResult = $phpdice->roll('1d8 explode');
+$strResult = $phpdice->roll('1d6 explode');
+$totalDamage = $weaponResult->total + $strResult->total;
 
-if ($result->explosionHistory !== null) {
-    foreach ($result->explosionHistory as $dieIndex => $history) {
-        echo "   Die {$dieIndex} exploded: " . implode(' + ', $history['rolls']) .
-             " = {$history['cumulativeTotal']}\n";
-    }
+echo "   Weapon (d8): {$weaponResult->total}";
+if ($weaponResult->explosionHistory !== null && isset($weaponResult->explosionHistory[0])) {
+    $explosions = $weaponResult->explosionHistory[0];
+    echo " (Exploded! Rolls: " . implode(' + ', $explosions['rolls']) . ")";
 }
+echo "\n";
+
+echo "   Strength (d6): {$strResult->total}";
+if ($strResult->explosionHistory !== null && isset($strResult->explosionHistory[0])) {
+    $explosions = $strResult->explosionHistory[0];
+    echo " (Exploded! Rolls: " . implode(' + ', $explosions['rolls']) . ")";
+}
+echo "\n";
+
+echo "   Total damage: {$totalDamage}\n";
 echo "\n";
 
 // 3. Soak Roll (Vigor d6)
@@ -80,9 +90,12 @@ echo "   Wounds soaked: {$soaked}\n\n";
 // 4. Multiple Attacks (Multi-Action Penalty)
 echo "4. Multiple Attacks (3 attacks, -2 penalty each):\n";
 for ($i = 1; $i <= 3; $i++) {
-    $result = $phpdice->roll('1d8 explode + 1d6 explode - 2');
-    $success = $result->total >= 4;
-    echo "   Attack {$i}: {$result->total} " .
+    $traitResult = $phpdice->roll('1d8 explode');
+    $wildResult = $phpdice->roll('1d6 explode');
+    $bestRoll = max($traitResult->total, $wildResult->total);
+    $total = $bestRoll - 2;
+    $success = $total >= 4;
+    echo "   Attack {$i}: {$total} " .
          ($success ? "HIT" : "MISS") . "\n";
 }
 echo "\n";
@@ -100,15 +113,18 @@ echo "   Best result: {$attackRoll}\n";
 if ($attackRoll >= 4) {
     $raises = floor(($attackRoll - 4) / 4);
     echo "   HIT! ";
+    $baseDamage = $phpdice->roll('2d6 explode');
+    $raiseDamage = 0;
     if ($raises > 0) {
         echo "With {$raises} raise(s)! (+1d6 damage per raise)\n";
-$damageExpr = $phpdice->parse('2d6 explode + ' . $raises . 'd6 explode');
+        $raiseExpr = "{$raises}d6 explode";
+        $raiseDamageResult = $phpdice->roll($raiseExpr);
+        $raiseDamage = $raiseDamageResult->total;
     } else {
         echo "\n";
-$damageExpr = $phpdice->parse('2d6 explode');
     }
-    $damageResult = $phpdice->roll($damageExpr);
-    echo "   Damage: {$damageResult->total}\n";
+    $totalDamage = $baseDamage->total + $raiseDamage;
+    echo "   Damage: {$totalDamage}\n";
 } else {
     echo "   MISS\n";
 }
@@ -150,14 +166,18 @@ echo "\n";
 // 7. Bennies - Reroll
 echo "7. Using a Benny to Reroll:\n";
 echo "   First roll:\n";
-$firstResult = $phpdice->roll('1d6 explode + 1d6 explode');
-echo "     Result: {$firstResult->total}\n";
+$firstTrait = $phpdice->roll('1d6 explode');
+$firstWild = $phpdice->roll('1d6 explode');
+$firstResult = max($firstTrait->total, $firstWild->total);
+echo "     Result: {$firstResult}\n";
 
-if ($firstResult->total < 4) {
+if ($firstResult < 4) {
     echo "   That's bad! Spending a Benny to reroll...\n";
-$rerollResult = $phpdice->roll('1d6 explode + 1d6 explode');
-    echo "     Reroll: {$rerollResult->total}\n";
-    $final = max($firstResult->total, $rerollResult->total);
+    $rerollTrait = $phpdice->roll('1d6 explode');
+    $rerollWild = $phpdice->roll('1d6 explode');
+    $rerollResult = max($rerollTrait->total, $rerollWild->total);
+    echo "     Reroll: {$rerollResult}\n";
+    $final = max($firstResult, $rerollResult);
     echo "   Taking better result: {$final}\n";
 }
 echo "\n";
@@ -167,16 +187,20 @@ echo "8. Vehicle Chase (3 rounds):\n";
 for ($round = 1; $round <= 3; $round++) {
     echo "   Round {$round}:\n";
 
-$driver1Result = $phpdice->roll('1d8 explode + 1d6 explode');
+    $driver1Trait = $phpdice->roll('1d8 explode');
+    $driver1Wild = $phpdice->roll('1d6 explode');
+    $driver1Result = max($driver1Trait->total, $driver1Wild->total);
 
-$driver2Result = $phpdice->roll('1d6 explode + 1d6 explode');
+    $driver2Trait = $phpdice->roll('1d6 explode');
+    $driver2Wild = $phpdice->roll('1d6 explode');
+    $driver2Result = max($driver2Trait->total, $driver2Wild->total);
 
-    echo "     Driver 1: {$driver1Result->total}\n";
-    echo "     Driver 2: {$driver2Result->total}\n";
+    echo "     Driver 1: {$driver1Result}\n";
+    echo "     Driver 2: {$driver2Result}\n";
 
-    if ($driver1Result->total > $driver2Result->total) {
+    if ($driver1Result > $driver2Result) {
         echo "     Driver 1 gains ground!\n";
-    } elseif ($driver2Result->total > $driver1Result->total) {
+    } elseif ($driver2Result > $driver1Result) {
         echo "     Driver 2 gains ground!\n";
     } else {
         echo "     Dead heat!\n";
@@ -197,11 +221,16 @@ echo "   Best roll: {$castRoll}\n";
 if ($castRoll >= 4) {
     $raises = floor(($castRoll - 4) / 4);
     echo "   SUCCESS! Spell cast.\n";
+    $baseDamage = $phpdice->roll('2d6 explode');
+    $raiseDamage = 0;
     if ($raises > 0) {
         echo "   {$raises} raise(s)! +1d6 damage per raise.\n";
+        $raiseExpr = "{$raises}d6 explode";
+        $raiseDamageResult = $phpdice->roll($raiseExpr);
+        $raiseDamage = $raiseDamageResult->total;
     }
-$damageResult = $phpdice->roll('2d6 explode' . ($raises > 0 ? " + {$raises}d6 explode" : ""));
-    echo "   Bolt damage: {$damageResult->total}\n";
+    $totalDamage = $baseDamage->total + $raiseDamage;
+    echo "   Bolt damage: {$totalDamage}\n";
 } else {
     echo "   FAILURE - Spell fizzles\n";
 }
@@ -210,7 +239,7 @@ echo "\n";
 // 10. Probability Analysis
 echo "10. Probability Analysis:\n";
 echo "   d6 exploding:\n";
-$result = $phpdice->roll('1d6 explode');
+$expression = $phpdice->parse('1d6 explode');
 $stats = $expression->getStatistics();
 echo "     Min: {$stats->minimum}, Max: theoretically unlimited (capped at limit)\n";
 echo "     Expected: {$stats->expected}\n";
