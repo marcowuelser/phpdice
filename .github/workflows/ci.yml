@@ -1,10 +1,8 @@
 name: CI
 
 on:
-  push:
-    branches: [ main, 001-dice-parser-roller ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   test:
@@ -41,11 +39,8 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
       
-      - name: Run PHPUnit tests
-        run: vendor/bin/phpunit --testdox
-      
-      - name: Generate code coverage
-        run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+      - name: Run PHPUnit tests with coverage
+        run: composer test-coverage
       
       - name: Check code coverage threshold
         run: |
@@ -64,45 +59,16 @@ jobs:
           fi
       
       - name: Run PHPStan static analysis
-        run: vendor/bin/phpstan analyse --error-format=github --no-progress
+        run: composer phpstan
       
       - name: Run PHP-CS-Fixer (dry run)
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
-      
+        run: composer cs-check
+
       - name: Verify strict_types declarations
-        run: |
-          echo "Checking for strict_types in all PHP files..."
-          MISSING=0
-          for file in $(find src tests -name "*.php"); do
-            if ! grep -q "declare(strict_types=1);" "$file"; then
-              echo "ERROR: Missing strict_types in $file"
-              MISSING=$((MISSING + 1))
-            fi
-          done
-          if [ $MISSING -gt 0 ]; then
-            echo "ERROR: $MISSING file(s) missing strict_types declaration"
-            exit 1
-          fi
-          echo "✓ All PHP files have strict_types declarations"
+        run: chmod +x scripts/verify-strict-types.sh && scripts/verify-strict-types.sh
       
       - name: Run example scripts
-        run: |
-          echo "Running D&D 5e examples..."
-          php examples/dnd5e.php > /dev/null || { echo "ERROR: dnd5e.php failed"; exit 1; }
-          
-          echo "Running Shadowrun examples..."
-          php examples/shadowrun.php > /dev/null || { echo "ERROR: shadowrun.php failed"; exit 1; }
-          
-          echo "Running Savage Worlds examples..."
-          php examples/savage-worlds.php > /dev/null || { echo "ERROR: savage-worlds.php failed"; exit 1; }
-          
-          echo "Running FATE examples..."
-          php examples/fate.php > /dev/null || { echo "ERROR: fate.php failed"; exit 1; }
-          
-          echo "Running Call of Cthulhu examples..."
-          php examples/call-of-cthulhu.php > /dev/null || { echo "ERROR: call-of-cthulhu.php failed"; exit 1; }
-          
-          echo "✓ All example scripts executed successfully"
+        run: chmod +x scripts/run-examples.sh && scripts/run-examples.sh
       
       - name: Upload coverage to Codecov (optional)
         if: github.event_name == 'push'

@@ -28,6 +28,20 @@
             "PHPDice\\Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-clover=coverage.xml",
+        "test-coverage-html": "phpunit --coverage-html coverage/html",
+        "phpstan": "phpstan analyse",
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix",
+        "ci": [
+            "@test-coverage",
+            "@phpstan",
+            "@cs-check"
+        ],
+        "fix-line-endings": "./scripts/fix-line-endings.sh"
+    },
     "config": {
         "sort-packages": true,
         "optimize-autoloader": true
