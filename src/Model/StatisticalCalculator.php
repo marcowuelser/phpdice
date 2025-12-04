@@ -395,7 +395,7 @@ class StatisticalCalculator
                     floor($arg->maximum),
                     round(floor($arg->expected), 3)
                 ),
-                'ceil', 'ceiling' => new StatisticalData(
+                'ceil' => new StatisticalData(
                     ceil($arg->minimum),
                     ceil($arg->maximum),
                     round(ceil($arg->expected), 3)
@@ -539,7 +539,7 @@ class StatisticalCalculator
                     floor($arg->maximum),
                     round(floor($arg->expected), 3)
                 ),
-                'ceil', 'ceiling' => new StatisticalData(
+                'ceil' => new StatisticalData(
                     ceil($arg->minimum),
                     ceil($arg->maximum),
                     round(ceil($arg->expected), 3)

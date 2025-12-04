@@ -25,7 +25,7 @@ class ModifiersTest extends BaseTestCaseMock
         $result = $this->phpdice->roll('1d20+5');
 
         $this->assertCount(1, $result->diceValues);
-        $this->assertEquals(10+5, $result->total);
+        $this->assertEquals(10 + 5, $result->total);
     }
 
     /**
@@ -40,7 +40,7 @@ class ModifiersTest extends BaseTestCaseMock
         $result = $this->phpdice->roll('3d6-2');
 
         $this->assertCount(3, $result->diceValues);
-        $this->assertEquals(1+5+3-2, $result->total);
+        $this->assertEquals(1 + 5 + 3 - 2, $result->total);
     }
 
     /**
@@ -55,7 +55,7 @@ class ModifiersTest extends BaseTestCaseMock
         $result = $this->phpdice->roll('2d6*2');
 
         $this->assertCount(2, $result->diceValues);
-        $this->assertEquals((1+5)*2, $result->total);
+        $this->assertEquals((1 + 5) * 2, $result->total);
     }
 
     /**

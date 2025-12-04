@@ -9,13 +9,12 @@ use PHPDice\Roller\RandomNumberGenerator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 
  * Base test case for integration tests.
  */
 abstract class BaseTestCaseMock extends TestCase
 {
     protected PHPDice $phpdice;
-    protected object $mockRng;
+    protected RandomNumberGenerator | MockObject $mockRng;
 
     protected function setUp(): void
     {

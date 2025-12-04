@@ -27,8 +27,8 @@ class AdvantageTest extends BaseTestCaseMock
     {
         $this->mockRng->expects($this->exactly(2))
             ->method('generate')
-            ->willReturnOnConsecutiveCalls(17, 18);    
-            
+            ->willReturnOnConsecutiveCalls(17, 18);
+
         $result = $this->phpdice->roll('1d20 advantage');
 
         // Should roll 2 dice
@@ -58,8 +58,8 @@ class AdvantageTest extends BaseTestCaseMock
     {
         $this->mockRng->expects($this->exactly(2))
             ->method('generate')
-            ->willReturnOnConsecutiveCalls(17, 18);  
-        
+            ->willReturnOnConsecutiveCalls(17, 18);
+
         $result = $this->phpdice->roll('1d20 disadvantage');
 
         // Should roll 2 dice
@@ -211,7 +211,7 @@ class AdvantageTest extends BaseTestCaseMock
     {
         $this->mockRng->expects($this->exactly(2))
             ->method('generate')
-            ->willReturnOnConsecutiveCalls(7,8);
+            ->willReturnOnConsecutiveCalls(7, 8);
 
         $result = $this->phpdice->roll('1d20 advantage + 5');
 
@@ -229,7 +229,7 @@ class AdvantageTest extends BaseTestCaseMock
     {
         $this->mockRng->expects($this->exactly(2))
             ->method('generate')
-            ->willReturnOnConsecutiveCalls(7,8);
+            ->willReturnOnConsecutiveCalls(7, 8);
 
         $result = $this->phpdice->roll('1d20 disadvantage - 2');
 

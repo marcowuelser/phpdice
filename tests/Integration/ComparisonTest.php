@@ -73,12 +73,12 @@ final class ComparisonTest extends BaseTestCaseMock
             ->willReturnOnConsecutiveCalls(10, 5);
 
         $result = $this->phpdice->roll('1d20 >= 10');
-        $this->assertTrue($result->isSuccess, "Expected success when total (10) >= 10");
+        $this->assertTrue($result->isSuccess, 'Expected success when total (10) >= 10');
         $this->assertEquals(10, $result->total);
 
         // Test failure case
         $result2 = $this->phpdice->roll('1d20 >= 10');
-        $this->assertFalse($result2->isSuccess, "Expected failure when total (5) < 10");
+        $this->assertFalse($result2->isSuccess, 'Expected failure when total (5) < 10');
         $this->assertEquals(5, $result2->total);
     }
 

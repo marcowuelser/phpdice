@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace PHPDice\Tests\Integration;
 
 use PHPDice\Exception\ParseException;
-use PHPDice\PHPDice;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Integration tests for placeholder variable support (US7).

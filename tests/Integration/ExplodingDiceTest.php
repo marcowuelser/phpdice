@@ -35,7 +35,7 @@ class ExplodingDiceTest extends BaseTestCaseMock
         // Should roll 3 dice initially
         $this->assertCount(3, $result->diceValues);
 
-        $this->assertEquals(1+6+3+4, $result->total);
+        $this->assertEquals(1 + 6 + 3 + 4, $result->total);
 
         foreach ($result->explosionHistory as $dieIndex => $history) {
             $this->assertArrayHasKey('rolls', $history);
@@ -65,7 +65,7 @@ class ExplodingDiceTest extends BaseTestCaseMock
 
         $this->assertCount(3, $result->diceValues);
 
-        $this->assertEquals(1+6+3+6+5, $result->total);
+        $this->assertEquals(1 + 6 + 3 + 6 + 5, $result->total);
 
         foreach ($result->explosionHistory as $history) {
             $this->assertLessThanOrEqual(2, $history['count']);
@@ -88,7 +88,7 @@ class ExplodingDiceTest extends BaseTestCaseMock
         $result = $this->phpdice->roll('3d6 explode 3 >=5');
 
         $this->assertCount(3, $result->diceValues);
-        $this->assertEquals(1+5+3+5+5+4, $result->total);
+        $this->assertEquals(1 + 5 + 3 + 5 + 5 + 4, $result->total);
 
         foreach ($result->explosionHistory as $history) {
             // First roll should be 5 or 6 (triggered explosion)
@@ -127,7 +127,7 @@ class ExplodingDiceTest extends BaseTestCaseMock
     {
         $this->mockRng->expects($this->exactly(2))
             ->method('generate')
-            ->willReturnOnConsecutiveCalls(6, 1);        
+            ->willReturnOnConsecutiveCalls(6, 1);
         // Use a die that always explodes once for predictable testing
         // "1d6 explode 10 >=6" means: roll d6, if 6, explode up to 10 times
         $result = $this->phpdice->roll('1d6 explode 10 >=6');

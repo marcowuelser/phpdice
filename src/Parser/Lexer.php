@@ -165,7 +165,7 @@ class Lexer
         }
 
         // Check if it's a known function
-        $functions = ['floor', 'ceil', 'ceiling', 'round'];
+        $functions = ['floor', 'ceil', 'round'];
         if (in_array($lower, $functions, true)) {
             return new Token(Token::TYPE_FUNCTION, $lower, $start);
         }

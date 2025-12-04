@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace PHPDice\Tests\Integration;
 
 use PHPDice\PHPDice;
-use PHPDice\Roller\RandomNumberGenerator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 
  * Base test case for integration tests.
  */
 abstract class BaseTestCase extends TestCase
