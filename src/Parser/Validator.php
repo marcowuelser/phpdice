@@ -169,6 +169,13 @@ class Validator
         $minValue = 1;
         $maxValue = $spec->sides;
 
+        if ($threshold < 0) {
+            throw new ValidationException(
+                "Explosion treshold '{$threshold}' is negative",
+                'explode'
+            );
+        }
+
         // Check if explosion condition covers all possible values
         $coversAll = false;
         switch ($operator) {

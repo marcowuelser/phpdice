@@ -17,7 +17,7 @@ use PHPDice\Exception\ValidationException;
  * @covers \PHPDice\Model\DiceExpression
  * @covers \PHPDice\Model\RollResult
  */
-class AdvantageTest extends BaseTestCase
+class AdvantageTest extends BaseTestCaseMock
 {
     /**
      * @test
@@ -145,10 +145,6 @@ class AdvantageTest extends BaseTestCase
      */
     public function testAdvantageStatistics(): void
     {
-        $this->mockRng->expects($this->exactly(2))
-            ->method('generate')
-            ->willReturnOnConsecutiveCalls(7,8);
-
         $expression = $this->phpdice->parse('1d20 advantage');
         $stats = $expression->statistics;
 

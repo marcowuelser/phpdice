@@ -16,15 +16,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \PHPDice\Parser\Lexer
  * @covers \PHPDice\Roller\DiceRoller
  */
-final class PlaceholdersTest extends TestCase
+final class PlaceholdersTest extends BaseTestCase
 {
-    private PHPDice $phpdice;
-
-    protected function setUp(): void
-    {
-        $this->phpdice = new PHPDice();
-    }
-
     /**
      * AC1: Parse with variables, verify placeholder resolution.
      *

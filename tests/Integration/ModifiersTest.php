@@ -11,26 +11,21 @@ use PHPUnit\Framework\Attributes\CoversClass;
  * Integration tests for modifiers and arithmetic (User Story 2).
  */
 #[CoversClass(PHPDice::class)]
-class ModifiersTest extends BaseTestCase
+class ModifiersTest extends BaseTestCaseMock
 {
-    private PHPDice $dice;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->dice = new PHPDice();
-    }
-
     /**
      * Test simple addition modifier.
      */
     public function testSimpleAddition(): void
     {
-        $result = $this->dice->roll('1d20+5');
+        $this->mockRng->expects($this->once())
+            ->method('generate')
+            ->willReturn(10);
+
+        $result = $this->phpdice->roll('1d20+5');
 
         $this->assertCount(1, $result->diceValues);
-        $this->assertGreaterThanOrEqual(6, $result->total); // min: 1+5
-        $this->assertLessThanOrEqual(25, $result->total);   // max: 20+5
+        $this->assertEquals(10+5, $result->total);
     }
 
     /**
@@ -38,11 +33,14 @@ class ModifiersTest extends BaseTestCase
      */
     public function testSimpleSubtraction(): void
     {
-        $result = $this->dice->roll('3d6-2');
+        $this->mockRng->expects($this->exactly(3))
+            ->method('generate')
+            ->willReturnOnConsecutiveCalls(1, 5, 3);
+
+        $result = $this->phpdice->roll('3d6-2');
 
         $this->assertCount(3, $result->diceValues);
-        $this->assertGreaterThanOrEqual(1, $result->total);  // min: 3-2
-        $this->assertLessThanOrEqual(16, $result->total);    // max: 18-2
+        $this->assertEquals(1+5+3-2, $result->total);
     }
 
     /**
@@ -50,11 +48,14 @@ class ModifiersTest extends BaseTestCase
      */
     public function testMultiplication(): void
     {
-        $result = $this->dice->roll('2d6*2');
+        $this->mockRng->expects($this->exactly(2))
+            ->method('generate')
+            ->willReturnOnConsecutiveCalls(1, 5);
+
+        $result = $this->phpdice->roll('2d6*2');
 
         $this->assertCount(2, $result->diceValues);
-        $this->assertGreaterThanOrEqual(4, $result->total);   // min: 2*2
-        $this->assertLessThanOrEqual(24, $result->total);     // max: 12*2
+        $this->assertEquals((1+5)*2, $result->total);
     }
 
     /**
@@ -62,11 +63,14 @@ class ModifiersTest extends BaseTestCase
      */
     public function testDivision(): void
     {
-        $result = $this->dice->roll('1d20/2');
+        $this->mockRng->expects($this->exactly(1))
+            ->method('generate')
+            ->willReturnOnConsecutiveCalls(11);
+
+        $result = $this->phpdice->roll('1d20/2');
 
         $this->assertCount(1, $result->diceValues);
-        $this->assertGreaterThanOrEqual(0.5, $result->total); // min: 1/2
-        $this->assertLessThanOrEqual(10, $result->total);     // max: 20/2
+        $this->assertEquals(5.5, $result->total);
     }
 
     /**
@@ -74,7 +78,7 @@ class ModifiersTest extends BaseTestCase
      */
     public function testParentheses(): void
     {
-        $expression = $this->dice->parse('(2d6+3)*2');
+        $expression = $this->phpdice->parse('(2d6+3)*2');
         $stats = $expression->statistics;
 
         // (2+3)*2 = 10 minimum
@@ -88,12 +92,14 @@ class ModifiersTest extends BaseTestCase
      */
     public function testFloorFunction(): void
     {
-        $result = $this->dice->roll('floor(1d20/2)');
+        $this->mockRng->expects($this->exactly(1))
+            ->method('generate')
+            ->willReturnOnConsecutiveCalls(11);
+
+        $result = $this->phpdice->roll('floor(1d20/2)');
 
         $this->assertCount(1, $result->diceValues);
-        // floor(1/2) = 0, floor(20/2) = 10
-        $this->assertGreaterThanOrEqual(0, $result->total);
-        $this->assertLessThanOrEqual(10, $result->total);
+        $this->assertEquals(5, $result->total);
     }
 
     /**
@@ -101,12 +107,14 @@ class ModifiersTest extends BaseTestCase
      */
     public function testCeilingFunction(): void
     {
-        $result = $this->dice->roll('ceiling(1d20/2)');
+        $this->mockRng->expects($this->exactly(1))
+            ->method('generate')
+            ->willReturnOnConsecutiveCalls(11);
+
+        $result = $this->phpdice->roll('ceil(1d20/2)');
 
         $this->assertCount(1, $result->diceValues);
-        // ceil(1/2) = 1, ceil(20/2) = 10
-        $this->assertGreaterThanOrEqual(0, $result->total);
-        $this->assertLessThanOrEqual(10, $result->total);
+        $this->assertEquals(6, $result->total);
     }
 
     /**
@@ -114,11 +122,14 @@ class ModifiersTest extends BaseTestCase
      */
     public function testRoundFunction(): void
     {
-        $result = $this->dice->roll('round(1d20/2)');
+        $this->mockRng->expects($this->exactly(1))
+            ->method('generate')
+            ->willReturnOnConsecutiveCalls(8);
+
+        $result = $this->phpdice->roll('round(1d20/3)');
 
         $this->assertCount(1, $result->diceValues);
-        $this->assertGreaterThanOrEqual(0, $result->total);
-        $this->assertLessThanOrEqual(10, $result->total);
+        $this->assertEquals(9, $result->total);
     }
 
     /**
@@ -126,7 +137,7 @@ class ModifiersTest extends BaseTestCase
      */
     public function testComplexExpression(): void
     {
-        $expression = $this->dice->parse('(2d6+3)*2-5');
+        $expression = $this->phpdice->parse('(2d6+3)*2-5');
         $stats = $expression->statistics;
 
         // (2+3)*2-5 = 5 minimum
@@ -140,7 +151,7 @@ class ModifiersTest extends BaseTestCase
      */
     public function testStatisticsAddition(): void
     {
-        $expression = $this->dice->parse('3d6+5');
+        $expression = $this->phpdice->parse('3d6+5');
         $stats = $expression->statistics;
 
         $this->assertEquals(8, $stats->minimum);   // 3+5
@@ -153,7 +164,7 @@ class ModifiersTest extends BaseTestCase
      */
     public function testStatisticsMultiplication(): void
     {
-        $expression = $this->dice->parse('2d6*2');
+        $expression = $this->phpdice->parse('2d6*2');
         $stats = $expression->statistics;
 
         $this->assertEquals(4, $stats->minimum);   // 2*2
@@ -170,7 +181,7 @@ class ModifiersTest extends BaseTestCase
         $this->expectExceptionMessage('Division by zero');
 
         // This will fail when we try to roll and evaluate
-        $expression = $this->dice->parse('1d20+0');
-        $result = $this->dice->roll('1d20/0');
+        $expression = $this->phpdice->parse('1d20+0');
+        $result = $this->phpdice->roll('1d20/0');
     }
 }
